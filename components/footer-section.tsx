@@ -12,7 +12,7 @@ export function FooterSection() {
 
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           <Link
-            href="https://wa.me/yournumber"
+            href="https://wa.me/967738360254"
             className="flex items-center gap-3 bg-green-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <svg
@@ -26,14 +26,14 @@ export function FooterSection() {
             واتساب
           </Link>
           <Link
-            href="tel:yournumber"
+            href="tel:+967 738360254"
             className="flex items-center gap-3 bg-blue-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <Phone className="w-5 h-5" />
             اتصال مباشر
           </Link>
           <Link
-            href="https://instagram.com/yourprofile"
+            href="https://www.instagram.com/qimatalshiaka?igsh=NWVkY3hud2ptd3Qw&utm_source=qr"
             className="flex items-center gap-3 bg-gradient-to-br from-purple-600 to-pink-500 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <Instagram className="w-6 h-6" />
@@ -42,7 +42,7 @@ export function FooterSection() {
         </div>
 
         <div className="mt-24 pt-12 border-t border-white/5 text-gray-500 text-sm">
-          © 2024 قمة الشياكة - جميع الحقوق محفوظة لقصة أناقتك.
+          © 2026 قمة الشياكة - جميع الحقوق محفوظة لقصة أناقتك.
         </div>
       </div>
     </footer>
