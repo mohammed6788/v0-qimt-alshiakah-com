@@ -3,7 +3,7 @@ import Link from "next/link"
 export function FloatingWhatsApp() {
   return (
     <Link
-      href="https://wa.me/yournumber"
+      href="https://wa.me/967738360254"
       className="fixed bottom-5 left-5 z-50 bg-green-500 text-white w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-2xl hover:scale-110 transition-transform duration-300"
       aria-label="تواصل معنا عبر واتساب"
     >
