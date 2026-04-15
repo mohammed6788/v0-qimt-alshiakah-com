@@ -8,7 +8,7 @@ export function LocationSection() {
         <div className="flex-1 w-full">
           <div className="rounded-3xl overflow-hidden h-80 sm:h-96 border-4 border-secondary shadow-xl">
             <iframe
-              src="https://maps.app.goo.gl/ZFsgUUkoquzwGaeo8?g_st=ic"
+              src="https://share.google/ceCPT5n7tSQEpXwzr"
               width="100%"
               height="100%"
               style={{ border: 0 }}
