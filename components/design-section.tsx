@@ -31,7 +31,7 @@ export function DesignSection() {
           </ul>
 
           <Link
-            href="https://wa.me/yournumber?text=أريد تصميم ثوب جديد"
+            href="https://wa.me/967738360254?text=أريد تصميم ثوب جديد"
             className="btn-gold inline-flex items-center gap-2 px-8 sm:px-12 py-4 rounded-xl text-black font-bold text-lg sm:text-xl"
           >
             <svg
