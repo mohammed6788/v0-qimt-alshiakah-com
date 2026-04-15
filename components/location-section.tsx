@@ -8,7 +8,8 @@ export function LocationSection() {
         <div className="flex-1 w-full">
           <div className="rounded-3xl overflow-hidden h-80 sm:h-96 border-4 border-secondary shadow-xl">
             <iframe
-              src="<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.1619458018968!2d49.122192299999995!3d14.532727599999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3de8e5121df0b77b%3A0x17a2f38c265e252c!2z2K7Zitin2Lcg2YLZhdipINin2YTYtNmK2KfZg9ipIHwg2YTYo9it2K_YqyDYp9mE2KfZgtmF2LTYqSDYp9mE2LHYrNin2YTZitip!5e0!3m2!1sar!2s!4v1776211979329!5m2!1sar!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>"
+              src="<iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.1619458018968!2d49.122192299999995!3d14.532727599999996!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3de8e5121df0b77b%3A0x17a2f38c265e252c!2z2K7Zitin2Lcg2YLZhdipINin2YTYtNmK2KfZg9ipIHwg2YTYo9it2K_YqyDYp9mE2KfZgtmF2LTYqSDYp9mE2LHYrNin2YTZitip!5e0!3m2!1sar!2s!4v1776211979329!5m2!1sar!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>"
               width="100%"
               height="100%"
               style={{ border: 0 }}
