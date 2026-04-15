@@ -83,7 +83,7 @@ export function Navigation() {
               </Link>
             ))}
             <Link
-              href="https://wa.me/yournumber"
+              href="https://wa.me/967738360254"
               className="btn-gold px-6 py-3 rounded-full font-bold text-black text-center mt-4"
               onClick={() => setIsOpen(false)}
             >
