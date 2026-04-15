@@ -51,7 +51,7 @@ export function Navigation() {
 
         <div className="flex items-center gap-4">
           <Link
-            href="https://wa.me/yournumber"
+            href="https://wa.me/967738360254"
             className="btn-gold px-6 py-2 rounded-full font-bold text-black text-sm hidden sm:block"
           >
             احجز الآن
