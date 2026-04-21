@@ -1,10 +1,22 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Phone, Instagram } from "lucide-react"
+import { LOGOS, CONTACT } from "@/lib/constants"
 
 export function FooterSection() {
   return (
     <footer id="contact" className="py-20 px-5 bg-black text-white border-t border-gold/30">
       <div className="max-w-4xl mx-auto text-center">
+        <div className="mb-8 flex justify-center">
+          <div className="w-24 h-24 relative">
+            <Image
+              src={LOGOS.default}
+              alt="قمة الشياكة"
+              fill
+              className="object-contain"
+            />
+          </div>
+        </div>
         <h2 className="text-4xl sm:text-5xl font-bold mb-6 italic">جاهز ترفع مستواك؟</h2>
         <p className="text-gray-400 mb-12 text-lg sm:text-xl">
           لا تتردد في التواصل معنا، نحن بانتظارك
@@ -12,7 +24,7 @@ export function FooterSection() {
 
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           <Link
-            href="https://wa.me/967738360254"
+            href={CONTACT.whatsapp}
             className="flex items-center gap-3 bg-green-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <svg
@@ -26,14 +38,14 @@ export function FooterSection() {
             واتساب
           </Link>
           <Link
-            href="tel:+967 738360254"
+            href={`tel:${CONTACT.phone}`}
             className="flex items-center gap-3 bg-blue-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <Phone className="w-5 h-5" />
             اتصال مباشر
           </Link>
           <Link
-            href="https://www.instagram.com/qimatalshiaka?igsh=NWVkY3hud2ptd3Qw&utm_source=qr"
+            href={CONTACT.instagram}
             className="flex items-center gap-3 bg-gradient-to-br from-purple-600 to-pink-500 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <Instagram className="w-6 h-6" />

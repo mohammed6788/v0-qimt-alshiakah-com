@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Menu, X } from "lucide-react"
+import { LOGOS, CONTACT } from "@/lib/constants"
 
 const navLinks = [
   { href: "#home", label: "الرئيسية" },
@@ -32,8 +34,17 @@ export function Navigation() {
       } backdrop-blur-md text-white px-6 border-b border-gold/20`}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="#home" className="text-2xl font-bold gold-gradient">
-          قمة الشياكة
+        <Link href="#home" className="flex items-center gap-3">
+          <div className="w-12 h-12 relative">
+            <Image
+              src={LOGOS.default}
+              alt="قمة الشياكة"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+          <span className="text-2xl font-bold gold-gradient">قمة الشياكة</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -51,7 +62,7 @@ export function Navigation() {
 
         <div className="flex items-center gap-4">
           <Link
-            href="https://wa.me/967738360254"
+            href={CONTACT.whatsapp}
             className="btn-gold px-6 py-2 rounded-full font-bold text-black text-sm hidden sm:block"
           >
             احجز الآن
@@ -83,7 +94,7 @@ export function Navigation() {
               </Link>
             ))}
             <Link
-              href="https://wa.me/967738360254"
+              href={CONTACT.whatsapp}
               className="btn-gold px-6 py-3 rounded-full font-bold text-black text-center mt-4"
               onClick={() => setIsOpen(false)}
             >
