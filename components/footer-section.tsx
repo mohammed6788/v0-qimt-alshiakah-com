@@ -1,7 +1,18 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Phone, Instagram } from "lucide-react"
 import { LOGOS, CONTACT } from "@/lib/constants"
+
+const handleWhatsAppClick = () => {
+  // Track conversion to Google Ads
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'conversion', {
+      'send_to': 'AW-18082853572/Q_umCKiWrKAcEMTlya5D'
+    });
+  }
+}
 
 export function FooterSection() {
   return (
@@ -25,6 +36,7 @@ export function FooterSection() {
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           <Link
             href={CONTACT.whatsapp}
+            onClick={handleWhatsAppClick}
             className="flex items-center gap-3 bg-green-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <svg
