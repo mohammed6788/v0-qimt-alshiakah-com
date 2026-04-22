@@ -1,22 +1,11 @@
 import Image from "next/image"
+import { PRODUCTS } from "@/lib/constants"
 
-const galleryItems = [
-  {
-    src: "https://images.unsplash.com/photo-1593032465175-481ac7f401a0?w=600",
-    alt: "ثوب جاهز",
-    label: "تصاميم مميزة",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600",
-    alt: "قماش فخم",
-    label: "ترندات جديدة",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1614031679232-0dae79606d73?w=600",
-    alt: "خياطة دقيقة",
-    label: "قبل / بعد",
-  },
-]
+const galleryItems = PRODUCTS.map((product) => ({
+  src: product.image,
+  alt: product.title,
+  label: product.type,
+}))
 
 export function GallerySection() {
   return (
