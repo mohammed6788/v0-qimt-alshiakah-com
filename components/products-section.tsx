@@ -56,11 +56,16 @@ export function ProductsSection() {
                 <p className="text-gray-400 text-sm leading-relaxed h-12 line-clamp-2">
                   {product.description}
                 </p>
-                <div className="pt-4 border-t border-gold/20">
-                  <p className="text-3xl font-black text-gold">
-                    {product.price.toLocaleString("ar-YE")} <span className="text-lg">{product.currency}</span>
+                <div className="pt-4 border-t border-gold/20 space-y-3">
+                  <div>
+                    <p className="text-3xl font-black text-gold">
+                      {product.price.toLocaleString("ar-YE")} <span className="text-lg">{product.currency}</span>
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">سعر تفصيل الثوب</p>
+                  </div>
+                  <p className="text-xs text-gold font-bold bg-gold/10 px-3 py-2 rounded-lg">
+                    للحصول على خصم تواصل معنا
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">السعر الأساسي للمتر</p>
                 </div>
               </div>
             </div>

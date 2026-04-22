@@ -51,7 +51,7 @@ export const PRODUCTS = [
     title: "مقلم مع خلية",
     titleEn: "Striped Honeycomb",
     description: "قماش صيني بنقشة مقلم مع خلية النحل راقية وفاخرة",
-    price: 28000,
+    price: 44900,
     currency: "ر.ي",
     image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1776816174191-3RmZIAS8OaYMqvTtYEAC7WpeUOUlFZ.png",
     tag: "صيني",
