@@ -4,12 +4,7 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="relative flex items-center justify-center text-center px-4 pt-20 min-h-[90vh]"
-      style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1594932224828-94e00507ed63?q=80&w=2000&auto=format&fit=crop')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+      className="relative flex items-center justify-center text-center px-4 pt-20 min-h-[90vh] bg-gradient-to-b from-black via-black/95 to-black"
     >
       <div className="max-w-3xl">
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-6 leading-tight text-balance">

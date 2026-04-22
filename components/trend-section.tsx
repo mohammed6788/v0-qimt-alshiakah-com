@@ -1,5 +1,3 @@
-import Image from "next/image"
-
 export function TrendSection() {
   return (
     <section className="bg-black py-16 px-6 overflow-hidden">
@@ -15,35 +13,23 @@ export function TrendSection() {
             قماش خلية النحل مع مقلم <br />
             أناقة هادئة… لكن تأثيرها صاخب
           </p>
-          <div className="flex gap-4">
-            <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gold/30">
-              <Image
-                src="https://images.unsplash.com/photo-1589310243389-96a5483213a8?w=400"
-                alt="قماش خلية نحل"
-                fill
-                className="object-cover"
-              />
+          <div className="flex gap-4 pt-4">
+            <div className="flex items-center justify-center w-32 h-32 rounded-lg bg-gold/10 border border-gold/30">
+              <span className="text-gold font-bold text-center text-sm">نقشة خلية النحل</span>
             </div>
-            <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gold/30">
-              <Image
-                src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400"
-                alt="تفاصيل الثوب"
-                fill
-                className="object-cover"
-              />
+            <div className="flex items-center justify-center w-32 h-32 rounded-lg bg-gold/10 border border-gold/30">
+              <span className="text-gold font-bold text-center text-sm">تفاصيل دقيقة</span>
             </div>
           </div>
         </div>
         <div className="relative">
-          <div className="absolute inset-0 bg-gold blur-3xl opacity-10" />
-          <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
-            <Image
-              src="https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=800"
-              alt="ثوب جاهز فخم"
-              width={800}
-              height={600}
-              className="w-full h-auto"
-            />
+          <div className="absolute inset-0 bg-gold blur-3xl opacity-10 rounded-2xl" />
+          <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/30 p-12">
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <span className="text-5xl mb-4">✨</span>
+              <h3 className="text-2xl font-bold text-gold">جودة فاخرة</h3>
+              <p className="text-gray-400 mt-2">أقمشة يابانية وكورية وتايلاندية</p>
+            </div>
           </div>
         </div>
       </div>
