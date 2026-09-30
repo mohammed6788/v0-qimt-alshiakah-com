@@ -3,7 +3,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { PRODUCTS, CONTACT } from "@/lib/constants"
+import { PRODUCTS, CONTACT, whatsappHref } from "@/lib/constants"
+import { trackWhatsAppClick } from "@/lib/analytics"
 
 export function ProductsSection() {
   return (
@@ -29,14 +30,17 @@ export function ProductsSection() {
                   alt={product.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  priority={product.id <= 3}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
                   <Link
-                    href={`${CONTACT.whatsapp}?text=أريد معرفة المزيد عن ${product.title}`}
+                    href={whatsappHref(`أرغب بمعرفة سعر وتوفر ${product.title}`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppClick(`product_${product.id}`)}
                     className="w-full bg-gold text-black py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-white transition-colors"
                   >
-                    صمّم مثله <ArrowLeft size={18} />
+                    استفسر عن القماش <ArrowLeft size={18} />
                   </Link>
                 </div>
                 <div className="absolute top-6 right-6 bg-gold text-black text-[10px] font-black uppercase px-4 py-2 rounded-full tracking-tight">
@@ -61,10 +65,10 @@ export function ProductsSection() {
                     <p className="text-3xl font-black text-gold">
                       {product.price.toLocaleString("ar-YE")} <span className="text-lg">{product.currency}</span>
                     </p>
-                    <p className="text-xs text-gray-500 mt-2">سعر تفصيل الثوب</p>
+                    <p className="text-xs text-gray-500 mt-2">السعر المعروض للقماش</p>
                   </div>
                   <p className="text-xs text-gold font-bold bg-gold/10 px-3 py-2 rounded-lg">
-                    للحصول على خصم تواصل معنا
+                    اسألنا عن توفر القماش والسعر
                   </p>
                 </div>
               </div>
@@ -74,7 +78,10 @@ export function ProductsSection() {
 
         <div className="mt-20 text-center">
           <Link
-            href={CONTACT.whatsapp}
+            href={whatsappHref("السلام عليكم، أود معرفة الأقمشة المتوفرة وأسعارها وطريقة حجز تفصيل ثوب.")}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick("products_whatsapp")}
             className="inline-flex items-center gap-3 bg-gold text-black px-12 py-5 rounded-2xl font-black text-lg hover:bg-white transition-all duration-300 shadow-lg shadow-gold/30"
           >
             تصفح جميع الأقمشة والتصاميم

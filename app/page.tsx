@@ -10,10 +10,42 @@ import { TestimonialsSection } from "@/components/testimonials-section"
 import { LocationSection } from "@/components/location-section"
 import { FooterSection } from "@/components/footer-section"
 import { FloatingWhatsApp } from "@/components/floating-whatsapp"
+import { BRAND, CONTACT, LOGOS } from "@/lib/constants"
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Tailor",
+  name: BRAND.name,
+  url: "https://qimt-alshiakah.com",
+  telephone: "+967738360254",
+  image: LOGOS.default,
+  description:
+    "تفصيل ثياب رجالية حسب الطلب واختيار الأقمشة في الشرج، المكلا، حضرموت.",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "الشرج، خلف دلة حضرموت للبهارات",
+    addressLocality: "المكلا",
+    addressRegion: "حضرموت",
+    addressCountry: "YE",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 14.5327276,
+    longitude: 49.1221924,
+  },
+  hasMap: CONTACT.maps,
+  sameAs: [CONTACT.instagram],
+}
 
 export default function Home() {
   return (
-    <main>
+    <main id="main-content">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
       <Navigation />
       <HeroSection />
       <TrendSection />

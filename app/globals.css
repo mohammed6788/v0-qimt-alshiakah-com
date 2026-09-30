@@ -89,6 +89,17 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    scroll-padding-top: 5rem;
+  }
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+  a:focus-visible,
+  button:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+  }
 }
 
 /* Custom utilities */
