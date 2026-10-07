@@ -6,7 +6,6 @@ import { ServicesSection } from "@/components/services-section"
 import { ProductsSection } from "@/components/products-section"
 import { DesignSection } from "@/components/design-section"
 import { GallerySection } from "@/components/gallery-section"
-import { TestimonialsSection } from "@/components/testimonials-section"
 import { LocationSection } from "@/components/location-section"
 import { FooterSection } from "@/components/footer-section"
 import { FloatingWhatsApp } from "@/components/floating-whatsapp"
@@ -14,7 +13,7 @@ import { BRAND, CONTACT, LOGOS } from "@/lib/constants"
 
 const structuredData = {
   "@context": "https://schema.org",
-  "@type": "Tailor",
+  "@type": ["LocalBusiness", "Tailor"],
   name: BRAND.name,
   url: "https://qimt-alshiakah.com",
   telephone: "+967738360254",
@@ -54,7 +53,6 @@ export default function Home() {
       <ProductsSection />
       <DesignSection />
       <GallerySection />
-      <TestimonialsSection />
       <LocationSection />
       <FooterSection />
       <FloatingWhatsApp />

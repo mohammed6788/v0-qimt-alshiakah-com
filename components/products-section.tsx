@@ -3,20 +3,41 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { useEffect, useRef } from "react"
 import { PRODUCTS, CONTACT, whatsappHref } from "@/lib/constants"
-import { trackWhatsAppClick } from "@/lib/analytics"
+import { trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 
 export function ProductsSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          trackEvent("Products Viewed", { product_count: PRODUCTS.length })
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.25 },
+    )
+
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <section id="products" className="py-24 bg-black text-white">
+    <section ref={sectionRef} id="products" className="py-20 sm:py-24 bg-black text-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
           <div className="space-y-4">
             <h2 className="text-4xl md:text-6xl font-black">
-              مجموعة <span className="text-gold">الأقمشة</span>
+              أقمشة <span className="text-gold">قمة الشياكة</span>
             </h2>
             <p className="text-gray-400 max-w-md leading-relaxed">
-              تشكيلة متميزة من أفخر الأقمشة العالمية والمحلية بأسعار منافسة تستحق الثقة
+              اختر القماش المناسب، وشاهد السعر المعروض قبل التواصل لتأكيد التوفر والتفصيل.
             </p>
           </div>
         </div>
@@ -37,10 +58,10 @@ export function ProductsSection() {
                     href={whatsappHref(`أرغب بمعرفة سعر وتوفر ${product.title}`)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppClick(`product_${product.id}`)}
+                    onClick={() => trackWhatsAppClick(`product_inquiry_${product.id}`)}
                     className="w-full bg-gold text-black py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-white transition-colors"
                   >
-                    استفسر عن القماش <ArrowLeft size={18} />
+                    استفسر عن القماش <ArrowLeft size={18} aria-hidden="true" />
                   </Link>
                 </div>
                 <div className="absolute top-6 right-6 bg-gold text-black text-[10px] font-black uppercase px-4 py-2 rounded-full tracking-tight">
@@ -84,8 +105,8 @@ export function ProductsSection() {
             onClick={() => trackWhatsAppClick("products_whatsapp")}
             className="inline-flex items-center gap-3 bg-gold text-black px-12 py-5 rounded-2xl font-black text-lg hover:bg-white transition-all duration-300 shadow-lg shadow-gold/30"
           >
-            تصفح جميع الأقمشة والتصاميم
-            <ArrowLeft size={20} />
+            استفسر عن الأقمشة المتوفرة
+            <ArrowLeft size={20} aria-hidden="true" />
           </Link>
         </div>
       </div>

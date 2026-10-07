@@ -1,9 +1,13 @@
+"use client"
+
 import Link from "next/link"
 import { MapPin } from "lucide-react"
+import { CONTACT } from "@/lib/constants"
+import { trackEvent } from "@/lib/analytics"
 
 export function LocationSection() {
   return (
-    <section className="py-20 px-5 bg-card">
+    <section id="location" className="py-20 px-5 bg-card">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
         <div className="flex-1 w-full">
           <div className="rounded-3xl overflow-hidden h-80 sm:h-96 border-4 border-secondary shadow-xl">
@@ -29,9 +33,10 @@ export function LocationSection() {
             </span>
           </p>
           <Link
-            href="https://www.google.com/maps/place/%D8%AE%D9%8A%D8%A7%D8%B7+%D9%82%D9%85%D8%A9+%D8%A7%D9%84%D8%B4%D9%8A%D8%A7%D9%83%D8%A9+%7C+%D9%84%D8%A3%D8%AD%D8%AF%D8%AB+%D8%A7%D9%84%D8%A7%D9%82%D9%85%D8%B4%D8%A9+%D8%A7%D9%84%D8%B1%D8%AC%D8%A7%D9%84%D9%8A%D8%A9%D8%8C+%D8%B4%D8%A7%D8%B1%D8%B9+%D8%A7%D9%84%D8%AD%D8%B7%D8%A8+%D9%88%D8%A7%D9%84%D8%B1%D9%85%D8%A7%D9%85+%D9%85%D9%82%D8%A7%D8%A8%D9%84+%D9%83%D8%B4%D8%AE%D8%A9+%D9%8A%D8%A7%D8%B9%D9%8A%D8%A7%D9%84%D8%8C+%D8%A7%D9%84%D9%85%D9%83%D9%84%D8%A7%D8%8C+%D8%A7%D9%84%D9%8A%D9%85%D9%86&ftid=0x3de8e5121df0b77b:0x17a2f38c265e252c&entry=gps"
+            href={CONTACT.maps}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackEvent("Map Click", { placement: "location_section" })}
             className="bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gold hover:text-black transition-colors duration-300 inline-block"
           >
             افتح الموقع في الخريطة

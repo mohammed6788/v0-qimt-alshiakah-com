@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Phone, Instagram } from "lucide-react"
 import { LOGOS, CONTACT, whatsappHref } from "@/lib/constants"
-import { trackWhatsAppClick } from "@/lib/analytics"
+import { trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 
 export function FooterSection() {
   return (
@@ -21,9 +21,9 @@ export function FooterSection() {
             />
           </div>
         </div>
-        <h2 className="text-4xl sm:text-5xl font-bold mb-6 italic">جاهز ترفع مستواك؟</h2>
+        <h2 className="text-4xl sm:text-5xl font-bold mb-6">جاهز تطلب ثوبك؟</h2>
         <p className="text-gray-400 mb-12 text-lg sm:text-xl">
-          لا تتردد في التواصل معنا، نحن بانتظارك
+          تواصل معنا لتأكيد القماش والمقاس والتفاصيل قبل الطلب.
         </p>
 
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
@@ -46,6 +46,7 @@ export function FooterSection() {
           </Link>
           <Link
             href={`tel:${CONTACT.phone}`}
+            onClick={() => trackEvent("Phone Click", { placement: "footer" })}
             className="flex items-center gap-3 bg-blue-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <Phone className="w-5 h-5" />

@@ -13,9 +13,9 @@ export function GallerySection() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-4">
           <h2 className="text-3xl sm:text-4xl font-bold italic underline decoration-gold underline-offset-8">
-            شوف الشغل قبل لا تحكم
+            صور <span className="text-gold">الأقمشة المتوفرة</span>
           </h2>
-          <div className="text-gold hidden md:block">معرض أعمال قمة الشياكة</div>
+          <div className="text-gold hidden md:block">تصفح التفاصيل قبل الاستفسار</div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

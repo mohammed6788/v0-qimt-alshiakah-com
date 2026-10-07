@@ -1,4 +1,4 @@
-import { Scissors, Ruler, Handshake, Zap } from "lucide-react"
+import { Scissors, Ruler, Handshake, MapPin } from "lucide-react"
 
 const services = [
   {
@@ -17,9 +17,9 @@ const services = [
     description: "نساعدك تختار أنسب نوع قماش وتصميم للمناسبة.",
   },
   {
-    icon: Zap,
-    title: "تنفيذ سريع",
-    description: "جودة عالية في وقت قياسي لضمان رضاك التام.",
+    icon: MapPin,
+    title: "في المكلا - الشرج",
+    description: "تواصل معنا أو زر المعرض لتحديد ما يناسب طلبك.",
   },
 ]
 
@@ -28,7 +28,7 @@ export function ServicesSection() {
     <section id="services" className="py-20 px-5 bg-secondary">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-center text-3xl sm:text-4xl font-bold mb-16">
-          إيش نقدّم لك؟
+          لماذا قمة الشياكة؟
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.map((service, index) => (
