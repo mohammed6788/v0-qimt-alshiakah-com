@@ -48,7 +48,7 @@ export function ProductsSection() {
               <div className="relative aspect-[3/4] rounded-[30px] overflow-hidden bg-gray-900 border border-gold/10 mb-8">
                 <Image
                   src={product.image}
-                  alt={product.title}
+                  alt={`${product.title} - قماش ${product.type}`}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

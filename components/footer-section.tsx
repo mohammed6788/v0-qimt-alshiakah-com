@@ -6,6 +6,12 @@ import { Phone, Instagram } from "lucide-react"
 import { LOGOS, CONTACT, whatsappHref } from "@/lib/constants"
 import { trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 
+const quickLinks = [
+  { href: "#products", label: "الأقمشة والأسعار" },
+  { href: "#design", label: "احجز موعدًا" },
+  { href: "#location", label: "موقع المعرض" },
+]
+
 export function FooterSection() {
   return (
     <footer id="contact" className="py-20 px-5 bg-black text-white border-t border-gold/30">
@@ -54,12 +60,22 @@ export function FooterSection() {
           </Link>
           <Link
             href={CONTACT.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-3 bg-gradient-to-br from-purple-600 to-pink-500 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <Instagram className="w-6 h-6" />
             إنستقرام
           </Link>
         </div>
+
+        <nav aria-label="روابط سريعة" className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-gray-300">
+          {quickLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="hover:text-gold transition-colors">
+              {link.label}
+            </Link>
+          ))}
+        </nav>
 
         <div className="mt-24 pt-12 border-t border-white/5 text-gray-500 text-sm">
           © 2026 قمة الشياكة - جميع الحقوق محفوظة لقصة أناقتك.

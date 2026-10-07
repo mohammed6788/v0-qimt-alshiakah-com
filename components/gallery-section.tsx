@@ -3,7 +3,7 @@ import { PRODUCTS } from "@/lib/constants"
 
 const galleryItems = PRODUCTS.map((product) => ({
   src: product.image,
-  alt: product.title,
+  alt: `${product.title} - قماش ${product.type}`,
   label: product.type,
 }))
 

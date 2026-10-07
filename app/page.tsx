@@ -14,10 +14,12 @@ import { BRAND, CONTACT, LOGOS } from "@/lib/constants"
 const structuredData = {
   "@context": "https://schema.org",
   "@type": ["LocalBusiness", "Tailor"],
+  "@id": "https://qimt-alshiakah.com/#business",
   name: BRAND.name,
   url: "https://qimt-alshiakah.com",
   telephone: "+967738360254",
   image: LOGOS.default,
+  logo: LOGOS.default,
   description:
     "تفصيل ثياب رجالية حسب الطلب واختيار الأقمشة في الشرج، المكلا، حضرموت.",
   address: {
@@ -34,6 +36,12 @@ const structuredData = {
   },
   hasMap: CONTACT.maps,
   sameAs: [CONTACT.instagram],
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+967738360254",
+    contactType: "customer service",
+    availableLanguage: "ar",
+  },
 }
 
 export default function Home() {
