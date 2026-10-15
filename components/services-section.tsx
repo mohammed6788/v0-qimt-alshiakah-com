@@ -25,22 +25,22 @@ const services = [
 
 export function ServicesSection() {
   return (
-    <section id="services" className="py-20 px-5 bg-secondary">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-center text-3xl sm:text-4xl font-bold mb-16">
+    <section id="services" className="bg-secondary px-5 py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl">
+        <h2 className="mb-12 text-center text-3xl font-bold sm:mb-16 sm:text-4xl">
           لماذا قمة الشياكة؟
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {services.map((service, index) => (
             <div
               key={index}
-              className="text-center p-8 bg-card rounded-2xl card-shadow hover:-translate-y-2 transition duration-300"
+              className="rounded-2xl border border-black/5 bg-card p-5 text-center sm:p-7"
             >
-              <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <service.icon className="w-7 h-7 text-gold" />
+              <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-gold/10 sm:mb-5 sm:size-14">
+                <service.icon className="size-6 text-gold" aria-hidden="true" />
               </div>
-              <h3 className="font-bold text-xl mb-4">{service.title}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <h3 className="mb-2 font-bold sm:text-lg">{service.title}</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 {service.description}
               </p>
             </div>

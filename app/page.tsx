@@ -46,7 +46,7 @@ const structuredData = {
 
 export default function Home() {
   return (
-    <main id="main-content">
+    <main id="main-content" className="pb-24 sm:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

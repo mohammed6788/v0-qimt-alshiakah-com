@@ -1,11 +1,11 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { useEffect, useRef } from "react"
-import { PRODUCTS, CONTACT, whatsappHref } from "@/lib/constants"
-import { trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { PRODUCTS, whatsappHref } from "@/lib/constants"
+import { trackEvent } from "@/lib/analytics"
+import { WhatsAppLink } from "@/components/whatsapp-link"
 
 export function ProductsSection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -29,85 +29,66 @@ export function ProductsSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="products" className="py-20 sm:py-24 bg-black text-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
-          <div className="space-y-4">
-            <h2 className="text-4xl md:text-6xl font-black">
-              أقمشة <span className="text-gold">قمة الشياكة</span>
-            </h2>
-            <p className="text-gray-400 max-w-md leading-relaxed">
-              اختر القماش المناسب، وشاهد السعر المعروض قبل التواصل لتأكيد التوفر والتفصيل.
-            </p>
-          </div>
+    <section ref={sectionRef} id="products" className="bg-black py-20 text-white sm:py-28">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6">
+        <div className="mb-12 max-w-xl space-y-4 sm:mb-16">
+          <h2 className="text-4xl font-black md:text-6xl">
+            أقمشة <span className="text-gold">قمة الشياكة</span>
+          </h2>
+          <p className="leading-relaxed text-gray-400">
+            اختر القماش، راجع السعر، ثم أرسل استفسارك لتأكيد التوفر.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
           {PRODUCTS.map((product) => (
-            <div key={product.id} className="group">
-              <div className="relative aspect-[3/4] rounded-[30px] overflow-hidden bg-gray-900 border border-gold/10 mb-8">
+            <article key={product.id} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-gray-900">
                 <Image
                   src={product.image}
                   alt={`${product.title} - قماش ${product.type}`}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
-                  <Link
-                    href={whatsappHref(`أرغب بمعرفة سعر وتوفر ${product.title}`)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppClick("whatsapp_fabric", `product_inquiry_${product.id}`)}
-                    className="w-full bg-gold text-black py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-white transition-colors"
-                  >
-                    استفسر عن القماش <ArrowLeft size={18} aria-hidden="true" />
-                  </Link>
-                </div>
-                <div className="absolute top-6 right-6 bg-gold text-black text-[10px] font-black uppercase px-4 py-2 rounded-full tracking-tight">
+                <div className="absolute right-4 top-4 rounded-full bg-black/65 px-3 py-1.5 text-xs font-bold text-gold backdrop-blur-sm">
                   {product.tag}
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gold font-bold uppercase tracking-widest mb-2">
-                    {product.type}
-                  </p>
-                  <h3 className="text-2xl font-black group-hover:text-gold transition-colors line-clamp-2">
-                    {product.title}
-                  </h3>
-                </div>
-                <p className="text-gray-400 text-sm leading-relaxed h-12 line-clamp-2">
-                  {product.description}
-                </p>
-                <div className="pt-4 border-t border-gold/20 space-y-3">
+              <div className="space-y-4 px-2 pb-2 pt-5">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-3xl font-black text-gold">
-                      {product.price.toLocaleString("ar-YE")} <span className="text-lg">{product.currency}</span>
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">السعر المعروض للقماش</p>
+                    <p className="mb-1 text-xs font-bold tracking-widest text-gold">{product.type}</p>
+                    <h3 className="text-2xl font-black transition-colors group-hover:text-gold">{product.title}</h3>
                   </div>
-                  <p className="text-xs text-gold font-bold bg-gold/10 px-3 py-2 rounded-lg">
-                    اسألنا عن توفر القماش والسعر
+                  <p className="shrink-0 text-2xl font-black text-gold">
+                    {product.price.toLocaleString("ar-YE")} <span className="text-lg">{product.currency}</span>
                   </p>
                 </div>
+                <WhatsAppLink
+                  href={whatsappHref(`أرغب بمعرفة سعر وتوفر ${product.title}`)}
+                  intent="whatsapp_fabric"
+                  placement={`product_inquiry_${product.id}`}
+                  className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-gold/40 px-4 py-3 font-bold text-gold transition-colors hover:bg-gold hover:text-black"
+                >
+                  اطلب عبر واتساب <ArrowLeft size={18} aria-hidden="true" />
+                </WhatsAppLink>
               </div>
-            </div>
+            </article>
           ))}
         </div>
 
-        <div className="mt-20 text-center">
-          <Link
+        <div className="mt-14 text-center sm:mt-20">
+          <WhatsAppLink
             href={whatsappHref("السلام عليكم، أود معرفة الأقمشة المتوفرة وأسعارها وطريقة حجز تفصيل ثوب.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackWhatsAppClick("whatsapp_fabric", "products_whatsapp")}
-            className="inline-flex items-center gap-3 bg-gold text-black px-12 py-5 rounded-2xl font-black text-lg hover:bg-white transition-all duration-300 shadow-lg shadow-gold/30"
+            intent="whatsapp_fabric"
+            placement="products_whatsapp"
+            className="inline-flex min-h-14 items-center gap-3 rounded-2xl bg-gold px-8 py-4 text-lg font-black text-black shadow-lg shadow-gold/20 transition-all hover:bg-white sm:px-12"
           >
             استفسر عن الأقمشة المتوفرة
             <ArrowLeft size={20} aria-hidden="true" />
-          </Link>
+          </WhatsAppLink>
         </div>
       </div>
     </section>
