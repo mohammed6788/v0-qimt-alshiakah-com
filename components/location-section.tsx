@@ -36,7 +36,7 @@ export function LocationSection() {
             href={CONTACT.maps}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackEvent("Map Click", { placement: "location_section" })}
+            onClick={() => trackEvent("map_click", { placement: "location_section" })}
             className="bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gold hover:text-black transition-colors duration-300 inline-block"
           >
             افتح الموقع في الخريطة

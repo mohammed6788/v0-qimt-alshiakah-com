@@ -33,6 +33,7 @@ export function DesignSection() {
 
           <WhatsAppLink
             href={whatsappHref("السلام عليكم، أرغب في حجز تفصيل ثوب جديد. ما الخطوات والمواعيد المتاحة؟")}
+            intent="whatsapp_booking"
             placement="design_booking"
             className="btn-gold inline-flex items-center gap-2 px-8 sm:px-12 py-4 rounded-xl text-black font-bold text-lg sm:text-xl"
           >
@@ -41,6 +42,7 @@ export function DesignSection() {
           </WhatsAppLink>
           <WhatsAppLink
             href={whatsappHref("السلام عليكم، أريد معرفة طريقة أخذ المقاس لتفصيل ثوب من قمة الشياكة.")}
+            intent="whatsapp_measurement"
             placement="size_inquiry"
             className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-gold underline underline-offset-4"
           >

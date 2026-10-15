@@ -10,7 +10,7 @@ export function FloatingWhatsApp() {
       href={whatsappHref("السلام عليكم، أرغب في حجز تفصيل ثوب. ما خطوات الطلب؟")}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() => trackWhatsAppClick("floating_button")}
+      onClick={() => trackWhatsAppClick("whatsapp_booking", "floating_button")}
       className="fixed bottom-5 left-5 z-50 bg-green-500 text-white w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl sm:text-3xl shadow-2xl hover:scale-110 transition-transform duration-300"
       aria-label="احجز تفصيل ثوبك عبر واتساب"
       title="احجز عبر واتساب"

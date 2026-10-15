@@ -17,7 +17,7 @@ export function ProductsSection() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          trackEvent("Products Viewed", { product_count: PRODUCTS.length })
+          trackEvent("product_view", { product_count: PRODUCTS.length })
           observer.disconnect()
         }
       },
@@ -58,7 +58,7 @@ export function ProductsSection() {
                     href={whatsappHref(`أرغب بمعرفة سعر وتوفر ${product.title}`)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppClick(`product_inquiry_${product.id}`)}
+                    onClick={() => trackWhatsAppClick("whatsapp_fabric", `product_inquiry_${product.id}`)}
                     className="w-full bg-gold text-black py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-white transition-colors"
                   >
                     استفسر عن القماش <ArrowLeft size={18} aria-hidden="true" />
@@ -102,7 +102,7 @@ export function ProductsSection() {
             href={whatsappHref("السلام عليكم، أود معرفة الأقمشة المتوفرة وأسعارها وطريقة حجز تفصيل ثوب.")}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackWhatsAppClick("products_whatsapp")}
+            onClick={() => trackWhatsAppClick("whatsapp_fabric", "products_whatsapp")}
             className="inline-flex items-center gap-3 bg-gold text-black px-12 py-5 rounded-2xl font-black text-lg hover:bg-white transition-all duration-300 shadow-lg shadow-gold/30"
           >
             استفسر عن الأقمشة المتوفرة

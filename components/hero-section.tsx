@@ -23,6 +23,7 @@ export function HeroSection() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <WhatsAppLink
             href={whatsappHref("السلام عليكم، أريد تفصيل ثوب من قمة الشياكة وأريد معرفة الأسعار والمقاسات.")}
+            intent="whatsapp_order"
             placement="hero_order"
             className="btn-gold inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 rounded-xl text-black font-bold text-lg"
           >

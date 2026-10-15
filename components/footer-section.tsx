@@ -37,7 +37,7 @@ export function FooterSection() {
             href={whatsappHref("السلام عليكم، أود الاستفسار عن حجز تفصيل ثوب.")}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackWhatsAppClick("footer_whatsapp")}
+            onClick={() => trackWhatsAppClick("whatsapp_general", "footer_whatsapp")}
             className="flex items-center gap-3 bg-green-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <svg
@@ -52,7 +52,7 @@ export function FooterSection() {
           </Link>
           <Link
             href={`tel:${CONTACT.phone}`}
-            onClick={() => trackEvent("Phone Click", { placement: "footer" })}
+            onClick={() => trackEvent("phone_click", { placement: "footer" })}
             className="flex items-center gap-3 bg-blue-600 px-6 sm:px-8 py-4 rounded-full font-bold hover:scale-105 transition-transform duration-300"
           >
             <Phone className="w-5 h-5" />

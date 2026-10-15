@@ -70,7 +70,7 @@ export function Navigation() {
             href={whatsappHref("السلام عليكم، أرغب في حجز موعد لتفصيل ثوب. ما المواعيد المتاحة؟")}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackWhatsAppClick("navigation_desktop")}
+            onClick={() => trackWhatsAppClick("whatsapp_booking", "navigation_desktop")}
             className="btn-gold px-6 py-2 rounded-full font-bold text-black text-sm hidden sm:block"
           >
             احجز الآن
@@ -113,7 +113,7 @@ export function Navigation() {
             rel="noopener noreferrer"
             onClick={() => {
               setIsOpen(false)
-              trackWhatsAppClick("navigation_mobile")
+              trackWhatsAppClick("whatsapp_booking", "navigation_mobile")
             }}
             className="btn-gold px-6 py-3 rounded-full font-bold text-black text-center mt-4"
           >

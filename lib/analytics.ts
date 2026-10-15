@@ -17,13 +17,20 @@ export function trackEvent(name: string, properties: EventProperties = {}) {
   track(name, properties)
 }
 
-export function trackWhatsAppClick(placement: string) {
-  trackEvent("WhatsApp Click", { placement })
+export type WhatsAppIntent =
+  | "whatsapp_order"
+  | "whatsapp_booking"
+  | "whatsapp_measurement"
+  | "whatsapp_fabric"
+  | "whatsapp_general"
+
+export function trackWhatsAppClick(intent: WhatsAppIntent, placement: string) {
+  trackEvent(intent, { placement })
   if (typeof window === "undefined") return
 
   window.gtag?.("event", "conversion", {
     send_to: "AW-18082853572/Q_umCKiWrKAcEMTlya5D",
     event_category: "engagement",
-    event_label: placement,
+    event_label: `${intent}:${placement}`,
   })
 }
