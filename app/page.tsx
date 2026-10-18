@@ -5,7 +5,6 @@ import { AboutSection } from "@/components/about-section"
 import { ServicesSection } from "@/components/services-section"
 import { ProductsSection } from "@/components/products-section"
 import { DesignSection } from "@/components/design-section"
-import { GallerySection } from "@/components/gallery-section"
 import { LocationSection } from "@/components/location-section"
 import { FooterSection } from "@/components/footer-section"
 import { FloatingWhatsApp } from "@/components/floating-whatsapp"
@@ -60,7 +59,6 @@ export default function Home() {
       <ServicesSection />
       <ProductsSection />
       <DesignSection />
-      <GallerySection />
       <LocationSection />
       <FooterSection />
       <FloatingWhatsApp />

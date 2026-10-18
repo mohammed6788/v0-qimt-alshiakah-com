@@ -1,17 +1,15 @@
 import Link from "next/link"
-import Image from "next/image"
 import { MapPin, MessageCircle, Scissors } from "lucide-react"
 import { WhatsAppLink } from "@/components/whatsapp-link"
-import { PRODUCTS, whatsappHref } from "@/lib/constants"
+import { whatsappHref } from "@/lib/constants"
 
 export function HeroSection() {
   return (
     <section
       id="home"
-      className="relative isolate flex min-h-[88svh] items-end justify-center overflow-hidden bg-black px-5 pb-16 pt-28 text-center sm:items-center sm:pb-20"
+      className="relative isolate flex min-h-[78svh] items-end justify-center overflow-hidden bg-[#161512] px-5 pb-16 pt-28 text-center sm:items-center sm:pb-20"
     >
-      <Image src={PRODUCTS[0].image} alt="" fill priority sizes="100vw" className="object-cover object-center opacity-30" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-black" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(197,160,89,0.2),_transparent_42%)]" aria-hidden="true" />
       <div className="relative z-10 max-w-3xl">
         <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/40 px-4 py-2 text-sm font-bold text-gold backdrop-blur-sm">
           <MapPin className="size-4" aria-hidden="true" />
@@ -41,7 +39,7 @@ export function HeroSection() {
             شاهد الأقمشة
           </Link>
         </div>
-        <p className="mt-6 text-sm text-gray-300">الأسعار المعروضة للقماش، والتوفر يُؤكّد عبر واتساب.</p>
+        <p className="mt-6 text-sm text-gray-300">لمعرفة الأسعار والتوفر، تواصل معنا عبر واتساب.</p>
       </div>
     </section>
   )
