@@ -62,6 +62,9 @@ export default function RootLayout({
         <Script id="google-ads" strategy="afterInteractive">
           {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', 'AW-18082853572');`}
         </Script>
+        <Script id="metricool-tracker" strategy="afterInteractive">
+          {`function loadMetricoolScript(callback) { var head = document.getElementsByTagName("head")[0]; var script = document.createElement("script"); script.type = "text/javascript"; script.src = "https://tracker.metricool.com/resources/be.js"; script.onreadystatechange = callback; script.onload = callback; head.appendChild(script); } loadMetricoolScript(function() { window.beTracker.t({ hash: "47da2d348e05148c5b1465a7ef9563f2" }); });`}
+        </Script>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
