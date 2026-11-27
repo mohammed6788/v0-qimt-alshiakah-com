@@ -27,7 +27,14 @@ export function trackEvent(name: string, properties: EventProperties = {}) {
 // parameters: no names, phone numbers, measurements or free text.
 // ─────────────────────────────────────────────────────────────
 
-export type GaEventName = "view_fabric" | "select_fabric" | "design_thobe" | "whatsapp_click" | "order_submit"
+// The site only reports what it can actually observe. A WhatsApp order message
+// being opened is a *lead*, not a sale:
+//   1. whatsapp_click / whatsapp_order_start  → sent from the site (this file)
+//   2. order_confirmed (shop staff confirmed) → NOT sent from the site
+//   3. purchase (real revenue)                → NOT sent from the site
+// Stages 2 and 3 are recorded later from the shop's own records, using the
+// order reference (QS-0001…) — see docs/analytics/README.md.
+export type GaEventName = "view_fabric" | "select_fabric" | "design_thobe" | "whatsapp_click" | "whatsapp_order_start"
 
 const GA_PARAMS = new Set([
   "fabric",
@@ -39,9 +46,14 @@ const GA_PARAMS = new Set([
   "measure_mode",
   "city_type",
   "numbered",
-  "value",
-  "currency",
+  // Estimated order value, kept apart from GA4's revenue/value fields on purpose.
+  "estimated_value",
+  "estimated_currency",
+  "order_ref",
 ])
+
+/** Order references look like QS-0001; anything else is dropped. */
+const ORDER_REF = /^QS-\d{4,8}$/
 
 /** Rejects anything that could be personal data (phone-like digit runs, e-mails) and long text. */
 function safeValue(v: unknown): string | number | boolean | undefined {
@@ -57,6 +69,10 @@ export function gaParams(params: Record<string, unknown>) {
   const out: Record<string, string | number | boolean> = {}
   for (const [k, v] of Object.entries(params)) {
     if (!GA_PARAMS.has(k)) continue
+    if (k === "order_ref") {
+      if (typeof v === "string" && ORDER_REF.test(v)) out[k] = v
+      continue
+    }
     const safe = safeValue(v)
     if (safe !== undefined) out[k] = safe
   }
@@ -84,9 +100,10 @@ export type WhatsAppIntent =
   | "whatsapp_design_order"
   | "whatsapp_reorder"
 
-/** WhatsApp links that submit an order are reported as order_submit instead of whatsapp_click. */
+/** WhatsApp links that start an order are reported as whatsapp_order_start instead of whatsapp_click. */
 const ORDER_INTENTS: WhatsAppIntent[] = ["whatsapp_design_order", "whatsapp_reorder"]
 
+/** Google Ads conversion (unchanged): fired for every WhatsApp contact, once per order for order links. */
 export function trackWhatsAppClick(intent: WhatsAppIntent, placement: string) {
   trackEvent(intent, { placement })
   if (typeof window === "undefined") return
@@ -99,6 +116,56 @@ export function trackWhatsAppClick(intent: WhatsAppIntent, placement: string) {
   })
 }
 
+// Orders already reported in this page session (one per distinct order).
+const startedOrders = new Set<string>()
+
+type OrderStartParams = {
+  flow: "design" | "reorder"
+  fabric?: string
+  quantity?: number
+  customer_type?: string
+  measure_mode?: string
+  city_type?: string
+  orderRef?: string | null
+  /** Price × quantity shown to the customer; an estimate until the shop confirms. */
+  estimatedValue?: number
+}
+
+/**
+ * The customer opened WhatsApp with a ready order message. This is the start of a
+ * conversation, not a confirmed order or a sale. Reported once per distinct order:
+ * tapping "send" again for the same order is not counted again (GA4 or Google Ads).
+ * Returns true when it was reported.
+ */
+export function trackWhatsAppOrderStart(
+  orderKey: string,
+  intent: Extract<WhatsAppIntent, "whatsapp_design_order" | "whatsapp_reorder">,
+  placement: string,
+  p: OrderStartParams,
+) {
+  if (startedOrders.has(orderKey)) {
+    trackEvent(intent, { placement, repeat: true })
+    return false
+  }
+  startedOrders.add(orderKey)
+  const params = {
+    flow: p.flow,
+    fabric: p.fabric,
+    quantity: p.quantity,
+    customer_type: p.customer_type,
+    measure_mode: p.measure_mode,
+    city_type: p.city_type,
+    numbered: !!p.orderRef,
+    order_ref: p.orderRef ?? undefined,
+    ...(p.estimatedValue !== undefined && { estimated_value: p.estimatedValue, estimated_currency: "YER" }),
+  }
+  const internal = Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined)) as EventProperties
+  trackEvent(EVENTS.whatsappOrderStart, internal)
+  gaEvent("whatsapp_order_start", params)
+  trackWhatsAppClick(intent, placement) // keeps the existing Google Ads conversion
+  return true
+}
+
 /** Named funnel events used across the site (kept in one place to avoid typos). */
 export const EVENTS = {
   fabricListView: "fabric_list_view",
@@ -107,7 +174,8 @@ export const EVENTS = {
   fabricSearch: "fabric_search",
   designStart: "design_start",
   designStep: "design_step",
-  orderSubmit: "order_submit",
+  whatsappOrderStart: "whatsapp_order_start",
+  measurementsSent: "measurements_sent",
   measurementsSaved: "measurements_saved",
   measurementsCleared: "measurements_cleared",
   phoneClick: "phone_click",

@@ -28,7 +28,7 @@ import {
 } from "@/components/design/sections"
 import { CONTACT, PRICE_LABEL, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
 import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
-import { EVENTS, gaEvent, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { EVENTS, gaEvent, trackEvent, trackWhatsAppOrderStart } from "@/lib/analytics"
 import {
   BUTTONS,
   COLLARS,
@@ -135,7 +135,6 @@ export function DesignBuilder() {
   const topRef = useRef<HTMLDivElement>(null)
   const firstStepRender = useRef(true)
   const designTracked = useRef(false)
-  const lastSubmitted = useRef<string | null>(null)
 
   const set = useCallback((patch: Partial<DesignState>) => setSt((p) => ({ ...p, ...patch })), [])
   const setC = (patch: Partial<Customer>) => setCustomer((p) => ({ ...p, ...patch }))
@@ -312,32 +311,19 @@ export function DesignBuilder() {
       })
       if (ok) trackEvent(EVENTS.measurementsSaved, { placement: "design_builder" })
     }
-    trackEvent(EVENTS.orderSubmit, {
+    // Opening WhatsApp with the order is a lead, not a confirmed order or a sale.
+    // The key only lives in memory to skip repeats of the same order; it is never sent.
+    const unit = getProduct(st.fabric)?.price
+    trackWhatsAppOrderStart(JSON.stringify(orderDetails), "whatsapp_design_order", "design_review", {
       flow: "design",
       fabric: st.fabric,
       quantity: st.quantity,
       customer_type: st.customerType,
       measure_mode: st.newMode || st.returningMode,
       city_type: customer.cityMode,
-      numbered: !!number,
+      orderRef: number,
+      estimatedValue: unit !== undefined ? unit * st.quantity : undefined,
     })
-    trackWhatsAppClick("whatsapp_design_order", "design_review")
-    // One order_submit per distinct order: re-tapping "send" for the same order is not counted again.
-    const orderKey = JSON.stringify(orderDetails)
-    if (lastSubmitted.current !== orderKey) {
-      lastSubmitted.current = orderKey
-      const unit = getProduct(st.fabric)?.price
-      gaEvent("order_submit", {
-        flow: "design",
-        fabric: st.fabric,
-        quantity: st.quantity,
-        customer_type: st.customerType,
-        measure_mode: st.newMode || st.returningMode,
-        city_type: customer.cityMode,
-        numbered: !!number,
-        ...(unit !== undefined && { value: unit * st.quantity, currency: "YER" }),
-      })
-    }
     setSent(true)
   }
 

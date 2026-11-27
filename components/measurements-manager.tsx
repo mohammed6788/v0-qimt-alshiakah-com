@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Lock, Pencil, RotateCcw, Save, Scissors, ShieldCheck, Trash2 } from "lucide-react"
 import { MeasurementFields } from "@/components/design/measurement-fields"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { CONTACT, PRODUCTS, whatsappHref } from "@/lib/constants"
 import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
-import { EVENTS, gaEvent, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { EVENTS, trackEvent, trackWhatsAppClick, trackWhatsAppOrderStart } from "@/lib/analytics"
 import {
   MEASUREMENT_FIELDS,
   MEASUREMENT_UNIT,
@@ -42,7 +42,6 @@ export function MeasurementsManager() {
   const [verifyPhone, setVerifyPhone] = useState("")
   const [verifyError, setVerifyError] = useState("")
   const [sending, setSending] = useState(false)
-  const lastReorder = useRef<string | null>(null)
   const [orderNumber, setOrderNumber] = useState<string | null>(null)
 
   useEffect(() => {
@@ -109,7 +108,7 @@ export function MeasurementsManager() {
       if (saveProfile(p)) setProfile(p)
     }
     trackWhatsAppClick("whatsapp_measurement", "measurements_send_to_shop")
-    trackEvent(EVENTS.orderSubmit, { flow: "measurements" })
+    trackEvent(EVENTS.measurementsSent, { placement: "measurements_page" })
   }
 
   const startEdit = () => {
@@ -177,14 +176,16 @@ export function MeasurementsManager() {
     if (number) setOrderNumber(number)
     navigateTo(win, whatsappHref(reorderMessage(number ?? undefined)))
     setSending(false)
-    trackWhatsAppClick("whatsapp_reorder", "measurements_reorder")
-    trackEvent(EVENTS.orderSubmit, { flow: "reorder", fabric: reorderFabric || "same", quantity: reorderQty, numbered: !!number })
-    // Count each distinct re-order once, even if "send" is tapped again.
-    const orderKey = `${reorderFabric}|${reorderQty}|${number ?? ""}`
-    if (lastReorder.current !== orderKey) {
-      lastReorder.current = orderKey
-      gaEvent("order_submit", { flow: "reorder", fabric: reorderFabric || "same", quantity: reorderQty, numbered: !!number })
-    }
+    // A re-order opened in WhatsApp is a lead, not a confirmed order or a sale.
+    const unit = reorderFabric ? PRODUCTS.find((p) => p.slug === reorderFabric)?.price : undefined
+    trackWhatsAppOrderStart(`reorder|${reorderFabric}|${reorderQty}|${number ?? ""}`, "whatsapp_reorder", "measurements_reorder", {
+      flow: "reorder",
+      fabric: reorderFabric || "same",
+      quantity: reorderQty,
+      customer_type: "returning",
+      orderRef: number,
+      estimatedValue: unit !== undefined ? unit * reorderQty : undefined,
+    })
   }
 
   if (!ready) return <div className="card-surface h-72 animate-pulse" aria-hidden="true" />
