@@ -1,8 +1,8 @@
 "use client"
 
 import { Phone } from "lucide-react"
-import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/site/brand-icons"
-import { CONTACT, whatsappHref } from "@/lib/constants"
+import { SOCIAL_ICONS, WhatsAppIcon } from "@/components/site/brand-icons"
+import { CONTACT, SOCIAL_LINKS, whatsappHref } from "@/lib/constants"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 
 const CHANNELS = [
@@ -16,13 +16,43 @@ const CHANNELS = [
     external: true,
   },
   { id: "phone", title: "اتصال مباشر", value: CONTACT.phoneDisplay, href: `tel:${CONTACT.phone}`, icon: Phone, external: false },
-  { id: "instagram", title: "إنستغرام", value: "تابع أحدث الأقمشة", href: CONTACT.instagram, icon: InstagramIcon, external: true },
-  { id: "tiktok", title: "تيك توك", value: "@qimtalshiakah", href: CONTACT.tiktok, icon: TikTokIcon, external: true },
 ] as const
+
+/** All social accounts share one username. */
+export function SocialRow({ placement }: { placement: string }) {
+  return (
+    <div className="card-surface mt-3 flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <p className="font-bold text-navy">
+        تابعنا على جميع المنصات: <span dir="ltr" className="text-navy-soft">@{CONTACT.handle}</span>
+      </p>
+      <ul className="flex flex-wrap gap-2">
+        {SOCIAL_LINKS.map((l) => {
+          const Icon = SOCIAL_ICONS[l.id]
+          return (
+            <li key={l.id}>
+              <a
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={l.label}
+                title={l.label}
+                onClick={() => trackEvent(EVENTS.socialClick, { network: l.id, placement })}
+                className="flex size-11 items-center justify-center rounded-xl bg-navy text-sky transition-colors hover:bg-navy-soft"
+              >
+                <Icon />
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
 
 export function ContactChannels() {
   return (
-    <ul className="-mt-8 grid grid-cols-2 gap-3 sm:-mt-10 lg:grid-cols-4">
+    <>
+    <ul className="-mt-8 grid grid-cols-2 gap-3 sm:-mt-10">
       {CHANNELS.map((c) => (
         <li key={c.id}>
           <a
@@ -30,8 +60,7 @@ export function ContactChannels() {
             {...(c.external && { target: "_blank", rel: "noopener noreferrer" })}
             onClick={() => {
               if (c.id === "whatsapp") trackWhatsAppClick("whatsapp_general", "contact_page")
-              else if (c.id === "phone") trackEvent(EVENTS.phoneClick, { placement: "contact_page" })
-              else trackEvent(EVENTS.socialClick, { network: c.id, placement: "contact_page" })
+              else trackEvent(EVENTS.phoneClick, { placement: "contact_page" })
             }}
             className={
               "card-surface flex h-full flex-col items-start gap-3 p-4 transition-colors sm:p-5 " +
@@ -51,5 +80,7 @@ export function ContactChannels() {
         </li>
       ))}
     </ul>
+    <SocialRow placement="contact_page" />
+    </>
   )
 }

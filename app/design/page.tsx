@@ -21,7 +21,7 @@ export default function DesignPage() {
       <PageHeader
         eyebrow="تجربة التفصيل"
         title="صمّم ثوبك على ذوقك"
-        description="ثماني خطوات سريعة، ويصلنا طلبك منظماً عبر واتساب لنؤكد معك السعر النهائي وموعد الاستلام."
+        description="ثماني خطوات سريعة، ويصلنا طلبك منظماً عبر واتساب لنؤكد معك التفاصيل والسعر وموعد الاستلام."
         breadcrumb={[{ href: "/design", label: "صمم ثوبك" }]}
       />
       <section className="bg-ivory pb-28 sm:pb-20">

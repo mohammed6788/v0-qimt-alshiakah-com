@@ -29,6 +29,7 @@ export const IMAGES = {
 }
 
 const WHATSAPP_NUMBER = "967738360254"
+const SOCIAL_HANDLE = "qimtalshiakah"
 
 export const CONTACT = {
   whatsappNumber: WHATSAPP_NUMBER,
@@ -48,10 +49,22 @@ export const CONTACT = {
   maps: "https://www.google.com/maps/place/%D8%AE%D9%8A%D8%A7%D8%B7+%D9%82%D9%85%D8%A9+%D8%A7%D9%84%D8%B4%D9%8A%D8%A7%D9%83%D8%A9+%7C+%D9%84%D8%A3%D8%AD%D8%AF%D8%AB+%D8%A7%D9%84%D8%A7%D9%82%D9%85%D8%B4%D8%A9+%D8%A7%D9%84%D8%B1%D8%AC%D8%A7%D9%84%D9%8A%D8%A9%D8%8C+%D8%B4%D8%A7%D8%B1%D8%B9+%D8%A7%D9%84%D8%AD%D8%B7%D8%A8+%D9%88%D8%A7%D9%84%D8%B1%D9%85%D8%A7%D9%85+%D9%85%D9%82%D8%A7%D8%A8%D9%84+%D9%83%D8%B4%D8%AE%D8%A9+%D9%8A%D8%A7%D8%B9%D9%8A%D8%A7%D9%84%D8%8C+%D8%A7%D9%84%D9%85%D9%83%D9%84%D8%A7%D8%8C+%D8%A7%D9%84%D9%8A%D9%85%D9%86&ftid=0x3de8e5121df0b77b:0x17a2f38c265e252c&entry=gps",
   mapsEmbed: "https://maps.google.com/maps?q=14.5327276,49.1221924&z=17&hl=ar&output=embed",
   group: "https://chat.whatsapp.com/HKGNCX1JnWR9dWqLczwbf9?mode=gi_t",
-  instagram: "https://www.instagram.com/qimatalshiaka?igsh=NWVkY3hud2ptd3Qw&utm_source=qr",
-  // Handle printed on the brand banner (@qimtalshiakah).
-  tiktok: "https://www.tiktok.com/@qimtalshiakah",
+  // One unified username across every platform.
+  handle: SOCIAL_HANDLE,
+  instagram: `https://www.instagram.com/${SOCIAL_HANDLE}`,
+  tiktok: `https://www.tiktok.com/@${SOCIAL_HANDLE}`,
+  facebook: `https://www.facebook.com/${SOCIAL_HANDLE}`,
+  youtube: `https://www.youtube.com/@${SOCIAL_HANDLE}`,
+  x: `https://x.com/${SOCIAL_HANDLE}`,
 }
+
+export const SOCIAL_LINKS = [
+  { id: "instagram", label: "إنستغرام", href: CONTACT.instagram },
+  { id: "tiktok", label: "تيك توك", href: CONTACT.tiktok },
+  { id: "facebook", label: "فيسبوك", href: CONTACT.facebook },
+  { id: "youtube", label: "يوتيوب", href: CONTACT.youtube },
+  { id: "x", label: "إكس", href: CONTACT.x },
+] as const
 
 export const FULL_ADDRESS = `${CONTACT.address.region} – ${CONTACT.address.city} – ${CONTACT.address.district}، ${CONTACT.address.street}`
 
@@ -164,6 +177,10 @@ export const PRODUCTS: Product[] = [
     origin: "تايلاند",
   },
 ]
+
+// Prices are kept in the data but hidden on the site by the owner's request.
+// Set to true to show prices again everywhere (cards, details, messages).
+export const SHOW_PRICES = false
 
 // The business's last published label for the listed price.
 export const PRICE_LABEL = "سعر تفصيل الثوب"

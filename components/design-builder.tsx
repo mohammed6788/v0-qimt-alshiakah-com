@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { ArrowLeft, ArrowRight, Check, Pencil, ShieldCheck } from "lucide-react"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
-import { PRODUCTS, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
+import { PRODUCTS, getProduct, whatsappHref } from "@/lib/constants"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
   BUTTONS,
@@ -294,8 +294,7 @@ export function DesignBuilder() {
                   </span>
                   <span className="min-w-0">
                     <span className="block font-bold text-navy">{p.title}</span>
-                    <span className="block text-sm text-muted-foreground">{p.origin}</span>
-                    <span className="block text-sm font-bold text-navy-soft">{formatPrice(p.price, p.currency)}</span>
+                    <span className="block text-sm text-muted-foreground">قماش {p.type}</span>
                   </span>
                 </ChoiceCard>
               ))}
@@ -493,7 +492,7 @@ export function DesignBuilder() {
 
               {sent && (
                 <p className="rounded-xl bg-emerald-50 p-4 text-sm font-bold text-emerald-800" role="status">
-                  تم تجهيز طلبك برقم {orderRef}. أكمل الإرسال من واتساب، وسنرد عليك لتأكيد السعر النهائي وموعد الاستلام.
+                  تم تجهيز طلبك برقم {orderRef}. أكمل الإرسال من واتساب، وسنرد عليك لتأكيد التفاصيل والسعر وموعد الاستلام.
                 </p>
               )}
             </div>
@@ -535,7 +534,7 @@ export function DesignBuilder() {
               </span>
               <span>
                 <span className="block font-bold text-navy">{product.title}</span>
-                <span className="block text-sm text-navy-soft">{formatPrice(product.price, product.currency)}</span>
+                <span className="block text-sm text-navy-soft">قماش {product.type}</span>
               </span>
             </div>
           )}
@@ -682,7 +681,7 @@ function SummaryList({
   onEdit: (i: number) => void
 }) {
   const rows: { k: string; v: string; step: number }[] = [
-    { k: "القماش", v: product ? `${product.title} – ${formatPrice(product.price, product.currency)}` : "مساعدة في الاختيار", step: 0 },
+    { k: "القماش", v: product ? `${product.title} – ${product.type}` : "مساعدة في الاختيار", step: 0 },
     { k: "اللون", v: colorLabel, step: 1 },
     { k: "الطراز / الياقة", v: [label(THOBE_STYLES, s.style), label(COLLARS, s.collar)].filter(Boolean).join(" · "), step: 2 },
     { k: "الأكمام", v: label(SLEEVES, s.sleeve), step: 3 },

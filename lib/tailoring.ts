@@ -1,7 +1,7 @@
 // Thobe design options, measurement fields, and the unified WhatsApp
 // order-message builder shared by every ordering flow on the site.
 
-import { BRAND, formatPrice, type Product } from "@/lib/constants"
+import { BRAND, SHOW_PRICES, formatPrice, type Product } from "@/lib/constants"
 
 export type Option = { id: string; label: string; hint?: string }
 
@@ -177,7 +177,7 @@ export function buildOrderMessage(o: OrderDetails) {
 
   const thobe: string[] = []
   if (o.fabric) {
-    const price = o.fabric.price ? ` (${formatPrice(o.fabric.price, o.fabric.currency)})` : ""
+    const price = SHOW_PRICES && o.fabric.price ? ` (${formatPrice(o.fabric.price, o.fabric.currency)})` : ""
     thobe.push(`القماش: ${o.fabric.title}${price}`)
   }
   if (o.color) thobe.push(`اللون: ${o.color}`)
@@ -198,6 +198,6 @@ export function buildOrderMessage(o: OrderDetails) {
 
   if (o.notes && o.notes.trim()) lines.push("*ملاحظات*", o.notes.trim(), "")
 
-  lines.push("أرجو تأكيد الطلب والسعر النهائي وموعد الاستلام. شكراً.")
+  lines.push("أرجو تأكيد الطلب والسعر وموعد الاستلام. شكراً.")
   return lines.join("\n")
 }

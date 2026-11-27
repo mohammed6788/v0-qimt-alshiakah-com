@@ -26,3 +26,35 @@ export function InstagramIcon({ className = "size-5" }: IconProps) {
     </svg>
   )
 }
+
+export function FacebookIcon({ className = "size-5" }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.5 21.95V14h2.66l.4-3.1H13.5V8.93c0-.9.25-1.5 1.54-1.5h1.64V4.66a22 22 0 0 0-2.39-.12c-2.37 0-3.99 1.44-3.99 4.1v2.26H7.62V14h2.68v7.95a10 10 0 1 1 3.2 0Z" />
+    </svg>
+  )
+}
+
+export function YouTubeIcon({ className = "size-5" }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
+    </svg>
+  )
+}
+
+export function XIcon({ className = "size-5" }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64Z" />
+    </svg>
+  )
+}
+
+export const SOCIAL_ICONS = {
+  instagram: InstagramIcon,
+  tiktok: TikTokIcon,
+  facebook: FacebookIcon,
+  youtube: YouTubeIcon,
+  x: XIcon,
+} as const

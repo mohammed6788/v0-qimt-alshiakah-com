@@ -9,7 +9,7 @@ import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { TrackView } from "@/components/track-view"
 import { TrackedLink } from "@/components/tracked-link"
 import { JsonLd } from "@/components/json-ld"
-import { BRAND, PRODUCTS, SITE_URL, getProduct, whatsappHref } from "@/lib/constants"
+import { BRAND, PRODUCTS, SHOW_PRICES, SITE_URL, getProduct, whatsappHref } from "@/lib/constants"
 import { EVENTS } from "@/lib/analytics"
 import { breadcrumbSchema } from "@/lib/breadcrumbs"
 
@@ -55,7 +55,7 @@ export default async function FabricDetailPage({ params }: Params) {
     category: "أقمشة ثياب رجالية",
     ...(product.origin && { countryOfOrigin: product.origin }),
     brand: { "@type": "Brand", name: BRAND.name },
-    offers: {
+    ...(SHOW_PRICES ? { offers: {
       "@type": "Offer",
       price: product.price,
       priceCurrency: "YER",
@@ -68,7 +68,7 @@ export default async function FabricDetailPage({ params }: Params) {
           out_of_stock: "https://schema.org/OutOfStock",
         }[product.availability],
       }),
-    },
+    } } : {}),
   }
 
   return (
@@ -107,9 +107,7 @@ export default async function FabricDetailPage({ params }: Params) {
 
             <div className="flex flex-col">
               <div className="flex flex-wrap items-center gap-2">
-                {product.origin && (
-                  <span className="rounded-full border border-navy/15 px-3 py-1 text-sm font-bold text-navy-soft">المنشأ: {product.origin}</span>
-                )}
+                <span className="rounded-full bg-navy px-3 py-1 text-sm font-bold text-white">قماش {product.type}</span>
                 <AvailabilityBadge product={product} className="text-sm" />
               </div>
               <h1 className="mt-4 text-3xl font-extrabold text-navy sm:text-4xl">{product.title}</h1>
@@ -118,8 +116,20 @@ export default async function FabricDetailPage({ params }: Params) {
 
               <div className="mt-6 rounded-2xl border border-navy/10 bg-white p-5">
                 <PriceBlock product={product} large />
-                <p className="mt-3 text-sm text-muted-foreground">
-                  يتم تأكيد السعر النهائي والألوان المتوفرة وموعد التسليم عند الطلب عبر واتساب.
+                <dl className="grid grid-cols-2 gap-4">
+                  <div>
+                    <dt className="text-xs text-muted-foreground">نوع القماش</dt>
+                    <dd className="mt-1 font-extrabold text-navy">{product.type}</dd>
+                  </div>
+                  {product.origin && (
+                    <div>
+                      <dt className="text-xs text-muted-foreground">المنشأ</dt>
+                      <dd className="mt-1 font-extrabold text-navy">{product.origin}</dd>
+                    </div>
+                  )}
+                </dl>
+                <p className="mt-4 border-t border-navy/10 pt-4 text-sm text-muted-foreground">
+                  للسعر والألوان المتوفرة وموعد التسليم، تواصل معنا عبر واتساب.
                 </p>
               </div>
 

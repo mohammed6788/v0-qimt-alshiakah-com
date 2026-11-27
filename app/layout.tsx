@@ -88,7 +88,7 @@ const businessSchema = {
     { "@type": "AdministrativeArea", name: "حضرموت" },
     { "@type": "Country", name: "اليمن" },
   ],
-  sameAs: [CONTACT.instagram, CONTACT.tiktok],
+  sameAs: [CONTACT.instagram, CONTACT.tiktok, CONTACT.facebook, CONTACT.youtube, CONTACT.x],
   contactPoint: [
     {
       "@type": "ContactPoint",

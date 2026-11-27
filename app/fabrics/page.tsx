@@ -7,9 +7,9 @@ import { PRODUCTS, SITE_URL } from "@/lib/constants"
 import { breadcrumbSchema } from "@/lib/breadcrumbs"
 
 export const metadata: Metadata = {
-  title: "أقمشة ثياب رجالية – الأسعار والأنواع",
+  title: "أقمشة ثياب رجالية – الأنواع والمناشئ",
   description:
-    "تصفح أقمشة الثياب الرجالية في قمة الشياكة بالمكلا: ياباني، كوري، صيني وتايلاندي. قارن الأسعار والمنشأ واطلب القماش وتفصيل ثوبك عبر واتساب.",
+    "تصفح أقمشة الثياب الرجالية في قمة الشياكة بالمكلا: ياباني، كوري، صيني وتايلاندي. تعرّف على الأنواع واطلب القماش وتفصيل ثوبك عبر واتساب.",
   alternates: { canonical: "/fabrics" },
   openGraph: { url: `${SITE_URL}/fabrics`, title: "أقمشة ثياب رجالية | قمة الشياكة" },
 }
@@ -34,14 +34,14 @@ export default function FabricsPage() {
       <PageHeader
         eyebrow="كتالوج الأقمشة"
         title="أقمشة ثياب رجالية مختارة"
-        description="قارن بين الأقمشة حسب المنشأ والسعر، ثم اطلب القماش مباشرة عبر واتساب أو صمّم ثوبك خطوة بخطوة."
+        description="تصفّح أنواع الأقمشة: ياباني، كوري، صيني وتايلاندي، ثم اطلب القماش مباشرة عبر واتساب أو صمّم ثوبك خطوة بخطوة."
         breadcrumb={[{ href: "/fabrics", label: "الأقمشة" }]}
       />
       <section className="bg-ivory pb-20">
         <div className="container-site">
           <FabricCatalog />
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            الأسعار المعروضة حسب آخر تحديث من المحل، ويتم تأكيد السعر النهائي والتوفر والألوان عند الطلب عبر واتساب.
+            للسعر والتوفر والألوان المتاحة، تواصل معنا عبر واتساب.
           </p>
         </div>
       </section>

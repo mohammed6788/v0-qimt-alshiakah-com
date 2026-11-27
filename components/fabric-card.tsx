@@ -7,6 +7,7 @@ import {
   AVAILABILITY_LABEL,
   AVAILABILITY_UNKNOWN,
   PRICE_LABEL,
+  SHOW_PRICES,
   formatPrice,
   whatsappHref,
   type Product,
@@ -52,6 +53,7 @@ export function AvailabilityBadge({ product, className }: { product: Product; cl
 }
 
 export function PriceBlock({ product, large }: { product: Product; large?: boolean }) {
+  if (!SHOW_PRICES) return null
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
   return (
     <div>
@@ -98,11 +100,7 @@ export function FabricCard({ product, priority }: { product: Product; priority?:
 
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-          {product.origin && (
-            <span className="rounded-full border border-navy/15 px-2.5 py-1 font-bold text-navy-soft">
-              المنشأ: {product.origin}
-            </span>
-          )}
+          <span className="rounded-full bg-navy px-2.5 py-1 font-bold text-white">قماش {product.type}</span>
           <AvailabilityBadge product={product} />
         </div>
         <h3 className="text-xl font-extrabold text-navy">
@@ -117,11 +115,13 @@ export function FabricCard({ product, priority }: { product: Product; priority?:
         </h3>
         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
 
-        <div className="mt-4 border-t border-navy/10 pt-4">
-          <PriceBlock product={product} />
-        </div>
+        {SHOW_PRICES && (
+          <div className="mt-4 border-t border-navy/10 pt-4">
+            <PriceBlock product={product} />
+          </div>
+        )}
 
-        <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
+        <div className="mt-auto grid pt-5 grid-cols-[1fr_auto] gap-2">
           <WhatsAppLink
             href={whatsappHref(fabricWhatsAppMessage(product))}
             intent="whatsapp_fabric"

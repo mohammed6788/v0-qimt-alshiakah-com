@@ -3,9 +3,9 @@
 import Link from "next/link"
 import { MapPin, Phone } from "lucide-react"
 import { Logo } from "@/components/site/logo"
-import { InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/site/brand-icons"
+import { SOCIAL_ICONS, WhatsAppIcon } from "@/components/site/brand-icons"
 import { NAV_LINKS } from "@/components/navigation"
-import { BRAND, CONTACT, FULL_ADDRESS, whatsappHref } from "@/lib/constants"
+import { BRAND, CONTACT, FULL_ADDRESS, SOCIAL_LINKS, whatsappHref } from "@/lib/constants"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 
 export function FooterSection() {
@@ -63,28 +63,25 @@ export function FooterSection() {
               <span className="leading-relaxed">{FULL_ADDRESS}</span>
             </li>
           </ul>
-          <div className="mt-5 flex gap-2">
-            <a
-              href={CONTACT.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="إنستغرام قمة الشياكة"
-              onClick={() => trackEvent(EVENTS.socialClick, { network: "instagram", placement: "footer" })}
-              className="flex size-11 items-center justify-center rounded-xl border border-white/15 hover:border-sky hover:text-sky"
-            >
-              <InstagramIcon />
-            </a>
-            <a
-              href={CONTACT.tiktok}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="تيك توك قمة الشياكة"
-              onClick={() => trackEvent(EVENTS.socialClick, { network: "tiktok", placement: "footer" })}
-              className="flex size-11 items-center justify-center rounded-xl border border-white/15 hover:border-sky hover:text-sky"
-            >
-              <TikTokIcon />
-            </a>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {SOCIAL_LINKS.map((l) => {
+              const Icon = SOCIAL_ICONS[l.id]
+              return (
+                <a
+                  key={l.id}
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${l.label} قمة الشياكة`}
+                  onClick={() => trackEvent(EVENTS.socialClick, { network: l.id, placement: "footer" })}
+                  className="flex size-11 items-center justify-center rounded-xl border border-white/15 hover:border-sky hover:text-sky"
+                >
+                  <Icon />
+                </a>
+              )
+            })}
           </div>
+          <p className="mt-3 text-sm text-silver-dark" dir="ltr">@{CONTACT.handle}</p>
         </div>
       </div>
 
