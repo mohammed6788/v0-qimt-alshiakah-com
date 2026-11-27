@@ -1,125 +1,134 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Menu, X } from "lucide-react"
-import { LOGOS, CONTACT, whatsappHref } from "@/lib/constants"
+import { Logo } from "@/components/site/logo"
+import { WhatsAppIcon } from "@/components/site/brand-icons"
+import { whatsappHref } from "@/lib/constants"
 import { trackWhatsAppClick } from "@/lib/analytics"
+import { cn } from "@/lib/utils"
 
-const navLinks = [
-  { href: "#home", label: "الرئيسية" },
-  { href: "#about", label: "من نحن" },
-  { href: "#services", label: "خدماتنا" },
-  { href: "#design", label: "صمم ثوبك" },
-  { href: "#products", label: "الأقمشة" },
-  { href: "#location", label: "الموقع" },
-  { href: "#contact", label: "تواصل معنا" },
+export const NAV_LINKS = [
+  { href: "/", label: "الرئيسية" },
+  { href: "/fabrics", label: "الأقمشة" },
+  { href: "/design", label: "صمم ثوبك" },
+  { href: "/measurements", label: "المقاسات" },
+  { href: "/about", label: "من نحن" },
+  { href: "/contact", label: "تواصل معنا" },
 ]
 
 export function Navigation() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
+  useEffect(() => setIsOpen(false), [pathname])
+
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : ""
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [isOpen])
+
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href))
+
   return (
-    <nav
-      aria-label="التنقل الرئيسي"
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? "bg-black/95 py-3" : "bg-black/90 py-4"
-      } backdrop-blur-md text-white px-6 border-b border-gold/20`}
+    <header
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,padding] duration-300",
+        scrolled || isOpen
+          ? "border-white/10 bg-navy-deep/95 py-2.5 backdrop-blur-md"
+          : "border-transparent bg-navy/80 py-3.5 backdrop-blur-sm",
+      )}
     >
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="#home" className="flex items-center gap-3">
-          <div className="w-12 h-12 relative">
-            <Image
-              src={LOGOS.default}
-              alt="قمة الشياكة"
-              fill
-              sizes="48px"
-              className="object-contain"
-              priority
-            />
-          </div>
-          <span className="text-2xl font-bold gold-gradient">قمة الشياكة</span>
-        </Link>
+      <nav aria-label="التنقل الرئيسي" className="container-site flex items-center justify-between gap-4">
+        <Logo size={44} priority />
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex gap-8 items-center">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="nav-link text-white hover:text-gold transition-colors duration-300"
-            >
-              {link.label}
-            </Link>
+        <ul className="hidden items-center gap-1 lg:flex">
+          {NAV_LINKS.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                aria-current={isActive(link.href) ? "page" : undefined}
+                className={cn(
+                  "rounded-lg px-3 py-2 text-[15px] font-medium transition-colors",
+                  isActive(link.href) ? "text-sky" : "text-silver-light hover:text-white",
+                )}
+              >
+                {link.label}
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
 
-        <div className="flex items-center gap-4">
-          <Link
-            href={whatsappHref("السلام عليكم، أرغب في حجز موعد لتفصيل ثوب. ما المواعيد المتاحة؟")}
+        <div className="flex items-center gap-2">
+          <a
+            href={whatsappHref("السلام عليكم، أرغب في طلب تفصيل ثوب من قمة الشياكة.")}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackWhatsAppClick("whatsapp_booking", "navigation_desktop")}
-            className="btn-gold px-6 py-2 rounded-full font-bold text-black text-sm hidden sm:block"
+            onClick={() => trackWhatsAppClick("whatsapp_order", "header")}
+            className="btn btn-primary hidden min-h-10 px-4 text-sm sm:inline-flex"
           >
-            احجز الآن
-          </Link>
-
-          {/* Mobile Menu Button */}
+            <WhatsAppIcon className="size-4" />
+            اطلب الآن
+          </a>
           <button
             type="button"
-            className="md:hidden text-white min-h-11 min-w-11 flex items-center justify-center rounded-md focus-visible:outline-2 focus-visible:outline-gold"
-            onClick={() => setIsOpen(!isOpen)}
+            className="flex size-11 items-center justify-center rounded-xl text-white hover:bg-white/10 lg:hidden"
+            onClick={() => setIsOpen((v) => !v)}
             aria-label={isOpen ? "إغلاق القائمة" : "فتح القائمة"}
             aria-expanded={isOpen}
             aria-controls="mobile-navigation"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X className="size-6" /> : <Menu className="size-6" />}
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Navigation */}
       <div
         id="mobile-navigation"
         hidden={!isOpen}
-        className="md:hidden absolute top-full right-0 w-full bg-black/95 backdrop-blur-md border-b border-gold/20"
+        className="h-[calc(100svh-4rem)] overflow-y-auto border-t border-white/10 bg-navy-deep lg:hidden"
       >
-        <div className="flex flex-col p-6 gap-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-white hover:text-gold transition-colors duration-300 text-lg"
-              onClick={() => setIsOpen(false)}
-            >
-              {link.label}
-            </Link>
+        <ul className="container-site flex flex-col gap-1 py-6">
+          {NAV_LINKS.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                aria-current={isActive(link.href) ? "page" : undefined}
+                className={cn(
+                  "flex min-h-13 items-center rounded-xl px-4 text-lg font-bold",
+                  isActive(link.href) ? "bg-white/5 text-sky" : "text-white hover:bg-white/5",
+                )}
+              >
+                {link.label}
+              </Link>
+            </li>
           ))}
-          <Link
-            href={whatsappHref("السلام عليكم، أرغب في حجز موعد لتفصيل ثوب. ما المواعيد المتاحة؟")}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => {
-              setIsOpen(false)
-              trackWhatsAppClick("whatsapp_booking", "navigation_mobile")
-            }}
-            className="btn-gold px-6 py-3 rounded-full font-bold text-black text-center mt-4"
-          >
-            احجز الآن
-          </Link>
-        </div>
+          <li className="mt-4">
+            <a
+              href={whatsappHref("السلام عليكم، أرغب في طلب تفصيل ثوب من قمة الشياكة.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick("whatsapp_order", "navigation_mobile")}
+              className="btn btn-primary w-full"
+            >
+              <WhatsAppIcon />
+              اطلب عبر واتساب
+            </a>
+          </li>
+        </ul>
       </div>
-    </nav>
+    </header>
   )
 }
