@@ -95,6 +95,8 @@ export type Product = {
   type: string
   origin?: string
   availability?: Availability
+  /** Color ids (see FABRIC_COLORS) confirmed for this fabric. Undefined = not confirmed yet. */
+  colors?: string[]
 }
 
 export const PRODUCTS: Product[] = [

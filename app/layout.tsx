@@ -58,6 +58,7 @@ export const viewport: Viewport = {
   themeColor: "#011d45",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 }
 
 const businessSchema = {

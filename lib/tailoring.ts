@@ -3,16 +3,19 @@
 
 import { BRAND, SHOW_PRICES, formatPrice, type Product } from "@/lib/constants"
 
-export type Option = { id: string; label: string; hint?: string }
+export type Option = { id: string; label: string; hint?: string; image?: string }
 
-// Thobe styles as listed on the shop signboard.
+const img = (name: string) => `/design-options/${name}.webp`
+
+// Tailoring styles approved by the shop.
 export const THOBE_STYLES: Option[] = [
-  { id: "saudi", label: "سعودي" },
-  { id: "emirati", label: "إماراتي" },
-  { id: "kuwaiti", label: "كويتي" },
-  { id: "consult", label: "أحتاج استشارة", hint: "نقترح عليك الأنسب" },
+  { id: "saudi", label: "تفصيل سعودي" },
+  { id: "qatari", label: "تفصيل قطري" },
+  { id: "kuwaiti", label: "تفصيل كويتي" },
+  { id: "emirati", label: "تفصيل إماراتي" },
 ]
 
+// Colors are a request; availability per fabric is confirmed by the shop.
 export const FABRIC_COLORS: (Option & { swatch: string })[] = [
   { id: "white", label: "أبيض", swatch: "#ffffff" },
   { id: "offwhite", label: "أوف وايت", swatch: "#f3efe4" },
@@ -24,32 +27,44 @@ export const FABRIC_COLORS: (Option & { swatch: string })[] = [
   { id: "other", label: "لون آخر", swatch: "conic-gradient(#f3efe4,#c9ccd1,#1b2a4a,#cfe6f3,#f3efe4)" },
 ]
 
+// Approved collar models (shop reference sheet).
 export const COLLARS: Option[] = [
-  { id: "classic", label: "ياقة كلاسيك مرتفعة", hint: "الشكل التقليدي للثوب السعودي" },
-  { id: "mandarin", label: "ياقة صينية (مكة)", hint: "ياقة دائرية بدون قلاب" },
-  { id: "folded", label: "ياقة قلاب", hint: "ياقة بطيّة مثل القميص" },
-  { id: "consult", label: "حسب الاستشارة" },
+  { id: "regular", label: "رقبة عادي", image: img("collar-regular") },
+  { id: "chinese", label: "رقبة صيني", image: img("collar-chinese") },
+  { id: "formal", label: "قلاب رسمي", image: img("collar-formal") },
+  { id: "formal2", label: "قلاب رسمي 2", image: img("collar-formal-2") },
+  { id: "french", label: "قلاب فرنسي", image: img("collar-french") },
 ]
 
+// Approved cuff / sleeve models.
 export const SLEEVES: Option[] = [
-  { id: "buttons", label: "كم بأزرار" },
-  { id: "cufflinks", label: "كم كبك", hint: "لأزرار الكبك" },
-  { id: "plain", label: "كم سادة" },
-  { id: "consult", label: "حسب الاستشارة" },
+  { id: "plain", label: "سادة", image: img("cuff-plain") },
+  { id: "plain_open", label: "سادة مفتوح", image: img("cuff-plain-open") },
+  { id: "cufflink_formal", label: "كبك رسمي", image: img("cuff-formal") },
+  { id: "cufflink_french", label: "كبك فرنسي", hint: "يدجبزور", image: img("cuff-french") },
 ]
 
+// Approved placket (جبزور) / button models.
 export const BUTTONS: Option[] = [
-  { id: "visible", label: "أزرار ظاهرة" },
-  { id: "hidden", label: "أزرار مخفية" },
-  { id: "consult", label: "حسب الاستشارة" },
+  { id: "square_visible", label: "مربع باين", hint: "أزرار ظاهرة", image: img("placket-square-visible") },
+  { id: "triangle_visible", label: "مثلث باين", hint: "أزرار ظاهرة", image: img("placket-triangle-visible") },
+  { id: "square_hidden", label: "مربع مخفي", hint: "أزرار مخفية", image: img("placket-square-hidden") },
+  { id: "triangle_hidden", label: "مثلث مخفي", hint: "أزرار مخفية", image: img("placket-triangle-hidden") },
+  { id: "square_zipper", label: "مربع سحاب", hint: "بسحاب", image: img("placket-square-zipper") },
+  { id: "triangle_zipper", label: "مثلث سحاب", hint: "بسحاب", image: img("placket-triangle-zipper") },
 ]
 
-export const EXTRAS: Option[] = [
-  { id: "chest_pocket", label: "جيب صدر" },
-  { id: "side_pockets", label: "جيوب جانبية" },
-  { id: "phone_pocket", label: "جيب جوال داخلي" },
-  { id: "pen_slot", label: "فتحة قلم" },
+// Approved chest-pocket models.
+export const POCKETS: Option[] = [
+  { id: "square", label: "مربع", image: img("pocket-square") },
+  { id: "slanted", label: "مشطوف", image: img("pocket-slanted") },
+  { id: "round", label: "دائري", image: img("pocket-round") },
+  { id: "hidden", label: "مخفي", image: img("pocket-hidden") },
 ]
+
+export function optionLabel(opts: Option[], id: string | undefined) {
+  return opts.find((o) => o.id === id)?.label ?? ""
+}
 
 export type MeasurementKey =
   | "length"
@@ -118,21 +133,9 @@ export function hasMeasurements(m: Measurements | undefined) {
   return !!m && Object.values(m).some((v) => v && v.trim() !== "")
 }
 
-// ── Order reference ────────────────────────────────────────────
-// Generated in the browser so the customer and the shop can refer to
-// the same request in WhatsApp. It is a reference, not a stored record.
-export function generateOrderRef(date = new Date()) {
-  const y = String(date.getFullYear()).slice(2)
-  const m = String(date.getMonth() + 1).padStart(2, "0")
-  const d = String(date.getDate()).padStart(2, "0")
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase()
-  return `QS-${y}${m}${d}-${rand}`
-}
-
 // ── Unified WhatsApp message ──────────────────────────────────
 export type OrderDetails = {
   kind: "design" | "fabric" | "reorder" | "measurements"
-  ref?: string
   name?: string
   phone?: string
   city?: string
@@ -142,6 +145,7 @@ export type OrderDetails = {
   collar?: string
   sleeve?: string
   buttons?: string
+  pocket?: string
   extras?: string[]
   measurementStatus?: string
   measurements?: Measurements
@@ -166,7 +170,6 @@ export function formatMeasurements(m: Measurements | undefined) {
 export function buildOrderMessage(o: OrderDetails) {
   const lines: string[] = []
   lines.push(`*${KIND_TITLE[o.kind]} – ${BRAND.name}*`)
-  if (o.ref) lines.push(`الرقم المرجعي: ${o.ref}`)
   lines.push("")
 
   const customer: string[] = []
@@ -184,8 +187,9 @@ export function buildOrderMessage(o: OrderDetails) {
   if (o.style) thobe.push(`الطراز: ${o.style}`)
   if (o.collar) thobe.push(`الياقة: ${o.collar}`)
   if (o.sleeve) thobe.push(`الأكمام: ${o.sleeve}`)
-  if (o.buttons) thobe.push(`الأزرار: ${o.buttons}`)
-  if (o.extras && o.extras.length) thobe.push(`إضافات: ${o.extras.join("، ")}`)
+  if (o.buttons) thobe.push(`الأزرار (الجبزور): ${o.buttons}`)
+  if (o.pocket) thobe.push(`الجيب: ${o.pocket}`)
+  if (o.extras && o.extras.length) thobe.push(`تفاصيل إضافية: ${o.extras.join("، ")}`)
   if (o.quantity) thobe.push(`الكمية: ${o.quantity} ${o.quantity === 1 ? "ثوب" : "ثياب"}`)
   if (thobe.length) lines.push("*تفاصيل الثوب*", ...thobe, "")
 
@@ -200,4 +204,42 @@ export function buildOrderMessage(o: OrderDetails) {
 
   lines.push("أرجو تأكيد الطلب والسعر وموعد الاستلام. شكراً.")
   return lines.join("\n")
+}
+
+// ── Validation helpers ─────────────────────────────────────────
+export const REQUIRED_MEASUREMENTS: MeasurementKey[] = ["length", "shoulder", "chest", "sleeve"]
+
+/** Converts Arabic-Indic / Persian digits to Latin digits. */
+export function normalizeDigits(s: string) {
+  return s
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+}
+
+/**
+ * Accepts Yemeni mobiles (7XXXXXXXX, with or without +967/00967) and
+ * international numbers written with + or 00 (8–15 digits).
+ */
+export function validatePhone(raw: string): { ok: boolean; normalized: string } {
+  const s = normalizeDigits(raw).trim()
+  const intl = /^(\+|00)/.test(s)
+  let d = s.replace(/[^\d]/g, "")
+  if (d.startsWith("00")) d = d.slice(2)
+  if (/^7\d{8}$/.test(d)) return { ok: true, normalized: `+967${d}` }
+  if (/^9677\d{8}$/.test(d)) return { ok: true, normalized: `+${d}` }
+  if (intl && d.length >= 8 && d.length <= 15 && !d.startsWith("967")) return { ok: true, normalized: `+${d}` }
+  return { ok: false, normalized: "" }
+}
+
+export function samePhone(a: string, b: string) {
+  const x = validatePhone(a)
+  const y = validatePhone(b)
+  return x.ok && y.ok && x.normalized === y.normalized
+}
+
+export function measurementError(value: string | undefined) {
+  if (!value || !value.trim()) return "مطلوب"
+  const n = Number(normalizeDigits(value))
+  if (!Number.isFinite(n) || n < 10 || n > 250) return "قيمة غير منطقية (10–250 سم)"
+  return ""
 }

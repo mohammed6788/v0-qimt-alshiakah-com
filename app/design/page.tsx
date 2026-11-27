@@ -21,10 +21,10 @@ export default function DesignPage() {
       <PageHeader
         eyebrow="تجربة التفصيل"
         title="صمّم ثوبك على ذوقك"
-        description="ثماني خطوات سريعة، ويصلنا طلبك منظماً عبر واتساب لنؤكد معك التفاصيل والسعر وموعد الاستلام."
+        description="اختر قماشك وتفاصيل ثوبك من موديلاتنا المعتمدة، وراجع الملخص قبل الإرسال. يصلنا طلبك منظماً عبر واتساب لنؤكده معك."
         breadcrumb={[{ href: "/design", label: "صمم ثوبك" }]}
       />
-      <section className="bg-ivory pb-28 sm:pb-20">
+      <section className="bg-ivory pb-10 sm:pb-20">
         <div className="container-site">
           <Suspense fallback={<div className="card-surface -mt-10 h-64 animate-pulse" />}>
             <DesignBuilder />

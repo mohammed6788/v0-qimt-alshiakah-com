@@ -20,7 +20,7 @@ export function FloatingWhatsApp() {
 
   return (
     <>
-      <div className="fixed inset-x-3 bottom-3 z-40 flex gap-2 rounded-2xl border border-white/10 bg-navy-deep/95 p-2 shadow-2xl backdrop-blur-md sm:hidden">
+      <div style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }} className="fixed inset-x-3 z-40 flex gap-2 rounded-2xl border border-white/10 bg-navy-deep/95 p-2 shadow-2xl backdrop-blur-md sm:hidden">
         <a
           href={whatsappHref(MESSAGE)}
           target="_blank"
@@ -47,7 +47,7 @@ export function FloatingWhatsApp() {
         rel="noopener noreferrer"
         onClick={() => trackWhatsAppClick("whatsapp_order", "desktop_floating")}
         aria-label="اطلب عبر واتساب"
-        className="fixed bottom-6 left-6 z-40 hidden size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl ring-4 ring-white/30 transition-transform hover:scale-105 sm:flex"
+        className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-6 z-40 hidden size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl ring-4 ring-white/30 transition-transform hover:scale-105 sm:flex"
       >
         <WhatsAppIcon className="size-7" />
       </a>

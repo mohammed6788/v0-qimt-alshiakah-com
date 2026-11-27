@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Pencil, RotateCcw, Save, Scissors, ShieldCheck, Trash2 } from "lucide-react"
-import { MeasurementFields } from "@/components/design-builder"
+import { MeasurementFields } from "@/components/design/measurement-fields"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { PRODUCTS, whatsappHref } from "@/lib/constants"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
@@ -11,7 +11,6 @@ import {
   MEASUREMENT_FIELDS,
   buildOrderMessage,
   clearProfile,
-  generateOrderRef,
   hasMeasurements,
   loadProfile,
   saveProfile,
@@ -129,7 +128,6 @@ export function MeasurementsManager() {
     ? whatsappHref(
         buildOrderMessage({
           kind: "reorder",
-          ref: generateOrderRef(),
           name: profile.name,
           phone: profile.phone,
           city: profile.city,

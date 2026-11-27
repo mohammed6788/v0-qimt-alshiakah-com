@@ -1,280 +1,351 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { ArrowLeft, ArrowRight, Check, Pencil, ShieldCheck } from "lucide-react"
+import { ArrowLeft, ArrowRight, ClipboardList, Pencil } from "lucide-react"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
-import { PRODUCTS, getProduct, whatsappHref } from "@/lib/constants"
+import { EditSheet } from "@/components/design/edit-sheet"
+import {
+  CONSULT_FABRIC,
+  ButtonsSection,
+  CollarSection,
+  ColorSection,
+  FabricSection,
+  MeasureSection,
+  PocketSection,
+  QuantityStepper,
+  SleeveSection,
+
+  initialDesign,
+  sectionError,
+  type DesignState,
+  type SectionKey,
+  type SectionProps,
+} from "@/components/design/sections"
+import { getProduct, whatsappHref } from "@/lib/constants"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
   BUTTONS,
   COLLARS,
-  EXTRAS,
   FABRIC_COLORS,
-  MEASUREMENT_FIELDS,
+  POCKETS,
   SLEEVES,
   THOBE_STYLES,
   buildOrderMessage,
-  generateOrderRef,
   hasMeasurements,
   loadProfile,
+  optionLabel,
   saveProfile,
+  validatePhone,
   type MeasurementProfile,
-  type Measurements,
-  type Option,
 } from "@/lib/tailoring"
 import { cn } from "@/lib/utils"
 
-const CONSULT_FABRIC = "consult"
+// ── Steps ────────────────────────────────────────────────────
+type StepId = SectionKey | "review"
 
-type MeasureMode = "saved" | "enter" | "on_file" | "visit" | "whatsapp"
-
-const MEASURE_MODES: { id: MeasureMode; label: string; hint: string }[] = [
-  { id: "enter", label: "سأدخل مقاساتي الآن", hint: "بالسنتيمتر – ويمكنك حفظها لإعادة الطلب" },
-  { id: "on_file", label: "مقاساتي محفوظة لديكم", hint: "من طلب سابق في قمة الشياكة" },
-  { id: "visit", label: "سأزور المحل لأخذ المقاس", hint: "المكلا – الشرج" },
-  { id: "whatsapp", label: "سأرسل المقاسات عبر واتساب", hint: "مناسب للعملاء من خارج المكلا" },
+const STEPS: { id: StepId; title: string; short: string }[] = [
+  { id: "fabric", title: "اختر القماش", short: "القماش" },
+  { id: "color", title: "لون القماش", short: "اللون" },
+  { id: "collar", title: "التفصيل والياقة", short: "الياقة" },
+  { id: "sleeve", title: "تصميم الأكمام", short: "الأكمام" },
+  { id: "buttons", title: "الأزرار (الجبزور)", short: "الأزرار" },
+  { id: "pocket", title: "الجيب والإضافات والكمية", short: "الجيب" },
+  { id: "measure", title: "المقاسات", short: "المقاس" },
+  { id: "review", title: "بياناتك ومراجعة الطلب", short: "المراجعة" },
 ]
 
-const STEPS = [
-  { id: "fabric", title: "نوع القماش" },
-  { id: "color", title: "لون القماش" },
-  { id: "collar", title: "الطراز والياقة" },
-  { id: "sleeve", title: "تصميم الأكمام" },
-  { id: "buttons", title: "نوع الأزرار" },
-  { id: "extras", title: "تفاصيل إضافية" },
-  { id: "measure", title: "المقاس" },
-  { id: "review", title: "المراجعة والإرسال" },
-] as const
-
-type State = {
-  fabric: string
-  color: string
-  customColor: string
-  style: string
-  collar: string
-  sleeve: string
-  buttons: string
-  extras: string[]
-  quantity: number
-  notes: string
-  measureMode: MeasureMode | ""
-  measurements: Measurements
-  name: string
-  phone: string
-  cityMode: "mukalla" | "other"
-  city: string
-  saveConsent: boolean
+const SECTION_COMPONENT: Record<SectionKey, (p: SectionProps & { saved: MeasurementProfile | null }) => React.ReactNode> = {
+  fabric: (p) => <FabricSection {...p} />,
+  color: (p) => <ColorSection {...p} />,
+  collar: (p) => <CollarSection {...p} />,
+  sleeve: (p) => <SleeveSection {...p} />,
+  buttons: (p) => <ButtonsSection {...p} />,
+  pocket: (p) => <PocketSection {...p} />,
+  measure: (p) => <MeasureSection {...p} />,
 }
 
-const initialState: State = {
-  fabric: "",
-  color: "",
-  customColor: "",
-  style: "",
-  collar: "",
-  sleeve: "",
-  buttons: "",
-  extras: [],
-  quantity: 1,
-  notes: "",
-  measureMode: "",
-  measurements: {},
-  name: "",
-  phone: "",
-  cityMode: "mukalla",
-  city: "",
-  saveConsent: false,
+type EditKey = SectionKey | "quantity"
+
+const SECTION_KEYS: SectionKey[] = ["fabric", "color", "collar", "sleeve", "buttons", "pocket", "measure"]
+
+// ── Customer ─────────────────────────────────────────────────
+type Customer = { name: string; phone: string; cityMode: "" | "mukalla" | "other"; city: string; notes: string; saveConsent: boolean }
+const initialCustomer: Customer = { name: "", phone: "", cityMode: "", city: "", notes: "", saveConsent: false }
+
+function customerErrors(c: Customer) {
+  const e: Partial<Record<keyof Customer, string>> = {}
+  const name = c.name.trim()
+  if (name.length < 2 || !/[\p{L}]/u.test(name)) e.name = "اكتب اسمك (حرفان على الأقل)"
+  if (!validatePhone(c.phone).ok) e.phone = "اكتب رقم جوال صحيح، مثل 7XXXXXXXX أو رقم دولي يبدأ بـ +"
+  if (!c.cityMode) e.cityMode = "حدد مدينتك"
+  if (c.cityMode === "other" && c.city.trim().length < 2) e.city = "اكتب اسم المدينة"
+  return e
 }
 
-const label = (opts: Option[], id: string) => opts.find((o) => o.id === id)?.label ?? ""
+// Only design choices (no personal data) are kept for the browser session.
+const DRAFT_KEY = "qs_design_draft_v2"
+const DRAFT_FIELDS = ["fabric", "color", "customColor", "style", "collar", "sleeve", "buttons", "pocket", "extrasNote", "quantity"] as const
 
+function loadDraft(): Partial<DesignState> {
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY)
+    if (!raw) return {}
+    const d = JSON.parse(raw) as Partial<DesignState>
+    const out: Partial<DesignState> = {}
+    for (const k of DRAFT_FIELDS) if (d[k] !== undefined) (out as Record<string, unknown>)[k] = d[k]
+    return out
+  } catch {
+    return {}
+  }
+}
+
+function saveDraft(st: DesignState) {
+  try {
+    const out: Record<string, unknown> = {}
+    for (const k of DRAFT_FIELDS) out[k] = st[k]
+    window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(out))
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+// ── Component ────────────────────────────────────────────────
 export function DesignBuilder() {
   const params = useSearchParams()
+  const [hydrated, setHydrated] = useState(false)
   const [step, setStep] = useState(0)
-  const [s, setS] = useState<State>(initialState)
+  const [st, setSt] = useState<DesignState>(initialDesign)
+  const [customer, setCustomer] = useState<Customer>(initialCustomer)
   const [saved, setSaved] = useState<MeasurementProfile | null>(null)
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [orderRef, setOrderRef] = useState("")
+  const [showErrors, setShowErrors] = useState(false)
+  const [submitAttempted, setSubmitAttempted] = useState(false)
   const [sent, setSent] = useState(false)
+  const [editKey, setEditKey] = useState<EditKey | null>(null)
+  const [editDraft, setEditDraft] = useState<DesignState>(initialDesign)
+  const [editErrors, setEditErrors] = useState(false)
+  const [summaryOpen, setSummaryOpen] = useState(false)
+  const [inputFocused, setInputFocused] = useState(false)
   const topRef = useRef<HTMLDivElement>(null)
-  const firstRender = useRef(true)
+  const firstStepRender = useRef(true)
 
-  const set = <K extends keyof State>(key: K, value: State[K]) => setS((prev) => ({ ...prev, [key]: value }))
+  const set = useCallback((patch: Partial<DesignState>) => setSt((p) => ({ ...p, ...patch })), [])
+  const setC = (patch: Partial<Customer>) => setCustomer((p) => ({ ...p, ...patch }))
 
-  // Prefill from ?fabric= and from a measurement profile saved on this device.
+  // Restore draft, apply ?fabric=, detect a device profile (not shown until verified).
   useEffect(() => {
+    const draft = loadDraft()
     const slug = params.get("fabric")
-    const profile = loadProfile()
-    setSaved(profile)
-    setS((prev) => ({
-      ...prev,
-      fabric: slug && getProduct(slug) ? slug : prev.fabric,
-      ...(profile && {
-        name: profile.name,
-        phone: profile.phone,
-        cityMode: profile.city && profile.city !== "المكلا" ? "other" : "mukalla",
-        city: profile.city && profile.city !== "المكلا" ? profile.city : "",
-        measureMode: hasMeasurements(profile.measurements) ? "saved" : prev.measureMode,
-        measurements: profile.measurements,
-      }),
-    }))
-    setOrderRef(generateOrderRef())
+    setSt((p) => ({ ...p, ...draft, ...(slug && getProduct(slug) ? { fabric: slug } : {}) }))
+    setSaved(loadProfile())
+    setHydrated(true)
     trackEvent(EVENTS.designStart, { placement: "design_page", prefilled_fabric: slug ?? "none" })
   }, [params])
 
   useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false
+    if (hydrated) saveDraft(st)
+  }, [st, hydrated])
+
+  // Hide the sticky bar while the on-screen keyboard is likely open.
+  useEffect(() => {
+    const isField = (el: EventTarget | null) =>
+      el instanceof HTMLElement &&
+      (el.tagName === "TEXTAREA" || el.tagName === "SELECT" || (el.tagName === "INPUT" && !["checkbox", "radio", "button"].includes((el as HTMLInputElement).type)))
+    const onIn = (e: FocusEvent) => isField(e.target) && setInputFocused(true)
+    const onOut = () => setInputFocused(false)
+    document.addEventListener("focusin", onIn)
+    document.addEventListener("focusout", onOut)
+    return () => {
+      document.removeEventListener("focusin", onIn)
+      document.removeEventListener("focusout", onOut)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (firstStepRender.current) {
+      firstStepRender.current = false
       return
     }
     trackEvent(EVENTS.designStep, { step: STEPS[step].id, index: step + 1 })
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
   }, [step])
 
-  const product = s.fabric && s.fabric !== CONSULT_FABRIC ? getProduct(s.fabric) : undefined
-  const colorLabel = s.color === "other" ? s.customColor || "لون آخر" : label(FABRIC_COLORS, s.color)
-  const city = s.cityMode === "mukalla" ? "المكلا" : s.city.trim()
+  // ── Derived values ──
+  const product = getProduct(st.fabric)
+  const colorLabel = st.color === "other" ? st.customColor.trim() || "لون آخر" : optionLabel(FABRIC_COLORS, st.color)
+  const city = customer.cityMode === "mukalla" ? "المكلا" : customer.cityMode === "other" ? customer.city.trim() : ""
+  const includeMeasurements =
+    (st.customerType === "new" && st.newMode === "enter") || (st.customerType === "returning" && st.returningMode === "device" && st.deviceVerified)
 
   const measurementStatus = useMemo(() => {
-    switch (s.measureMode) {
-      case "saved":
-        return "المقاسات المحفوظة لدي (مرفقة أدناه)"
-      case "enter":
-        return hasMeasurements(s.measurements) ? "مقاساتي (مرفقة أدناه)" : "سأرسل المقاسات لاحقاً"
-      case "on_file":
-        return "مقاساتي محفوظة لديكم من طلب سابق"
-      case "visit":
-        return "سأزور المحل لأخذ المقاس"
-      case "whatsapp":
-        return "سأرسل المقاسات عبر واتساب"
-      default:
-        return ""
+    if (st.customerType === "new") {
+      if (st.newMode === "enter") return "عميل جديد – المقاسات مرفقة"
+      if (st.newMode === "whatsapp") return "عميل جديد – سأرسل المقاسات عبر واتساب"
+      if (st.newMode === "visit") return "عميل جديد – سأزور المحل لأخذ المقاس"
     }
-  }, [s.measureMode, s.measurements])
+    if (st.customerType === "returning") {
+      if (st.returningMode === "shop")
+        return `عميل سابق – أرجو استرجاع مقاساتي المحفوظة لديكم برقم ${validatePhone(st.registeredPhone).normalized || st.registeredPhone}`
+      if (st.returningMode === "device" && st.deviceVerified) return "عميل سابق – مقاساتي المحفوظة مرفقة"
+    }
+    return ""
+  }, [st])
 
-  const includeMeasurements = s.measureMode === "saved" || s.measureMode === "enter"
+  const fabricText = product ? `${product.title} (قماش ${product.type})` : st.fabric === CONSULT_FABRIC ? "أحتاج مساعدة في اختيار القماش" : ""
 
   const message = buildOrderMessage({
     kind: "design",
-    ref: orderRef,
-    name: s.name.trim(),
-    phone: s.phone.trim(),
+    name: customer.name.trim(),
+    phone: validatePhone(customer.phone).normalized || customer.phone.trim(),
     city,
-    fabric: product ?? (s.fabric === CONSULT_FABRIC ? { title: "أحتاج مساعدة في اختيار القماش" } : undefined),
+    fabric: fabricText ? { title: fabricText } : undefined,
     color: colorLabel,
-    style: label(THOBE_STYLES, s.style),
-    collar: label(COLLARS, s.collar),
-    sleeve: label(SLEEVES, s.sleeve),
-    buttons: label(BUTTONS, s.buttons),
-    extras: s.extras.map((id) => label(EXTRAS, id)),
-    quantity: s.quantity,
+    style: optionLabel(THOBE_STYLES, st.style),
+    collar: optionLabel(COLLARS, st.collar),
+    sleeve: optionLabel(SLEEVES, st.sleeve),
+    buttons: optionLabel(BUTTONS, st.buttons),
+    pocket: optionLabel(POCKETS, st.pocket),
+    extras: st.extrasNote.trim() ? [st.extrasNote.trim()] : [],
+    quantity: st.quantity,
     measurementStatus,
-    measurements: includeMeasurements ? s.measurements : undefined,
-    notes: s.notes,
+    measurements: includeMeasurements ? st.measurements : undefined,
+    notes: customer.notes,
   })
 
-  const stepComplete = (i: number): boolean => {
-    switch (STEPS[i].id) {
-      case "fabric":
-        return !!s.fabric
-      case "color":
-        return !!s.color && (s.color !== "other" || s.customColor.trim().length > 0)
-      case "collar":
-        return !!s.collar
-      case "sleeve":
-        return !!s.sleeve
-      case "buttons":
-        return !!s.buttons
-      case "extras":
-        return s.quantity >= 1
-      case "measure":
-        return !!s.measureMode
-      default:
-        return true
-    }
-  }
+  const sectionIssues = SECTION_KEYS.map((k) => ({ key: k, error: sectionError(k, st) })).filter((x) => x.error)
+  const custErr = customerErrors(customer)
+  const canSend = sectionIssues.length === 0 && Object.keys(custErr).length === 0
 
-  const validateContact = () => {
-    const e: Record<string, string> = {}
-    if (s.name.trim().length < 2) e.name = "يرجى كتابة الاسم"
-    const digits = s.phone.replace(/\D/g, "")
-    if (digits.length < 7 || digits.length > 15) e.phone = "يرجى كتابة رقم تواصل صحيح"
-    if (s.cityMode === "other" && !s.city.trim()) e.city = "يرجى كتابة اسم المدينة"
-    setErrors(e)
-    return Object.keys(e).length === 0
-  }
+  // ── Navigation ──
+  const current = STEPS[step]
+  const isLast = current.id === "review"
 
   const goNext = () => {
-    if (!stepComplete(step)) {
-      setErrors({ step: "يرجى اختيار أحد الخيارات للمتابعة" })
+    if (current.id !== "review" && sectionError(current.id, st)) {
+      setShowErrors(true)
       return
     }
-    setErrors({})
+    setShowErrors(false)
+    if (STEPS[step + 1]?.id === "review" && !customer.phone && st.returningMode === "shop" && st.registeredPhone) {
+      setC({ phone: st.registeredPhone })
+    }
     setStep((v) => Math.min(v + 1, STEPS.length - 1))
   }
   const goBack = () => {
-    setErrors({})
+    setShowErrors(false)
     setStep((v) => Math.max(v - 1, 0))
   }
 
-  const onSend = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!validateContact()) {
-      e.preventDefault()
+  // ── Edit sheet ──
+  const openEdit = (key: EditKey) => {
+    setSummaryOpen(false)
+    setEditDraft(st)
+    setEditErrors(false)
+    setEditKey(key)
+    trackEvent("design_edit_open", { field: key })
+  }
+  const confirmEdit = () => {
+    if (!editKey) return
+    const err = editKey === "quantity" ? "" : sectionError(editKey, editDraft)
+    // Changing the fabric may invalidate the color; surface it right away.
+    if (err) {
+      setEditErrors(true)
       return
     }
-    if (s.saveConsent && includeMeasurements && hasMeasurements(s.measurements)) {
+    setSt(editDraft)
+    setEditKey(null)
+    if (editKey === "fabric" && sectionError("color", editDraft)) {
+      setTimeout(() => openEditFrom(editDraft, "color"), 250)
+    }
+  }
+  const openEditFrom = (base: DesignState, key: EditKey) => {
+    setEditDraft(base)
+    setEditErrors(false)
+    setEditKey(key)
+  }
+
+  // ── Send ──
+  const onSend = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setSubmitAttempted(true)
+    if (!canSend) {
+      e.preventDefault()
+      document.getElementById("order-issues")?.scrollIntoView({ behavior: "smooth", block: "center" })
+      return
+    }
+    if (customer.saveConsent && st.customerType === "new" && st.newMode === "enter" && hasMeasurements(st.measurements)) {
       const ok = saveProfile({
-        name: s.name.trim(),
-        phone: s.phone.trim(),
+        name: customer.name.trim(),
+        phone: validatePhone(customer.phone).normalized,
         city,
-        measurements: s.measurements,
+        measurements: st.measurements,
         savedAt: new Date().toISOString(),
       })
       if (ok) trackEvent(EVENTS.measurementsSaved, { placement: "design_builder" })
     }
     trackEvent(EVENTS.orderSubmit, {
       flow: "design",
-      fabric: s.fabric,
-      quantity: s.quantity,
-      measure_mode: s.measureMode,
-      city_type: s.cityMode,
+      fabric: st.fabric,
+      quantity: st.quantity,
+      customer_type: st.customerType,
+      measure_mode: st.newMode || st.returningMode,
+      city_type: customer.cityMode,
     })
     trackWhatsAppClick("whatsapp_design_order", "design_review")
     setSent(true)
   }
 
-  const current = STEPS[step]
-  const isLast = step === STEPS.length - 1
+  // ── Summary rows ──
+  const rows: { key: EditKey; k: string; v: string; err?: string }[] = [
+    { key: "fabric", k: "القماش", v: fabricText, err: sectionError("fabric", st) },
+    { key: "color", k: "اللون", v: st.color ? colorLabel : "", err: sectionError("color", st) },
+    { key: "collar", k: "التفصيل والياقة", v: [optionLabel(THOBE_STYLES, st.style), optionLabel(COLLARS, st.collar)].filter(Boolean).join(" · "), err: sectionError("collar", st) },
+    { key: "sleeve", k: "الأكمام", v: optionLabel(SLEEVES, st.sleeve), err: sectionError("sleeve", st) },
+    { key: "buttons", k: "الأزرار", v: optionLabel(BUTTONS, st.buttons), err: sectionError("buttons", st) },
+    { key: "pocket", k: "الجيب والإضافات", v: [optionLabel(POCKETS, st.pocket), st.extrasNote.trim()].filter(Boolean).join(" · "), err: st.pocket ? "" : "اختر نوع الجيب" },
+    { key: "quantity", k: "الكمية", v: `${st.quantity} ${st.quantity === 1 ? "ثوب" : "ثياب"}` },
+    { key: "measure", k: "المقاسات", v: measurementStatus, err: sectionError("measure", st) },
+  ]
+  const doneCount = SECTION_KEYS.filter((k) => !sectionError(k, st)).length
+
+  const stickyHidden = inputFocused || editKey !== null || summaryOpen
 
   return (
     <div ref={topRef} className="scroll-mt-24">
       {/* Progress */}
       <div className="card-surface -mt-8 p-4 sm:-mt-10 sm:p-5">
-        <div className="flex items-center justify-between text-sm">
-          <p className="font-bold text-navy">
-            الخطوة {step + 1} من {STEPS.length}: <span className="text-navy-soft">{current.title}</span>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-bold text-navy">
+            الخطوة {step + 1} من {STEPS.length}
           </p>
-          <p className="text-muted-foreground">{Math.round(((step + 1) / STEPS.length) * 100)}%</p>
+          <button
+            type="button"
+            onClick={() => setSummaryOpen(true)}
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-ivory px-3 text-sm font-bold text-navy-soft hover:bg-sky-soft lg:hidden"
+          >
+            <ClipboardList className="size-4" aria-hidden="true" />
+            الملخص ({doneCount}/{SECTION_KEYS.length})
+          </button>
         </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-silver-light" role="progressbar" aria-valuemin={1} aria-valuemax={STEPS.length} aria-valuenow={step + 1} aria-label="تقدم تصميم الثوب">
-          <div className="h-full rounded-full bg-gradient-to-l from-sky to-navy-soft transition-[width] duration-500" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+        <div className="mt-3 flex gap-1" aria-hidden="true">
+          {STEPS.map((s, i) => (
+            <span key={s.id} className={cn("h-1.5 flex-1 rounded-full transition-colors duration-300", i <= step ? "bg-navy" : "bg-silver-light", i === step && "bg-sky")} />
+          ))}
         </div>
-        <ol className="mt-4 hidden gap-1 md:flex">
-          {STEPS.map((st, i) => (
-            <li key={st.id} className="flex-1">
+        <ol className="mt-3 hidden gap-1 md:flex" aria-label="خطوات التصميم">
+          {STEPS.map((s, i) => (
+            <li key={s.id} className="flex-1">
               <button
                 type="button"
                 onClick={() => i < step && setStep(i)}
                 disabled={i > step}
+                aria-current={i === step ? "step" : undefined}
                 className={cn(
-                  "w-full truncate rounded-lg px-1 py-1 text-center text-xs font-bold transition-colors",
+                  "w-full truncate rounded-lg px-1 py-1.5 text-center text-xs font-bold transition-colors",
                   i === step ? "bg-navy text-white" : i < step ? "text-navy-soft hover:bg-sky-soft" : "text-silver-dark",
                 )}
               >
-                {st.title}
+                {s.short}
               </button>
             </li>
           ))}
@@ -282,242 +353,136 @@ export function DesignBuilder() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
-        <div key={current.id} className="card-surface p-5 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:p-7">
-          <h2 className="text-2xl font-extrabold text-navy">{current.title}</h2>
+        <div key={current.id} className="min-w-0 rounded-3xl bg-white p-5 shadow-[0_1px_2px_rgba(1,29,69,0.04)] motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:p-7">
+          <h2 className="mb-5 text-2xl font-extrabold text-navy">{current.title}</h2>
 
-          {current.id === "fabric" && (
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {PRODUCTS.map((p) => (
-                <ChoiceCard key={p.slug} selected={s.fabric === p.slug} onSelect={() => set("fabric", p.slug)} name="fabric">
-                  <span className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-silver-light">
-                    <Image src={p.image} alt="" fill sizes="64px" className="object-cover" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block font-bold text-navy">{p.title}</span>
-                    <span className="block text-sm text-muted-foreground">قماش {p.type}</span>
-                  </span>
-                </ChoiceCard>
-              ))}
-              <ChoiceCard selected={s.fabric === CONSULT_FABRIC} onSelect={() => set("fabric", CONSULT_FABRIC)} name="fabric">
-                <span className="min-w-0">
-                  <span className="block font-bold text-navy">ساعدوني في الاختيار</span>
-                  <span className="block text-sm text-muted-foreground">نقترح عليك الأنسب لمناسبتك وميزانيتك</span>
-                </span>
-              </ChoiceCard>
-              <Link href="/fabrics" className="text-sm font-bold text-navy-soft underline-offset-4 hover:underline sm:col-span-2">
-                قارن الأقمشة بالتفصيل في صفحة الأقمشة
-              </Link>
-            </div>
-          )}
-
-          {current.id === "color" && (
-            <>
-              <p className="mt-2 text-sm text-muted-foreground">نؤكد لك توفر اللون في القماش المختار عند الطلب.</p>
-              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {FABRIC_COLORS.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={s.color === c.id}
-                    onClick={() => set("color", c.id)}
-                    className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-colors",
-                      s.color === c.id ? "border-navy bg-sky-soft" : "border-navy/10 hover:border-navy/30",
-                    )}
-                  >
-                    <span className="size-12 rounded-full border border-navy/15 shadow-inner" style={{ background: c.swatch }} aria-hidden="true" />
-                    <span className="text-sm font-bold text-navy">{c.label}</span>
-                  </button>
-                ))}
-              </div>
-              {s.color === "other" && (
-                <label className="mt-4 block">
-                  <span className="field-label">اكتب اللون المطلوب</span>
-                  <input className="field-input" value={s.customColor} onChange={(e) => set("customColor", e.target.value)} placeholder="مثال: زيتي فاتح" />
-                </label>
-              )}
-            </>
-          )}
-
-          {current.id === "collar" && (
-            <>
-              <h3 className="mt-5 font-bold text-navy">طراز الثوب <span className="text-sm font-normal text-muted-foreground">(اختياري)</span></h3>
-              <OptionGrid options={THOBE_STYLES} value={s.style} onChange={(v) => set("style", v)} name="style" />
-              <h3 className="mt-6 font-bold text-navy">نوع الياقة</h3>
-              <OptionGrid options={COLLARS} value={s.collar} onChange={(v) => set("collar", v)} name="collar" />
-            </>
-          )}
-
-          {current.id === "sleeve" && <OptionGrid options={SLEEVES} value={s.sleeve} onChange={(v) => set("sleeve", v)} name="sleeve" />}
-
-          {current.id === "buttons" && <OptionGrid options={BUTTONS} value={s.buttons} onChange={(v) => set("buttons", v)} name="buttons" />}
-
-          {current.id === "extras" && (
-            <>
-              <p className="mt-2 text-sm text-muted-foreground">اختر ما يناسبك (اختياري).</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {EXTRAS.map((x) => {
-                  const on = s.extras.includes(x.id)
-                  return (
-                    <button
-                      key={x.id}
-                      type="button"
-                      role="checkbox"
-                      aria-checked={on}
-                      onClick={() => set("extras", on ? s.extras.filter((i) => i !== x.id) : [...s.extras, x.id])}
-                      className={cn(
-                        "flex min-h-14 items-center gap-3 rounded-xl border-2 px-4 text-start font-bold text-navy transition-colors",
-                        on ? "border-navy bg-sky-soft" : "border-navy/10 hover:border-navy/30",
-                      )}
-                    >
-                      <span className={cn("flex size-6 items-center justify-center rounded-md border-2", on ? "border-navy bg-navy text-white" : "border-navy/25")}>
-                        {on && <Check className="size-4" aria-hidden="true" />}
-                      </span>
-                      {x.label}
-                    </button>
-                  )
-                })}
-              </div>
-              <div className="mt-6 grid gap-4 sm:grid-cols-[180px_1fr]">
-                <div>
-                  <span className="field-label" id="qty-label">الكمية</span>
-                  <div className="flex items-center gap-2" role="group" aria-labelledby="qty-label">
-                    <button type="button" className="btn btn-outline-dark size-12 px-0" onClick={() => set("quantity", Math.max(1, s.quantity - 1))} aria-label="إنقاص الكمية">−</button>
-                    <output className="w-12 text-center text-xl font-extrabold text-navy" aria-live="polite">{s.quantity}</output>
-                    <button type="button" className="btn btn-outline-dark size-12 px-0" onClick={() => set("quantity", Math.min(20, s.quantity + 1))} aria-label="زيادة الكمية">+</button>
-                  </div>
-                </div>
-                <label className="block">
-                  <span className="field-label">ملاحظات</span>
-                  <textarea
-                    className="field-input min-h-24 py-3"
-                    value={s.notes}
-                    onChange={(e) => set("notes", e.target.value)}
-                    placeholder="مثال: الثوب لمناسبة زواج، أحتاجه قبل تاريخ معيّن…"
-                    maxLength={500}
-                  />
-                </label>
-              </div>
-            </>
-          )}
-
-          {current.id === "measure" && (
-            <>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {saved && hasMeasurements(saved.measurements) && (
-                  <ChoiceCard
-                    selected={s.measureMode === "saved"}
-                    onSelect={() => setS((p) => ({ ...p, measureMode: "saved", measurements: saved.measurements }))}
-                    name="measure"
-                    className="sm:col-span-2"
-                  >
-                    <ShieldCheck className="size-6 shrink-0 text-navy-soft" aria-hidden="true" />
-                    <span>
-                      <span className="block font-bold text-navy">استخدم مقاساتي المحفوظة على هذا الجهاز</span>
-                      <span className="block text-sm text-muted-foreground">
-                        باسم {saved.name} · حُفظت {new Date(saved.savedAt).toLocaleDateString("ar-EG")}
-                      </span>
-                    </span>
-                  </ChoiceCard>
-                )}
-                {MEASURE_MODES.map((m) => (
-                  <ChoiceCard key={m.id} selected={s.measureMode === m.id} onSelect={() => set("measureMode", m.id)} name="measure">
-                    <span>
-                      <span className="block font-bold text-navy">{m.label}</span>
-                      <span className="block text-sm text-muted-foreground">{m.hint}</span>
-                    </span>
-                  </ChoiceCard>
-                ))}
-              </div>
-              {(s.measureMode === "enter" || s.measureMode === "saved") && (
-                <MeasurementFields value={s.measurements} onChange={(m) => setS((p) => ({ ...p, measurements: m, measureMode: "enter" }))} />
-              )}
-              <Link href="/measurements#guide" className="mt-4 inline-block text-sm font-bold text-navy-soft underline-offset-4 hover:underline">
-                دليل أخذ المقاسات
-              </Link>
-            </>
-          )}
+          {current.id !== "review" && SECTION_COMPONENT[current.id]({ st, set, showErrors, saved })}
 
           {current.id === "review" && (
-            <div className="mt-5 space-y-6">
-              <SummaryList s={s} product={product} colorLabel={colorLabel} measurementStatus={measurementStatus} onEdit={setStep} />
+            <div className="space-y-8">
+              <SummaryList rows={rows} onEdit={openEdit} showErrors={submitAttempted} />
 
               <fieldset className="space-y-4">
-                <legend className="mb-2 font-bold text-navy">بياناتك للتواصل</legend>
+                <legend className="mb-1 text-lg font-extrabold text-navy">بياناتك للتواصل</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="الاسم" error={errors.name}>
-                    <input className="field-input" autoComplete="name" value={s.name} onChange={(e) => set("name", e.target.value)} />
+                  <Field label="الاسم" required error={submitAttempted ? custErr.name : undefined}>
+                    <input className="field-input" name="name" autoComplete="name" maxLength={60} value={customer.name} onChange={(e) => setC({ name: e.target.value })} />
                   </Field>
-                  <Field label="رقم التواصل" error={errors.phone}>
-                    <input className="field-input" type="tel" inputMode="tel" autoComplete="tel" dir="ltr" value={s.phone} onChange={(e) => set("phone", e.target.value)} placeholder="7XX XXX XXX" />
+                  <Field label="رقم الجوال" required error={submitAttempted ? custErr.phone : undefined}>
+                    <input
+                      className="field-input"
+                      name="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      dir="ltr"
+                      maxLength={20}
+                      value={customer.phone}
+                      onChange={(e) => setC({ phone: e.target.value })}
+                      placeholder="7XX XXX XXX"
+                    />
                   </Field>
                 </div>
                 <div>
-                  <span className="field-label">المدينة</span>
-                  <div className="grid grid-cols-2 gap-3">
+                  <span className="field-label">
+                    المدينة <span className="text-destructive">*</span>
+                  </span>
+                  <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="المدينة">
                     {(["mukalla", "other"] as const).map((c) => (
                       <button
                         key={c}
                         type="button"
                         role="radio"
-                        aria-checked={s.cityMode === c}
-                        onClick={() => set("cityMode", c)}
-                        className={cn("min-h-12 rounded-xl border-2 font-bold text-navy", s.cityMode === c ? "border-navy bg-sky-soft" : "border-navy/10")}
+                        aria-checked={customer.cityMode === c}
+                        onClick={() => setC({ cityMode: c })}
+                        className={cn(
+                          "min-h-12 rounded-2xl border font-bold text-navy transition-colors",
+                          customer.cityMode === c ? "border-navy bg-sky-soft shadow-[0_0_0_1px_var(--navy)]" : "border-navy/12",
+                        )}
                       >
                         {c === "mukalla" ? "داخل المكلا" : "خارج المكلا"}
                       </button>
                     ))}
                   </div>
-                  {s.cityMode === "other" && (
-                    <Field label="اسم المدينة" error={errors.city} className="mt-3">
-                      <input className="field-input" value={s.city} onChange={(e) => set("city", e.target.value)} placeholder="مثال: سيئون" />
+                  {submitAttempted && custErr.cityMode && <p className="mt-1 text-sm font-bold text-destructive">{custErr.cityMode}</p>}
+                  {customer.cityMode === "other" && (
+                    <Field label="اسم المدينة" required error={submitAttempted ? custErr.city : undefined} className="mt-3">
+                      <input className="field-input" name="city" maxLength={40} value={customer.city} onChange={(e) => setC({ city: e.target.value })} placeholder="مثال: سيئون" />
                     </Field>
                   )}
                 </div>
-                {includeMeasurements && hasMeasurements(s.measurements) && (
-                  <label className="flex items-start gap-3 rounded-xl bg-sky-soft p-4 text-sm text-navy">
-                    <input type="checkbox" className="mt-0.5 size-5 accent-[#011d45]" checked={s.saveConsent} onChange={(e) => set("saveConsent", e.target.checked)} />
+                <Field label="ملاحظات إضافية (اختياري)">
+                  <textarea
+                    className="field-input min-h-24 py-3"
+                    name="notes"
+                    maxLength={500}
+                    value={customer.notes}
+                    onChange={(e) => setC({ notes: e.target.value })}
+                    placeholder="مثال: الثوب لمناسبة زواج، أحتاجه قبل تاريخ معيّن…"
+                  />
+                </Field>
+                {st.customerType === "new" && st.newMode === "enter" && hasMeasurements(st.measurements) && (
+                  <label className="flex items-start gap-3 rounded-2xl bg-ivory p-4 text-sm leading-relaxed text-navy">
+                    <input type="checkbox" className="mt-0.5 size-5 shrink-0 accent-[#011d45]" checked={customer.saveConsent} onChange={(e) => setC({ saveConsent: e.target.checked })} />
                     <span>
-                      احفظ اسمي ورقمي ومقاساتي <strong>على هذا الجهاز</strong> لأستخدمها في الطلبات القادمة. لا تُرسل هذه البيانات لأي جهة، وتصلنا فقط ضمن رسالة واتساب التي ترسلها بنفسك.
+                      احفظ اسمي ورقمي ومقاساتي <strong>على هذا الجهاز فقط</strong> لإعادة الطلب لاحقاً (اختياري). لا تُرفع لأي خادم، ويمكن حذفها من صفحة المقاسات.
                     </span>
                   </label>
                 )}
               </fieldset>
 
-              <details className="rounded-xl border border-navy/10 bg-ivory p-4">
+              {submitAttempted && !canSend && (
+                <div id="order-issues" className="rounded-2xl border border-destructive/30 bg-red-50 p-4" role="alert">
+                  <p className="font-extrabold text-destructive">لا يمكن إرسال الطلب قبل استكمال:</p>
+                  <ul className="mt-2 space-y-1 text-sm text-destructive">
+                    {sectionIssues.map((x) => (
+                      <li key={x.key}>
+                        •{" "}
+                        <button type="button" className="font-bold underline underline-offset-4" onClick={() => openEdit(x.key)}>
+                          {x.error}
+                        </button>
+                      </li>
+                    ))}
+                    {Object.values(custErr).map((m) => (
+                      <li key={m}>• {m}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <details className="rounded-2xl bg-ivory p-4">
                 <summary className="cursor-pointer font-bold text-navy">معاينة رسالة واتساب</summary>
-                <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-relaxed text-navy">{message}</pre>
+                <pre className="mt-3 whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-navy" data-testid="message-preview">
+                  {message}
+                </pre>
               </details>
 
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                بعد الإرسال يراجع فريقنا طلبك عبر واتساب ويؤكد معك التفاصيل والسعر وموعد الاستلام، ويزوّدك برقم الطلب عند تسجيله.
+              </p>
+
               {sent && (
-                <p className="rounded-xl bg-emerald-50 p-4 text-sm font-bold text-emerald-800" role="status">
-                  تم تجهيز طلبك برقم {orderRef}. أكمل الإرسال من واتساب، وسنرد عليك لتأكيد التفاصيل والسعر وموعد الاستلام.
+                <p className="rounded-2xl bg-emerald-50 p-4 text-sm font-bold text-emerald-800" role="status">
+                  تم تجهيز رسالة طلبك. أكمل الإرسال من واتساب، وسيتواصل معك فريقنا لتأكيد الطلب.
                 </p>
               )}
             </div>
           )}
 
-          {errors.step && (
-            <p className="mt-4 text-sm font-bold text-destructive" role="alert">
-              {errors.step}
-            </p>
-          )}
-
-          {/* Desktop step controls */}
-          <div className="mt-8 hidden items-center justify-between gap-3 sm:flex">
+          {/* Desktop/tablet step controls */}
+          <div className="mt-8 hidden items-center justify-between gap-3 border-t border-navy/10 pt-6 sm:flex">
             <button type="button" onClick={goBack} disabled={step === 0} className="btn btn-outline-dark">
               <ArrowRight className="size-5" aria-hidden="true" />
               السابق
             </button>
             {isLast ? (
-              <a href={whatsappHref(message)} target="_blank" rel="noopener noreferrer" onClick={onSend} className="btn btn-primary bg-[#25D366] px-8 text-white hover:bg-[#1ebe5a]">
+              <a href={whatsappHref(message)} target="_blank" rel="noopener noreferrer" onClick={onSend} className="btn bg-[#25D366] px-8 text-white hover:bg-[#1ebe5a]" data-testid="send-desktop">
                 <WhatsAppIcon />
                 أرسل الطلب عبر واتساب
               </a>
             ) : (
               <button type="button" onClick={goNext} className="btn btn-navy px-8">
-                التالي
+                التالي: {STEPS[step + 1].short}
                 <ArrowLeft className="size-5" aria-hidden="true" />
               </button>
             )}
@@ -525,183 +490,157 @@ export function DesignBuilder() {
         </div>
 
         {/* Live summary (desktop) */}
-        <aside className="card-surface sticky top-24 hidden p-5 lg:block" aria-label="ملخص اختياراتك">
-          <h2 className="text-lg font-extrabold text-navy">ملخص ثوبك</h2>
+        <aside className="sticky top-24 hidden rounded-3xl bg-white p-5 shadow-[0_1px_2px_rgba(1,29,69,0.04)] lg:block" aria-label="ملخص ثوبك">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-extrabold text-navy">ملخص ثوبك</h2>
+            <span className="text-xs font-bold text-muted-foreground">
+              {doneCount}/{SECTION_KEYS.length}
+            </span>
+          </div>
           {product && (
-            <div className="mt-4 flex items-center gap-3">
-              <span className="relative size-14 overflow-hidden rounded-lg bg-silver-light">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="relative size-14 overflow-hidden rounded-xl bg-silver-light">
                 <Image src={product.image} alt="" fill sizes="56px" className="object-cover" />
               </span>
-              <span>
+              <span className="text-sm">
                 <span className="block font-bold text-navy">{product.title}</span>
-                <span className="block text-sm text-navy-soft">قماش {product.type}</span>
+                <span className="block text-muted-foreground">قماش {product.type}</span>
               </span>
             </div>
           )}
-          <dl className="mt-4 space-y-2 text-sm">
-            <MiniRow k="اللون" v={s.color ? colorLabel : ""} />
-            <MiniRow k="الطراز" v={label(THOBE_STYLES, s.style)} />
-            <MiniRow k="الياقة" v={label(COLLARS, s.collar)} />
-            <MiniRow k="الأكمام" v={label(SLEEVES, s.sleeve)} />
-            <MiniRow k="الأزرار" v={label(BUTTONS, s.buttons)} />
-            <MiniRow k="الإضافات" v={s.extras.map((id) => label(EXTRAS, id)).join("، ")} />
-            <MiniRow k="الكمية" v={String(s.quantity)} />
-            <MiniRow k="المقاس" v={measurementStatus} />
-          </dl>
-          {orderRef && <p className="mt-4 border-t border-navy/10 pt-3 text-xs text-muted-foreground">الرقم المرجعي: <span dir="ltr">{orderRef}</span></p>}
+          <SummaryList rows={rows} onEdit={openEdit} compact />
         </aside>
       </div>
 
-      {/* Mobile sticky step controls — reachable with one thumb */}
-      <div className="fixed inset-x-3 bottom-3 z-40 flex gap-2 rounded-2xl border border-white/10 bg-navy-deep/95 p-2 shadow-2xl backdrop-blur-md sm:hidden">
-        <button type="button" onClick={goBack} disabled={step === 0} className="btn btn-outline-light px-4" aria-label="الخطوة السابقة">
-          <ArrowRight className="size-5" aria-hidden="true" />
-        </button>
-        {isLast ? (
-          <a href={whatsappHref(message)} target="_blank" rel="noopener noreferrer" onClick={onSend} className="btn flex-1 bg-[#25D366] text-white">
-            <WhatsAppIcon />
-            أرسل الطلب عبر واتساب
-          </a>
-        ) : (
-          <button type="button" onClick={goNext} className="btn btn-primary flex-1">
-            التالي: {STEPS[step + 1].title}
-            <ArrowLeft className="size-5" aria-hidden="true" />
-          </button>
+      {/* Bottom spacer so the sticky bar never covers the last field (incl. iPhone safe area). */}
+      <div className="h-[calc(5.5rem+env(safe-area-inset-bottom))] sm:hidden" aria-hidden="true" />
+
+      {/* Mobile sticky controls */}
+      <div
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-navy-deep/95 px-3 pt-3 backdrop-blur-md transition-transform duration-200 sm:hidden",
+          stickyHidden && "translate-y-full",
         )}
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+        data-testid="sticky-bar"
+        aria-hidden={stickyHidden}
+      >
+        <div className="flex gap-2">
+          <button type="button" onClick={goBack} disabled={step === 0} className="btn btn-outline-light px-4" aria-label="الخطوة السابقة" tabIndex={stickyHidden ? -1 : 0}>
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </button>
+          {isLast ? (
+            <a
+              href={whatsappHref(message)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onSend}
+              className="btn flex-1 bg-[#25D366] text-white"
+              data-testid="send-mobile"
+              tabIndex={stickyHidden ? -1 : 0}
+            >
+              <WhatsAppIcon />
+              أرسل الطلب عبر واتساب
+            </a>
+          ) : (
+            <button type="button" onClick={goNext} className="btn btn-primary flex-1" data-testid="next-mobile" tabIndex={stickyHidden ? -1 : 0}>
+              التالي: {STEPS[step + 1].short}
+              <ArrowLeft className="size-5" aria-hidden="true" />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-  )
-}
 
-function ChoiceCard({
-  selected,
-  onSelect,
-  name,
-  className,
-  children,
-}: {
-  selected: boolean
-  onSelect: () => void
-  name: string
-  className?: string
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      data-group={name}
-      onClick={onSelect}
-      className={cn(
-        "relative flex min-h-16 items-center gap-3 rounded-xl border-2 p-3 text-start transition-colors",
-        selected ? "border-navy bg-sky-soft" : "border-navy/10 bg-white hover:border-navy/30",
-        className,
-      )}
-    >
-      {children}
-      {selected && (
-        <span className="absolute left-3 top-3 flex size-6 items-center justify-center rounded-full bg-navy text-white">
-          <Check className="size-4" aria-hidden="true" />
-        </span>
-      )}
-    </button>
-  )
-}
+      {/* Summary sheet (mobile) */}
+      <EditSheet open={summaryOpen} onOpenChange={setSummaryOpen} title="ملخص ثوبك" description="اضغط على أي عنصر لتعديله.">
+        <SummaryList rows={rows} onEdit={openEdit} />
+      </EditSheet>
 
-function OptionGrid({ options, value, onChange, name }: { options: Option[]; value: string; onChange: (v: string) => void; name: string }) {
-  return (
-    <div role="radiogroup" className="mt-3 grid gap-3 sm:grid-cols-2">
-      {options.map((o) => (
-        <ChoiceCard key={o.id} selected={value === o.id} onSelect={() => onChange(o.id)} name={name}>
-          <span className="pe-6">
-            <span className="block font-bold text-navy">{o.label}</span>
-            {o.hint && <span className="block text-sm text-muted-foreground">{o.hint}</span>}
-          </span>
-        </ChoiceCard>
-      ))}
-    </div>
-  )
-}
-
-export function MeasurementFields({ value, onChange }: { value: Measurements; onChange: (m: Measurements) => void }) {
-  return (
-    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {MEASUREMENT_FIELDS.map((f) => (
-        <label key={f.key} className="block">
-          <span className="field-label">{f.label}</span>
-          <span className="relative block">
-            <input
-              className="field-input pe-4 ps-12"
-              inputMode="decimal"
-              dir="ltr"
-              value={value[f.key] ?? ""}
-              onChange={(e) => onChange({ ...value, [f.key]: e.target.value.replace(/[^\d.٠-٩]/g, "").slice(0, 5) })}
-              aria-describedby={`hint-${f.key}`}
-            />
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-silver-dark">سم</span>
-          </span>
-          <span id={`hint-${f.key}`} className="mt-1 block text-xs text-muted-foreground">{f.hint}</span>
-        </label>
-      ))}
-    </div>
-  )
-}
-
-function Field({ label, error, className, children }: { label: string; error?: string; className?: string; children: React.ReactNode }) {
-  return (
-    <label className={cn("block", className)}>
-      <span className="field-label">{label}</span>
-      {children}
-      {error && <span className="mt-1 block text-sm font-bold text-destructive" role="alert">{error}</span>}
-    </label>
-  )
-}
-
-function MiniRow({ k, v }: { k: string; v: string }) {
-  return (
-    <div className="flex justify-between gap-3">
-      <dt className="text-muted-foreground">{k}</dt>
-      <dd className={cn("text-end font-bold", v ? "text-navy" : "text-silver-dark")}>{v || "—"}</dd>
+      {/* Edit sheet */}
+      <EditSheet
+        open={editKey !== null}
+        onOpenChange={(o) => !o && setEditKey(null)}
+        title={editKey === "quantity" ? "الكمية" : editKey ? `تعديل: ${STEPS.find((s) => s.id === editKey)?.title}` : ""}
+        footer={
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setEditKey(null)} className="btn btn-outline-dark">
+              إلغاء
+            </button>
+            <button type="button" onClick={confirmEdit} className="btn btn-navy flex-1" data-testid="sheet-confirm">
+              تأكيد الاختيار
+            </button>
+          </div>
+        }
+      >
+        {editKey === "quantity" && (
+          <QuantityStepper st={editDraft} set={(p) => setEditDraft((d) => ({ ...d, ...p }))} />
+        )}
+        {editKey && editKey !== "quantity" &&
+          SECTION_COMPONENT[editKey]({
+            st: editDraft,
+            set: (p) => setEditDraft((d) => ({ ...d, ...p })),
+            showErrors: editErrors,
+            saved,
+          })}
+      </EditSheet>
     </div>
   )
 }
 
 function SummaryList({
-  s,
-  product,
-  colorLabel,
-  measurementStatus,
+  rows,
   onEdit,
+  compact,
+  showErrors,
 }: {
-  s: State
-  product: ReturnType<typeof getProduct>
-  colorLabel: string
-  measurementStatus: string
-  onEdit: (i: number) => void
+  rows: { key: EditKey; k: string; v: string; err?: string }[]
+  onEdit: (k: EditKey) => void
+  compact?: boolean
+  showErrors?: boolean
 }) {
-  const rows: { k: string; v: string; step: number }[] = [
-    { k: "القماش", v: product ? `${product.title} – ${product.type}` : "مساعدة في الاختيار", step: 0 },
-    { k: "اللون", v: colorLabel, step: 1 },
-    { k: "الطراز / الياقة", v: [label(THOBE_STYLES, s.style), label(COLLARS, s.collar)].filter(Boolean).join(" · "), step: 2 },
-    { k: "الأكمام", v: label(SLEEVES, s.sleeve), step: 3 },
-    { k: "الأزرار", v: label(BUTTONS, s.buttons), step: 4 },
-    { k: "الإضافات والكمية", v: [s.extras.map((id) => label(EXTRAS, id)).join("، ") || "بدون إضافات", `${s.quantity} ثوب`].join(" · "), step: 5 },
-    { k: "المقاس", v: measurementStatus, step: 6 },
-  ]
   return (
-    <div className="divide-y divide-navy/10 rounded-xl border border-navy/10">
-      {rows.map((r) => (
-        <div key={r.k} className="flex items-center justify-between gap-3 p-3 sm:p-4">
-          <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">{r.k}</p>
-            <p className="font-bold text-navy">{r.v || "—"}</p>
-          </div>
-          <button type="button" onClick={() => onEdit(r.step)} className="flex size-10 shrink-0 items-center justify-center rounded-lg text-navy-soft hover:bg-sky-soft" aria-label={`تعديل ${r.k}`}>
-            <Pencil className="size-4" aria-hidden="true" />
-          </button>
-        </div>
-      ))}
-    </div>
+    <ul className="divide-y divide-navy/8" data-testid={compact ? "summary-compact" : "summary"}>
+      {rows.map((r) => {
+        const missing = !r.v || !!r.err
+        return (
+          <li key={r.key}>
+            <button
+              type="button"
+              onClick={() => onEdit(r.key)}
+              className={cn("flex w-full items-center justify-between gap-3 text-start transition-colors hover:bg-ivory", compact ? "rounded-lg px-1 py-2" : "rounded-xl px-2 py-3")}
+              aria-label={`تعديل ${r.k}`}
+            >
+              <span className="min-w-0">
+                <span className="block text-xs text-muted-foreground">{r.k}</span>
+                <span className={cn("block font-bold", compact && "text-sm", missing ? (showErrors ? "text-destructive" : "text-silver-dark") : "text-navy")}>
+                  {r.v && !r.err ? r.v : showErrors && r.err ? r.err : "لم يُحدَّد بعد"}
+                </span>
+              </span>
+              <span className={cn("flex shrink-0 items-center justify-center rounded-full text-navy-soft", compact ? "size-8" : "size-10 bg-ivory")}>
+                <Pencil className="size-4" aria-hidden="true" />
+              </span>
+            </button>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
+
+function Field({ label, required, error, className, children }: { label: string; required?: boolean; error?: string; className?: string; children: React.ReactNode }) {
+  return (
+    <label className={cn("block", className)}>
+      <span className="field-label">
+        {label}
+        {required && <span className="text-destructive"> *</span>}
+      </span>
+      {children}
+      {error && (
+        <span className="mt-1 block text-sm font-bold text-destructive" role="alert">
+          {error}
+        </span>
+      )}
+    </label>
+  )
+}
+
