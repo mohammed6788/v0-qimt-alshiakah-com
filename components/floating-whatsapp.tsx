@@ -1,30 +1,56 @@
 "use client"
 
-import Link from "next/link"
-import { MessageCircle, Phone } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { Phone } from "lucide-react"
+import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { CONTACT, whatsappHref } from "@/lib/constants"
-import { trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 
+const MESSAGE = "السلام عليكم، أرغب في طلب تفصيل ثوب من قمة الشياكة. ما خطوات الطلب؟"
+
+/**
+ * Persistent order access:
+ *  - mobile: thumb-reachable bottom bar (WhatsApp + call)
+ *  - desktop: compact floating WhatsApp button
+ * Hidden on /design, which has its own sticky order bar.
+ */
 export function FloatingWhatsApp() {
+  const pathname = usePathname()
+  if (pathname.startsWith("/design")) return null
+
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 flex gap-2 rounded-2xl border border-white/10 bg-black/90 p-2 shadow-2xl backdrop-blur-md sm:hidden">
-      <Link
-        href={whatsappHref("السلام عليكم، أرغب في حجز تفصيل ثوب. ما خطوات الطلب؟")}
+    <>
+      <div style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }} className="fixed inset-x-3 z-40 flex gap-2 rounded-2xl border border-white/10 bg-navy-deep/95 p-2 shadow-2xl backdrop-blur-md sm:hidden">
+        <a
+          href={whatsappHref(MESSAGE)}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackWhatsAppClick("whatsapp_order", "mobile_sticky_bar")}
+          className="btn btn-primary flex-1"
+        >
+          <WhatsAppIcon />
+          اطلب عبر واتساب
+        </a>
+        <a
+          href={`tel:${CONTACT.phone}`}
+          onClick={() => trackEvent(EVENTS.phoneClick, { placement: "mobile_sticky_bar" })}
+          className="btn btn-outline-light px-4"
+          aria-label="اتصال مباشر"
+        >
+          <Phone className="size-5" aria-hidden="true" />
+        </a>
+      </div>
+
+      <a
+        href={whatsappHref(MESSAGE)}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={() => trackWhatsAppClick("whatsapp_booking", "mobile_sticky_cta")}
-        className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-green-500 px-4 font-bold text-white"
+        onClick={() => trackWhatsAppClick("whatsapp_order", "desktop_floating")}
+        aria-label="اطلب عبر واتساب"
+        className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-6 z-40 hidden size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl ring-4 ring-white/30 transition-transform hover:scale-105 sm:flex"
       >
-        <MessageCircle className="size-5" aria-hidden="true" /> اطلب عبر واتساب
-      </Link>
-      <Link
-        href={`tel:${CONTACT.phone}`}
-        onClick={() => trackEvent("phone_click", { placement: "mobile_sticky_cta" })}
-        className="flex min-h-12 items-center justify-center rounded-xl border border-white/20 px-4 text-white"
-        aria-label="اتصال مباشر"
-      >
-        <Phone className="size-5" aria-hidden="true" />
-      </Link>
-    </div>
+        <WhatsAppIcon className="size-7" />
+      </a>
+    </>
   )
 }
