@@ -47,7 +47,8 @@ async function send(ctx, p, testid) {
   const must = ['أحمد','+967773456789','المكلا','القماش: كوري مقلم','اللون المطلوب: أبيض','تفصيل سعودي','قلاب فرنسي','كبك رسمي','مثلث مخفي','الجيب: مشطوف','تطريز الاسم','الكمية: 2','عميل جديد – المقاسات مرفقة','المقاس (بالإنش)','الطول: 58 إنش','الرقبة: 16 إنش','أسفل اليد (الكبك): 10 إنش','قبل العيد'];
   const miss = must.filter(x => !msg.includes(x));
   ok('6 رسالة واتساب كاملة دون فقدان أي اختيار', miss.length === 0, miss.join(','));
-  ok('لا أسعار في الرسالة', !/ر\.ي|\d{2},\d{3}/.test(msg));
+  ok('السعر والخصم والإجمالي في الرسالة', msg.includes('سعر الثوب: 40,000 ر.ي (بدلاً من 45,000 ر.ي)') && msg.includes('الإجمالي لـ2 ثياب: 80,000 ر.ي'));
+  ok('السعر النهائي ظاهر في المراجعة', (await p.getByTestId('final-price').first().textContent()).includes('80,000'));
   ok('عرض رقم الطلب للعميل بعد الإرسال', (await p.getByTestId('sent-status').textContent()).includes('QS-0001'));
   msg = await send(ctx, p, 'send-mobile');
   ok('إعادة الضغط لنفس الطلب لا تولّد رقماً جديداً', msg.includes('QS-0001'));
@@ -113,7 +114,7 @@ async function send(ctx, p, testid) {
   ok('النقشات المعتمدة', wantPats.every(t => pats.some(x => x.startsWith(t))), pats.map(x => x.split('\n')[0]).join('|'));
   ok('خيوط البشت: الأكثر طلباً', pats.some(x => x.includes('خيوط البشت') && x.includes('الأكثر طلباً')));
   await p.getByLabel('الخطوة السابقة').click(); await p.waitForTimeout(300);
-  await radio(p, 'سميرا أميس الصافي – رقم 1').click(); await nx();
+  await radio(p, 'سميرا أميس الصافي').click(); await nx();
   const photoColors = await p.getByRole('radiogroup', { name: 'اللون المطلوب' }).getByRole('radio').count();
   const photoImgs = await p.getByRole('radiogroup', { name: 'اللون المطلوب' }).locator('img').count();
   ok('سميرا أميس: 20 لوناً مصوراً مرقماً + لون آخر', photoColors === 21 && photoImgs === 20, `${photoColors}/${photoImgs}`);
@@ -133,15 +134,17 @@ async function send(ctx, p, testid) {
   await p.locator('input[name=name]').fill('ناصر'); await p.locator('input[name=phone]').fill('771234567'); await p.getByRole('radio', { name: 'خارج المكلا' }).click(); await p.locator('input[name=city]').fill('الشحر');
   await p.evaluate(() => document.activeElement && document.activeElement.blur()); await p.waitForTimeout(250);
   msg = await send(ctx, p, 'send-mobile');
-  const must2 = ['القماش: سميرا أميس الصافي – رقم 1','اللون المطلوب: كحلي (رقم 13)','النقشة: خيوط البشت','تفصيل قطري','رقبة صيني','الأكمام: نص كم','مربع سحاب','الجيب: مخفي','الطول: 57 إنش','فتح اليد (الإبط): 9 إنش','وسط اليد: 7 إنش','أسفل اليد (الكبك): 5 إنش','الشحر'];
+  const must2 = ['القماش: سميرا أميس الصافي','اللون المطلوب: كحلي (رقم 13)','النقشة: خيوط البشت','تفصيل قطري','رقبة صيني','الأكمام: نص كم','مربع سحاب','الجيب: مخفي','الطول: 57 إنش','فتح اليد (الإبط): 9 إنش','وسط اليد: 7 إنش','أسفل اليد (الكبك): 5 إنش','الشحر'];
   const miss2 = must2.filter(x => !msg.includes(x));
   ok('رسالة واتساب بالخيارات المعتمدة (نقشة + 8 قياسات بالإنش)', miss2.length === 0, miss2.join(','));
   await p.goto(BASE + '/design?fabric=semiramis-pure', { waitUntil: 'networkidle' }); await p.evaluate(() => sessionStorage.clear()); await p.reload({ waitUntil: 'networkidle' });
-  ok('رابط «صمم بهذا القماش» من الكتالوج يختار سميرا أميس', (await radio(p, 'سميرا أميس الصافي – رقم 1').getAttribute('aria-checked')) === 'true');
+  ok('رابط «صمم بهذا القماش» من الكتالوج يختار سميرا أميس', (await radio(p, 'سميرا أميس الصافي').getAttribute('aria-checked')) === 'true');
   await p.goto(BASE + '/design?fabric=honeycomb-formal', { waitUntil: 'networkidle' }); await p.evaluate(() => sessionStorage.clear()); await p.reload({ waitUntil: 'networkidle' });
   await nx();
   const hcCount = await p.getByRole('radiogroup', { name: 'اللون المطلوب' }).getByRole('radio').count();
   ok('خلية النحل في صمم ثوبك: 10 ألوان مصورة + لون آخر', hcCount === 11, String(hcCount));
+  ok('اختيار خلية النحل يحدد نقشتها تلقائياً', (await radio(p, 'خلية النحل').getAttribute('aria-checked')) === 'true');
+  ok('صور النقشات (خيوط البشت، خلية النحل، خلية مع مقلم)', (await p.getByRole('radiogroup', { name: 'النقشة' }).locator('img').count()) === 3);
   await ctx.close();
 
   // ── 4c. New catalog: old images removed, Japanese white photo + price data ──
@@ -155,16 +158,26 @@ async function send(ctx, p, testid) {
   ok('حذف الصور القديمة بالكامل من كل الصفحات', oldImgs === 0, String(oldImgs));
   await p.goto(BASE + '/fabrics', { waitUntil: 'networkidle' });
   const cards = await p.$$eval('article', as => as.map(a => ({ t: a.querySelector('h3')?.textContent, img: !!a.querySelector('img'), soon: a.textContent.includes('الصورة قريباً') })));
-  ok('الكتالوج: 6 أقمشة', cards.length === 6, cards.map(c => c.t).join('|'));
+  const priceTexts = await p.$$eval('article', as => Object.fromEntries(as.map(a => [a.querySelector('h3')?.textContent, a.querySelector('[data-testid=price-block]')?.innerText.replace(/\s+/g, ' ') || ''])));
+  const wantPrices = { 'قماش أبيض ياباني': ['75,000', '80,000'], 'سميرا أميس الصافي': ['38,000', '45,000'], 'كوري مقلم': ['40,000', '45,000'], 'صيني ممتاز': ['35,000', '45,000'], 'شتوي كاروهات': ['45,000', '50,000'], 'خلية النحل الرسمي': ['40,000'], 'خلية مع مقلم': ['40,000'] };
+  const badPrices = Object.entries(wantPrices).filter(([t, ps]) => !ps.every(x => (priceTexts[t] || '').includes(x)) || !(priceTexts[t] || '').includes('السعر شامل القماش والتفصيل'));
+  ok('الأسعار والخصومات المعتمدة (7 أقمشة) + «شامل القماش والتفصيل»', badPrices.length === 0, badPrices.map(b => b[0] + ':' + priceTexts[b[0]]).join(' || '));
+  ok('السعر القديم مشطوب', (await p.locator('article s').count()) === 5);
+  ok('خيوط البشت: السعر عند الطلب (لا سعر غير معتمد)', (priceTexts['خيوط البشت'] || '') === '' && (await p.locator('article', { hasText: 'خيوط البشت' }).getByText('السعر عند الطلب').count()) === 1);
+  await p.getByLabel('ترتيب النتائج').selectOption('price_asc');
+  ok('الترتيب حسب السعر: الأقل أولاً صيني ممتاز', (await p.locator('article h3').first().textContent()) === 'صيني ممتاز');
+  ok('الكتالوج: 8 أقمشة', cards.length === 8, cards.map(c => c.t).join('|'));
   ok('القماش الأبيض الياباني بصورته', cards.find(c => c.t === 'قماش أبيض ياباني')?.img === true);
-  ok('سميرا أميس وخلية النحل بصورهما، والباقي «الصورة قريباً»', cards.find(c => c.t === 'سميرا أميس الصافي – رقم 1')?.img === true && cards.find(c => c.t === 'خلية النحل الرسمي')?.img === true && cards.filter(c => c.soon).length === 3);
-  ok('الأسعار مخفية (40,000 غير معروض)', !(await p.evaluate(() => document.body.innerText)).includes('40,000'));
+  ok('الأقمشة المصورة بصورها، والباقي «الصورة قريباً»', ['قماش أبيض ياباني','سميرا أميس الصافي','خلية النحل الرسمي','خلية مع مقلم','خيوط البشت'].every(t => cards.find(c => c.t === t)?.img === true) && cards.filter(c => c.soon).length === 3, cards.filter(c=>c.soon).map(c=>c.t).join('|'));
   await p.goto(BASE + '/fabrics/semiramis-pure', { waitUntil: 'networkidle' });
   ok('صفحة سميرا أميس: 20 لوناً منفصلاً بأرقامها', (await p.locator('#colors-heading + p + ul li img').count()) === 20 && (await p.getByText('13 · كحلي').count()) === 1);
   await p.goto(BASE + '/fabrics/honeycomb-formal', { waitUntil: 'networkidle' });
   ok('صفحة خلية النحل الرسمي: 10 ألوان منفصلة', (await p.locator('#colors-heading + p + ul li img').count()) === 10 && (await p.getByRole('heading', { name: 'الألوان المتوفرة (10 ألوان)' }).count()) === 1 && (await p.getByText('5 · جملي').count()) === 1);
-  ok('صفحة خلية النحل: السعر مخفي', !(await p.evaluate(() => document.body.innerText)).includes('40,000'));
-  ok('الأسعار مخفية (80,000 غير معروض)', !(await p.evaluate(() => document.body.innerText)).includes('80,000'));
+  ok('صفحة خلية النحل: السعر 40,000', (await p.getByTestId('price-block').first().textContent()).includes('40,000'));
+  await p.goto(BASE + '/fabrics/honeycomb-striped', { waitUntil: 'networkidle' });
+  ok('صفحة خلية مع مقلم: 10 ألوان منفصلة', (await p.locator('#colors-heading + p + ul li img').count()) === 10);
+  await p.goto(BASE + '/fabrics/bisht-threads', { waitUntil: 'networkidle' });
+  ok('صفحة خيوط البشت: 20 لوناً منفصلاً', (await p.locator('#colors-heading + p + ul li img').count()) === 20);
   const prodRes = await p.request.get(BASE + '/fabrics/thai-pure');
   ok('روابط الأقمشة القديمة تُرجع 404', prodRes.status() === 404, String(prodRes.status()));
   await ctx.close();
@@ -237,7 +250,7 @@ async function send(ctx, p, testid) {
   }
   ok('9 SEO: عنوان فريد، وصف، canonical، H1 واحد، OG، lang/dir، alt، JSON-LD', seo.length === 0, seo.join(','));
   const sm = await (await p.request.get(BASE + '/sitemap.xml')).text();
-  ok('9 sitemap.xml يحتوي 12 رابطاً (6 صفحات + 6 أقمشة)', (sm.match(/<loc>/g) || []).length === 12);
+  ok('9 sitemap.xml يحتوي 14 رابطاً (6 صفحات + 8 أقمشة)', (sm.match(/<loc>/g) || []).length === 14);
   const rb = await (await p.request.get(BASE + '/robots.txt')).text();
   ok('9 robots.txt يشير إلى sitemap ولا يحجب الموقع', rb.includes('Sitemap: https://qimt-alshiakah.com/sitemap.xml') && !/Disallow: \/\s*$/m.test(rb));
   await ctx.close();

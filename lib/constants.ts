@@ -100,6 +100,18 @@ const SEMIRAMIS_COLORS = numberedColors("semiramis", "semiramis", [
   ["olive", "زيتي"], ["dark-green", "أخضر غامق"], ["burgundy", "عنابي"], ["brown", "بني"],
 ])
 
+const HONEYCOMB_STRIPED_COLORS = numberedColors("honeycomb-striped", "honeycomb-striped", [
+  ["white", "أبيض"], ["offwhite", "أوف وايت"], ["cream", "سكري"], ["beige", "بيج"], ["camel", "جملي"],
+  ["light-grey", "رصاصي فاتح"], ["grey", "رصاصي"], ["black", "أسود"], ["navy", "كحلي"], ["sky", "سماوي"],
+])
+
+const BISHT_COLORS = numberedColors("bisht", "bisht-threads", [
+  ["white", "أبيض"], ["cream", "سكري"], ["beige", "بيج"], ["grey", "رصاصي"], ["navy", "كحلي"],
+  ["offwhite", "أوف وايت"], ["light-beige", "بيج فاتح"], ["light-grey", "رصاصي فاتح"], ["black", "أسود"], ["sky", "سماوي"],
+  ["white-2", "أبيض"], ["offwhite-2", "أوف وايت"], ["ivory", "كريمي"], ["beige-2", "بيج"], ["desert", "صحراوي"],
+  ["light-grey-2", "رصاصي فاتح"], ["charcoal", "رمادي فحمي"], ["black-2", "أسود"], ["navy-2", "كحلي"], ["sky-2", "سماوي"],
+])
+
 const HONEYCOMB_COLORS = numberedColors("honeycomb", "honeycomb", [
   ["white", "أبيض"], ["offwhite", "أوف وايت"], ["cream", "سكري"], ["beige", "بيج"], ["camel", "جملي"],
   ["light-grey", "رصاصي فاتح"], ["charcoal", "رمادي فحمي"], ["black", "أسود"], ["navy", "كحلي"], ["sky", "سماوي"],
@@ -123,6 +135,30 @@ export type Product = {
   colors?: string[]
   /** Photographed, numbered colors available for this fabric. */
   colorOptions?: ColorOption[]
+  /** Pattern id (see PATTERNS) that this fabric has by nature; preselected in the designer. */
+  pattern?: string
+}
+
+// ─────────────────────────────────────────────────────────────
+// PRICES — the single place to edit prices and discounts.
+// Yemeni rial, complete thobe (fabric + tailoring).
+//   base: price before discount · sale: current price (omit if no discount)
+// A fabric missing here shows "السعر عند الطلب".
+// ─────────────────────────────────────────────────────────────
+export const PRICES: Record<string, { base: number; sale?: number }> = {
+  "japanese-white": { base: 80000, sale: 75000 },
+  "semiramis-pure": { base: 45000, sale: 38000 },
+  "korean-striped": { base: 45000, sale: 40000 },
+  "chinese-premium": { base: 45000, sale: 35000 },
+  "winter-checks": { base: 50000, sale: 45000 },
+  "honeycomb-formal": { base: 40000 },
+  "honeycomb-striped": { base: 40000 },
+}
+
+function priced(p: Omit<Product, "price" | "compareAtPrice">): Product {
+  const pr = PRICES[p.slug]
+  if (!pr) return p
+  return pr.sale !== undefined && pr.sale < pr.base ? { ...p, price: pr.sale, compareAtPrice: pr.base } : { ...p, price: pr.base }
 }
 
 export const PRODUCTS: Product[] = [
@@ -133,7 +169,6 @@ export const PRODUCTS: Product[] = [
     description: "قماش ياباني باللون الأبيض لتفصيل الثياب الرجالية",
     type: "ياباني",
     origin: "اليابان",
-    price: 80000,
     currency: "ر.ي",
     image: "/fabrics/japanese-white.webp",
     colors: ["white"],
@@ -141,24 +176,12 @@ export const PRODUCTS: Product[] = [
   {
     id: 2,
     slug: "semiramis-pure",
-    title: "سميرا أميس الصافي – رقم 1",
-    description: "متوفر بأكثر من 20 لوناً، يبدأ من الأبيض",
+    title: "سميرا أميس الصافي",
+    description: "رقم 1 · متوفر بأكثر من 20 لوناً، يبدأ من الأبيض",
     type: "سميرا أميس",
-    price: 40000,
     currency: "ر.ي",
     image: "/fabrics/semiramis-colors.webp",
     colorOptions: SEMIRAMIS_COLORS,
-  },
-  {
-    id: 6,
-    slug: "honeycomb-formal",
-    title: "خلية النحل الرسمي",
-    description: "قماش بنقشة خلية النحل، متوفر بـ10 ألوان",
-    type: "خلية النحل",
-    price: 40000,
-    currency: "ر.ي",
-    image: "/fabrics/honeycomb-colors.webp",
-    colorOptions: HONEYCOMB_COLORS,
   },
   {
     id: 3,
@@ -168,6 +191,7 @@ export const PRODUCTS: Product[] = [
     type: "كوري",
     origin: "كوريا",
     currency: "ر.ي",
+    pattern: "striped",
   },
   {
     id: 4,
@@ -185,15 +209,49 @@ export const PRODUCTS: Product[] = [
     description: "قماش شتوي بنقشة كاروهات",
     type: "شتوي",
     currency: "ر.ي",
+    pattern: "checks",
   },
-]
+  {
+    id: 6,
+    slug: "honeycomb-formal",
+    title: "خلية النحل الرسمي",
+    description: "قماش بنقشة خلية النحل، متوفر بـ10 ألوان",
+    type: "خلية النحل",
+    currency: "ر.ي",
+    image: "/fabrics/honeycomb-colors.webp",
+    colorOptions: HONEYCOMB_COLORS,
+    pattern: "honeycomb",
+  },
+  {
+    id: 7,
+    slug: "honeycomb-striped",
+    title: "خلية مع مقلم",
+    description: "خلية النحل مع خطوط مقلّمة، متوفر بـ10 ألوان",
+    type: "خلية مع مقلم",
+    currency: "ر.ي",
+    image: "/fabrics/honeycomb-striped-colors.webp",
+    colorOptions: HONEYCOMB_STRIPED_COLORS,
+    pattern: "honeycomb_striped",
+  },
+  {
+    id: 8,
+    slug: "bisht-threads",
+    title: "خيوط البشت",
+    description: "النقشة الأكثر طلباً، متوفرة بـ20 لوناً",
+    type: "خيوط البشت",
+    tag: "الأكثر طلباً",
+    currency: "ر.ي",
+    image: "/fabrics/bisht-threads-real.webp",
+    colorOptions: BISHT_COLORS,
+    pattern: "bisht_threads",
+  },
+].map(priced)
 
-// Prices are kept in the data but hidden on the site by the owner's request.
-// Set to true to show prices again everywhere (cards, details, messages).
-export const SHOW_PRICES = false
+// Prices are shown with the old price struck through when discounted.
+export const SHOW_PRICES = true
 
 // Prices are for the complete thobe: fabric + tailoring (confirmed by the owner).
-export const PRICE_LABEL = "سعر الثوب كامل (القماش مع التفصيل)"
+export const PRICE_LABEL = "السعر شامل القماش والتفصيل"
 export const PRICE_ON_REQUEST = "السعر عند الطلب"
 
 export function getProduct(slug: string) {

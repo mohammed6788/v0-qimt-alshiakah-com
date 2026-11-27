@@ -23,6 +23,7 @@ function normalize(s: string) {
 export function FabricCatalog() {
   const [query, setQuery] = useState("")
   const [type, setType] = useState<string>("all")
+  const [sort, setSort] = useState<"featured" | "price_asc" | "price_desc">("featured")
   const searchTracked = useRef(false)
 
   useEffect(() => {
@@ -31,23 +32,29 @@ export function FabricCatalog() {
 
   const results = useMemo(() => {
     const q = normalize(query)
-    return PRODUCTS.filter((p) => {
+    const list = PRODUCTS.filter((p) => {
       if (type !== "all" && p.type !== type) return false
       if (!q) return true
       return [p.title, p.description, p.type, p.origin ?? ""].some((f) => normalize(f).includes(q))
     })
-  }, [query, type])
+    if (sort === "featured") return list
+    // Fabrics without a price stay at the end.
+    const val = (p: (typeof PRODUCTS)[number]) => p.price ?? (sort === "price_asc" ? Infinity : -Infinity)
+    return [...list].sort((a, b) => (sort === "price_asc" ? val(a) - val(b) : val(b) - val(a)))
+  }, [query, type, sort])
 
   const activeFilters = (type !== "all" ? 1 : 0) + (query ? 1 : 0)
 
   const reset = () => {
     setQuery("")
     setType("all")
+    setSort("featured")
   }
 
   return (
     <div>
       <div className="card-surface -mt-8 space-y-4 p-4 sm:-mt-10 sm:p-5">
+        <div className="grid gap-3 sm:grid-cols-[1fr_220px]">
         <label className="relative block">
           <span className="sr-only">ابحث عن قماش</span>
           <Search className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-silver-dark" aria-hidden="true" />
@@ -65,6 +72,15 @@ export function FabricCatalog() {
             className="field-input pr-12"
           />
         </label>
+          <label className="block">
+            <span className="sr-only">ترتيب النتائج</span>
+            <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="field-input" aria-label="ترتيب النتائج">
+              <option value="featured">الترتيب: المميز أولاً</option>
+              <option value="price_asc">السعر: من الأقل للأعلى</option>
+              <option value="price_desc">السعر: من الأعلى للأقل</option>
+            </select>
+          </label>
+        </div>
 
         <div className="flex items-start gap-3">
           <SlidersHorizontal className="mt-2 size-5 shrink-0 text-navy-soft" aria-hidden="true" />

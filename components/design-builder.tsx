@@ -26,7 +26,7 @@ import {
   type SectionKey,
   type SectionProps,
 } from "@/components/design/sections"
-import { getProduct, whatsappHref } from "@/lib/constants"
+import { PRICE_LABEL, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
 import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
@@ -143,7 +143,13 @@ export function DesignBuilder() {
     const draft = loadDraft()
     // Read ?fabric= after mount so the page can be prerendered (no layout shift).
     const slug = new URLSearchParams(window.location.search).get("fabric")
-    setSt((p) => ({ ...p, ...draft, ...(fabricFromParam(slug) ? { fabric: fabricFromParam(slug)! } : {}) }))
+    const fromParam = fabricFromParam(slug)
+    setSt((p) => {
+      const next = { ...p, ...draft, ...(fromParam ? { fabric: fromParam } : {}) }
+      // Opening the designer from a fabric page preselects that fabric's own pattern.
+      const natural = fromParam ? getProduct(fromParam)?.pattern : undefined
+      return natural && !next.pattern ? { ...next, pattern: natural } : next
+    })
     setSaved(loadProfile())
     setHydrated(true)
     trackEvent(EVENTS.designStart, { placement: "design_page", prefilled_fabric: slug ?? "none" })
@@ -206,7 +212,7 @@ export function DesignBuilder() {
     name: customer.name.trim(),
     phone: validatePhone(customer.phone).normalized || customer.phone.trim(),
     city,
-    fabric: fabricText ? { title: fabricText } : undefined,
+    fabric: product ? { ...product, catalog: true } : fabricText ? { title: fabricText } : undefined,
     color: colorLabel,
     pattern: patternLabel,
     style: optionLabel(THOBE_STYLES, st.style),
@@ -379,6 +385,7 @@ export function DesignBuilder() {
           {current.id === "review" && (
             <div className="space-y-8">
               <SummaryList rows={rows} onEdit={openEdit} showErrors={submitAttempted} />
+              <FinalPrice product={product} quantity={st.quantity} />
 
               <fieldset className="space-y-4">
                 <legend className="type-h3 mb-1 text-navy">بياناتك للتواصل</legend>
@@ -535,6 +542,9 @@ export function DesignBuilder() {
             </div>
           )}
           <SummaryList rows={rows} onEdit={openEdit} compact />
+          <div className="mt-4">
+            <FinalPrice product={product} quantity={st.quantity} />
+          </div>
         </aside>
       </div>
 
@@ -610,6 +620,37 @@ export function DesignBuilder() {
             saved,
           })}
       </EditSheet>
+    </div>
+  )
+}
+
+function FinalPrice({ product, quantity }: { product: ReturnType<typeof getProduct>; quantity: number }) {
+  if (!SHOW_PRICES || !product) return null
+  if (product.price === undefined)
+    return (
+      <div className="rounded-2xl bg-navy p-4 text-white" data-testid="final-price">
+        <p className="text-sm text-silver">السعر النهائي</p>
+        <p className="type-title">يُحدد عند تأكيد الطلب</p>
+        <p className="text-xs text-silver">{PRICE_LABEL}</p>
+      </div>
+    )
+  const discounted = product.compareAtPrice !== undefined && product.compareAtPrice > product.price
+  return (
+    <div className="rounded-2xl bg-navy p-4 text-white" data-testid="final-price">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-sm text-silver">سعر الثوب</p>
+        <p className="num">
+          <span className="text-lg font-bold">{formatPrice(product.price, product.currency)}</span>
+          {discounted && <s className="ms-2 text-sm text-silver-dark">{formatPrice(product.compareAtPrice!, product.currency)}</s>}
+        </p>
+      </div>
+      {quantity > 1 && (
+        <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-white/10 pt-2">
+          <p className="text-sm text-silver">الإجمالي ({quantity} ثياب)</p>
+          <p className="num text-xl font-bold text-sky">{formatPrice(product.price * quantity, product.currency)}</p>
+        </div>
+      )}
+      <p className="mt-1 text-xs text-silver">{PRICE_LABEL}</p>
     </div>
   )
 }

@@ -29,9 +29,9 @@ export const FABRIC_COLORS: (Option & { swatch: string })[] = [
 
 // Fabric patterns approved by the shop.
 export const PATTERNS: (Option & { popular?: boolean })[] = [
-  { id: "bisht_threads", label: "خيوط البشت", hint: "الأكثر طلباً", popular: true },
-  { id: "honeycomb", label: "خلية النحل" },
-  { id: "honeycomb_striped", label: "خلية مع مقلم" },
+  { id: "bisht_threads", label: "خيوط البشت", hint: "الأكثر طلباً", popular: true, image: "/fabrics/bisht-threads-real.webp" },
+  { id: "honeycomb", label: "خلية النحل", image: "/fabrics/honeycomb/01-white.webp" },
+  { id: "honeycomb_striped", label: "خلية مع مقلم", image: "/fabrics/honeycomb-striped/01-white.webp" },
   { id: "striped", label: "مقلم" },
   { id: "lined", label: "مخطط" },
   { id: "checks", label: "كاروهات" },
@@ -150,7 +150,7 @@ export type OrderDetails = {
   name?: string
   phone?: string
   city?: string
-  fabric?: Pick<Product, "title" | "price" | "currency"> | { title: string; price?: number; currency?: string }
+  fabric?: { title: string; price?: number; compareAtPrice?: number; currency?: string; catalog?: boolean }
   color?: string
   pattern?: string
   style?: string
@@ -179,6 +179,18 @@ export function formatMeasurements(m: Measurements | undefined) {
   )
 }
 
+/** Price lines for the order message (unit price, original price, total). */
+export function pricingLines(o: Pick<OrderDetails, "fabric" | "quantity">) {
+  if (!SHOW_PRICES || !o.fabric) return []
+  const { price, compareAtPrice, currency, catalog } = o.fabric
+  if (price === undefined) return catalog ? ["السعر: يُحدد عند تأكيد الطلب"] : []
+  const qty = o.quantity && o.quantity > 1 ? o.quantity : 1
+  const was = compareAtPrice && compareAtPrice > price ? ` (بدلاً من ${formatPrice(compareAtPrice, currency)})` : ""
+  const out = [`سعر الثوب: ${formatPrice(price, currency)}${was}`]
+  if (qty > 1) out.push(`الإجمالي لـ${qty} ثياب: ${formatPrice(price * qty, currency)}`)
+  return out
+}
+
 export function buildOrderMessage(o: OrderDetails) {
   const lines: string[] = []
   lines.push(`*${KIND_TITLE[o.kind]} – ${BRAND.name}*`)
@@ -193,8 +205,7 @@ export function buildOrderMessage(o: OrderDetails) {
 
   const thobe: string[] = []
   if (o.fabric) {
-    const price = SHOW_PRICES && o.fabric.price ? ` (${formatPrice(o.fabric.price, o.fabric.currency)})` : ""
-    thobe.push(`القماش: ${o.fabric.title}${price}`)
+    thobe.push(`القماش: ${o.fabric.title}`)
   }
   if (o.color) thobe.push(`اللون المطلوب: ${o.color}`)
   if (o.pattern) thobe.push(`النقشة: ${o.pattern}`)
@@ -206,6 +217,9 @@ export function buildOrderMessage(o: OrderDetails) {
   if (o.extras && o.extras.length) thobe.push(`تفاصيل إضافية: ${o.extras.join("، ")}`)
   if (o.quantity) thobe.push(`الكمية: ${o.quantity} ${o.quantity === 1 ? "ثوب" : "ثياب"}`)
   if (thobe.length) lines.push("*تفاصيل الثوب*", ...thobe, "")
+
+  const priceLines = pricingLines(o)
+  if (priceLines.length) lines.push("*السعر (شامل القماش والتفصيل)*", ...priceLines, "")
 
   const meas = formatMeasurements(o.measurements)
   if (o.measurementStatus || meas.length) {

@@ -61,7 +61,7 @@ const radio = (p, name) => p.getByRole('radio', { name, exact: true });
   // edits via sheets
   const edit = async (label, choose) => { await p.getByRole('button', { name: 'تعديل ' + label }).first().click(); await p.waitForTimeout(450); await choose(); await p.getByTestId('sheet-confirm').click(); await p.waitForTimeout(450); };
   await edit('اللون', () => radio(p, 'رصاصي').click());
-  ok('3 تعديل اللون عبر النافذة', await p.getByTestId('summary').getByText('رصاصي', { exact: true }).isVisible());
+  ok('3 تعديل اللون عبر النافذة', await p.getByTestId('summary').getByText(/^رصاصي( · |$)/).isVisible());
   await edit('التفصيل والياقة', async () => { await radio(p, 'تفصيل قطري').click(); await radio(p, 'رقبة صيني').click(); });
   ok('4 تعديل الياقة', await p.getByTestId('summary').getByText('تفصيل قطري · رقبة صيني').isVisible());
   await edit('الأكمام', () => radio(p, 'كبك فرنسي – يدجبزور').click());
@@ -73,7 +73,7 @@ const radio = (p, name) => p.getByRole('radio', { name, exact: true });
   // cancel keeps old value
   await p.getByRole('button', { name: 'تعديل اللون' }).first().click(); await p.waitForTimeout(450);
   await radio(p, 'كحلي').click(); await p.getByRole('button', { name: 'إلغاء' }).click(); await p.waitForTimeout(450);
-  ok('الإلغاء لا يغيّر الاختيار', await p.getByTestId('summary').getByText('رصاصي', { exact: true }).isVisible());
+  ok('الإلغاء لا يغيّر الاختيار', await p.getByTestId('summary').getByText(/^رصاصي( · |$)/).isVisible());
   await edit('القماش', () => radio(p, 'صيني ممتاز').click());
   ok('2 تغيير القماش من الملخص', await p.getByTestId('summary').getByText('صيني ممتاز', { exact: true }).isVisible());
 
@@ -89,7 +89,8 @@ const radio = (p, name) => p.getByRole('radio', { name, exact: true });
   const missing = must.filter(x => !msg.includes(x));
   ok('10 رسالة واتساب تحتوي كل التفاصيل', missing.length === 0, missing.join(','));
   ok('10 الرابط إلى الرقم الصحيح ومرمّز', href.startsWith('https://wa.me/967738360254?text=') && !/[\s؀-ۿ]/.test(href));
-  ok('لا رقم طلب وهمي ولا أسعار', !/QS-|الرقم المرجعي|ر\.ي/.test(msg));
+  ok('لا رقم طلب وهمي', !/QS-|الرقم المرجعي/.test(msg));
+  ok('السعر والإجمالي في الرسالة (صيني ممتاز × 3)', msg.includes('سعر الثوب: 35,000 ر.ي (بدلاً من 45,000 ر.ي)') && msg.includes('الإجمالي لـ3 ثياب: 105,000 ر.ي'));
   await p.evaluate(() => document.activeElement.blur()); await p.waitForTimeout(250);
   const [popup] = await Promise.all([ctx.waitForEvent('page', { timeout: 4000 }).catch(() => null), p.getByTestId('send-mobile').click()]);
   ok('إرسال صالح يفتح واتساب', !!popup);

@@ -43,7 +43,7 @@ export default function FabricsPage() {
         <div className="container-site">
           <FabricCatalog />
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            للسعر والتوفر والألوان المتاحة، تواصل معنا عبر واتساب.
+            جميع الأسعار بالريال اليمني وشاملة القماش والتفصيل. توفّر الألوان يؤكده فريقنا عند الطلب.
           </p>
         </div>
       </section>

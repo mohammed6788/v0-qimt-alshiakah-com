@@ -122,7 +122,7 @@ export default async function FabricDetailPage({ params }: Params) {
                   )}
                 </dl>
                 <p className="mt-4 border-t border-navy/10 pt-4 text-sm text-muted-foreground">
-                  للسعر والألوان المتوفرة وموعد التسليم، تواصل معنا عبر واتساب.
+                  توفّر اللون وموعد التسليم يؤكدهما فريقنا عبر واتساب قبل اعتماد الطلب.
                 </p>
               </div>
 

@@ -144,7 +144,7 @@ export function MeasurementsManager() {
           phone: profile.phone,
           city: profile.city,
           fabric: reorderFabricProduct
-            ? { title: reorderFabricProduct.title }
+            ? { ...reorderFabricProduct, catalog: true }
             : { title: "نفس القماش السابق أو حسب الاستشارة" },
           quantity: reorderQty,
           measurementStatus: "مقاساتي المحفوظة على جهازي (مرفقة أدناه) – أرجو مراجعتها قبل التفصيل",

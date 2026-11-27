@@ -55,20 +55,33 @@ export function AvailabilityBadge({ product, className }: { product: Product; cl
 
 export function PriceBlock({ product, large }: { product: Product; large?: boolean }) {
   if (!SHOW_PRICES) return null
-  if (product.price === undefined) return <p className={cn("font-semibold text-navy", large ? "text-xl" : "text-base")}>{PRICE_ON_REQUEST}</p>
-  const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
+  if (product.price === undefined)
+    return (
+      <div>
+        <p className={cn("font-semibold text-navy", large ? "text-xl" : "text-base")}>{PRICE_ON_REQUEST}</p>
+        <p className="text-xs text-muted-foreground">{PRICE_LABEL}</p>
+      </div>
+    )
+  const hasDiscount = product.compareAtPrice !== undefined && product.compareAtPrice > product.price
   return (
-    <div>
-      <p className={cn("num font-bold text-navy", large ? "text-[1.625rem] leading-snug" : "text-xl leading-snug")}>
-        {formatPrice(product.price, product.currency)}
+    <div data-testid="price-block">
+      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        <p className={cn("num font-bold text-navy", large ? "text-[1.75rem] leading-snug" : "text-[1.375rem] leading-snug")}>
+          {formatPrice(product.price, product.currency)}
+        </p>
         {hasDiscount && (
-          <s className="ms-2 text-sm font-medium text-silver-dark">
-            <span className="sr-only">السعر قبل الخصم: </span>
-            {formatPrice(product.compareAtPrice!, product.currency)}
-          </s>
+          <>
+            <s className={cn("num font-medium text-silver-dark", large ? "text-base" : "text-sm")}>
+              <span className="sr-only">السعر قبل الخصم: </span>
+              {formatPrice(product.compareAtPrice!, product.currency)}
+            </s>
+            <span className="num rounded-full bg-sky-soft px-2 py-0.5 text-xs font-semibold text-navy-soft">
+              وفّر {formatPrice(product.compareAtPrice! - product.price, product.currency)}
+            </span>
+          </>
         )}
-      </p>
-      <p className="text-xs text-muted-foreground">{PRICE_LABEL}</p>
+      </div>
+      <p className="mt-0.5 text-xs text-muted-foreground">{PRICE_LABEL}</p>
     </div>
   )
 }

@@ -257,7 +257,9 @@ export function FabricSection({ st, set, showErrors }: SectionProps) {
   const pick = (id: string) => {
     // Drop a color that is not offered for the new fabric.
     const keepColor = !st.color || allowedColorIds(id).includes(st.color)
-    set({ fabric: id, ...(keepColor ? {} : { color: "", customColor: "" }) })
+    // A fabric with a built-in pattern (e.g. honeycomb) preselects it.
+    const natural = getProduct(id)?.pattern
+    set({ fabric: id, ...(keepColor ? {} : { color: "", customColor: "" }), ...(natural ? { pattern: natural } : {}) })
   }
   return (
     <>
@@ -382,8 +384,19 @@ function PatternPicker({ st, set }: SectionProps) {
       <SubHeading>النقشة (اختياري)</SubHeading>
       <div role="radiogroup" aria-label="النقشة" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {PATTERNS.map((o) => (
-          <Tile key={o.id} selected={st.pattern === o.id} onSelect={() => set({ pattern: st.pattern === o.id ? "" : o.id })} label={o.label} className="min-h-14 items-center px-4 py-3">
-            <span className="pe-7">
+          <Tile
+            key={o.id}
+            selected={st.pattern === o.id}
+            onSelect={() => set({ pattern: st.pattern === o.id ? "" : o.id })}
+            label={o.label}
+            className={cn("overflow-hidden", o.image ? "flex-col p-0" : "min-h-14 items-center px-4 py-3")}
+          >
+            {o.image && (
+              <span className="relative block aspect-[4/3] w-full bg-silver-light">
+                <Image src={o.image} alt="" fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
+              </span>
+            )}
+            <span className={cn(o.image ? "px-3 py-2" : "pe-7")}>
               <span className="block font-medium text-navy">{o.label}</span>
               {o.popular && <span className="mt-1 inline-block rounded-full bg-navy px-2 py-0.5 text-[11px] font-semibold text-sky">الأكثر طلباً</span>}
             </span>
