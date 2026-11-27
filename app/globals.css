@@ -3,57 +3,56 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Qimat Al-Shiakah identity
+ * Navy 60% · Silver 20% · Sky Blue 10% · White/Neutral 10%
+ * Colors sampled from the official logo artwork.
+ */
 :root {
-  --gold: #c5a059;
-  --dark-gold: #9a783d;
-  --light-gold: #ead8af;
-  
-  --background: #f4f1ea;
-  --foreground: #1d1b17;
-  --card: #fbfaf7;
-  --card-foreground: #1d1b17;
-  --popover: #fbfaf7;
-  --popover-foreground: #1d1b17;
-  --primary: #c5a059;
-  --primary-foreground: #1d1b17;
-  --secondary: #ebe6dc;
-  --secondary-foreground: #1d1b17;
-  --muted: #ebe6dc;
-  --muted-foreground: #706b61;
-  --accent: #c5a059;
-  --accent-foreground: #1d1b17;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: rgba(29, 27, 23, 0.1);
-  --input: #ded8cc;
-  --ring: #c5a059;
-  --radius: 0.75rem;
-}
+  --navy: #011d45;
+  --navy-deep: #00122e;
+  --navy-soft: #0b2d63;
+  --navy-line: rgba(195, 201, 211, 0.16);
+  --silver: #c3c9d3;
+  --silver-light: #e4e8ee;
+  --silver-dark: #8c95a3;
+  --sky: #3db5e6;
+  --sky-soft: #e8f6fc;
+  --ivory: #f5f7fa;
 
-.dark {
-  --background: #1A1A1A;
-  --foreground: #fcfcfc;
-  --card: #262626;
-  --card-foreground: #fcfcfc;
-  --popover: #262626;
-  --popover-foreground: #fcfcfc;
-  --primary: #D4AF37;
-  --primary-foreground: #1A1A1A;
-  --secondary: #333333;
-  --secondary-foreground: #fcfcfc;
-  --muted: #333333;
-  --muted-foreground: #9ca3af;
-  --accent: #D4AF37;
-  --accent-foreground: #1A1A1A;
-  --destructive: #dc2626;
+  --background: var(--ivory);
+  --foreground: var(--navy);
+  --card: #ffffff;
+  --card-foreground: var(--navy);
+  --popover: #ffffff;
+  --popover-foreground: var(--navy);
+  --primary: var(--navy);
+  --primary-foreground: #ffffff;
+  --secondary: var(--silver-light);
+  --secondary-foreground: var(--navy);
+  --muted: var(--silver-light);
+  --muted-foreground: #4f5b6e;
+  --accent: var(--sky);
+  --accent-foreground: var(--navy);
+  --destructive: #c62828;
   --destructive-foreground: #ffffff;
-  --border: rgba(212, 175, 55, 0.2);
-  --input: #404040;
-  --ring: #D4AF37;
+  --border: rgba(1, 29, 69, 0.12);
+  --input: #cfd5de;
+  --ring: var(--sky);
+  --radius: 0.875rem;
 }
 
 @theme inline {
-  --font-sans: var(--font-tajawal), 'Tajawal', sans-serif;
+  --font-sans: var(--font-tajawal), 'Tajawal', system-ui, sans-serif;
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-navy-soft: var(--navy-soft);
+  --color-silver: var(--silver);
+  --color-silver-light: var(--silver-light);
+  --color-silver-dark: var(--silver-dark);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-ivory: var(--ivory);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -73,9 +72,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-gold: var(--gold);
-  --color-dark-gold: var(--dark-gold);
-  --color-light-gold: var(--light-gold);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -86,41 +82,71 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground;
-  }
-  html {
-    scroll-padding-top: 5rem;
+    overflow-x: clip;
   }
   [id] {
-    scroll-margin-top: 5rem;
+    scroll-margin-top: 5.5rem;
   }
   a:focus-visible,
-  button:focus-visible {
-    outline: 3px solid var(--gold);
-    outline-offset: 3px;
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible {
+    outline: 3px solid var(--sky);
+    outline-offset: 2px;
+  }
+  img {
+    max-width: 100%;
   }
 }
 
-/* Custom utilities */
-.gold-gradient {
-  background: linear-gradient(45deg, var(--gold), var(--light-gold));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.btn-gold {
-  background: linear-gradient(45deg, var(--dark-gold), var(--gold));
-  transition: all 0.3s ease;
-}
-
-.btn-gold:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
-}
-
-.card-shadow {
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.1);
+@layer components {
+  .container-site {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-sky sm:text-sm;
+  }
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-6 text-base font-bold transition-[background-color,color,border-color,transform,box-shadow] duration-200 motion-safe:active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-sky text-navy-deep shadow-[0_8px_24px_-12px_rgba(61,181,230,0.7)] hover:bg-white;
+  }
+  .btn-navy {
+    @apply bg-navy text-white hover:bg-navy-soft;
+  }
+  .btn-outline-light {
+    @apply border border-silver/40 text-white hover:border-white hover:bg-white/10;
+  }
+  .btn-outline-dark {
+    @apply border border-navy/20 text-navy hover:border-navy hover:bg-navy hover:text-white;
+  }
+  .card-surface {
+    @apply rounded-2xl border border-navy/10 bg-white shadow-[0_1px_2px_rgba(1,29,69,0.04),0_12px_32px_-20px_rgba(1,29,69,0.25)];
+  }
+  .field-label {
+    @apply mb-1.5 block text-sm font-bold text-navy;
+  }
+  .field-input {
+    @apply block min-h-12 w-full rounded-xl border border-input bg-white px-4 text-base text-navy placeholder:text-silver-dark focus:border-sky focus:outline-none focus:ring-2 focus:ring-sky/30;
+  }
+  .silver-text {
+    background: linear-gradient(180deg, #ffffff 0%, var(--silver) 60%, var(--silver-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .navy-gradient {
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(61, 181, 230, 0.14), transparent 60%),
+      linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+  }
 }
