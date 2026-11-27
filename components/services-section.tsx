@@ -3,7 +3,7 @@ import { Gem, Ruler, Shirt, Wrench } from "lucide-react"
 // Pillars as presented on the brand's official materials.
 const services = [
   { icon: Gem, title: "جودة وإتقان", description: "خياطة متقنة بتشطيب نظيف يدوم." },
-  { icon: Shirt, title: "أقمشة فاخرة", description: "ياباني، كوري، صيني وتايلاندي." },
+  { icon: Shirt, title: "أقمشة فاخرة", description: "ياباني، سميرا أميس، خلية النحل، كوري، صيني وشتوي." },
   { icon: Ruler, title: "تفصيل حسب المقاس", description: "سعودي، إماراتي، كويتي — على مقاسك." },
   { icon: Wrench, title: "قسم خاص بالتعديلات", description: "نعيد ضبط ثوبك ليرجع كأنه جديد." },
 ]

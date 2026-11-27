@@ -74,109 +74,117 @@ export function whatsappHref(message?: string) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Fabric products (names, prices, images supplied by the business)
-// `origin` mirrors the business-supplied type; `availability` and
-// `compareAtPrice` stay undefined until the business confirms them.
+// Fabric catalog — the shop's approved fabric types.
+// Only data supplied by the business: a missing price or photo stays
+// `undefined` and the UI shows "السعر عند الطلب" / "الصورة قريباً".
 // ─────────────────────────────────────────────────────────────
 
 export type Availability = "in_stock" | "limited" | "out_of_stock"
+
+/** A photographed color of a specific fabric (numbered as in the shop's swatch card). */
+export type ColorOption = { id: string; number: number; label: string; image: string }
+
+/** Builds numbered color options from photos named `NN-<id>.webp` in /fabrics/<dir>/. */
+function numberedColors(prefix: string, dir: string, colors: [string, string][]): ColorOption[] {
+  return colors.map(([id, label], i) => {
+    const n = String(i + 1).padStart(2, "0")
+    return { id: `${prefix}-${n}`, number: i + 1, label, image: `/fabrics/${dir}/${n}-${id}.webp` }
+  })
+}
+
+const SEMIRAMIS_COLORS = numberedColors("semiramis", "semiramis", [
+  ["white", "أبيض"], ["offwhite", "أوف وايت"], ["cream", "سكري"], ["ivory", "كريمي"],
+  ["beige", "بيج"], ["sand", "بيج رملي"], ["desert", "صحراوي"], ["silver", "فضي"],
+  ["light-grey", "رصاصي فاتح"], ["grey", "رصاصي"], ["charcoal", "رمادي فحمي"], ["black", "أسود"],
+  ["navy", "كحلي"], ["royal-blue", "أزرق ملكي"], ["sky", "سماوي"], ["light-sky", "سماوي فاتح"],
+  ["olive", "زيتي"], ["dark-green", "أخضر غامق"], ["burgundy", "عنابي"], ["brown", "بني"],
+])
+
+const HONEYCOMB_COLORS = numberedColors("honeycomb", "honeycomb", [
+  ["white", "أبيض"], ["offwhite", "أوف وايت"], ["cream", "سكري"], ["beige", "بيج"], ["camel", "جملي"],
+  ["light-grey", "رصاصي فاتح"], ["charcoal", "رمادي فحمي"], ["black", "أسود"], ["navy", "كحلي"], ["sky", "سماوي"],
+])
 
 export type Product = {
   id: number
   slug: string
   title: string
-  titleEn: string
   description: string
-  price: number
+  /** Short category shown on cards and used by the catalog filter. */
+  type: string
+  price?: number
   compareAtPrice?: number
   currency: string
-  image: string
-  tag: string
-  type: string
+  image?: string
+  tag?: string
   origin?: string
   availability?: Availability
-  /** Color ids (see FABRIC_COLORS) confirmed for this fabric. Undefined = not confirmed yet. */
+  /** Color ids (see FABRIC_COLORS) confirmed for this fabric. Undefined = confirmed on order. */
   colors?: string[]
+  /** Photographed, numbered colors available for this fabric. */
+  colorOptions?: ColorOption[]
 }
 
 export const PRODUCTS: Product[] = [
   {
     id: 1,
-    slug: "semiramis-pure",
-    title: "سمير اميس الصافي",
-    titleEn: "Semeer Amis Pure",
-    description: "قماش ياباني فاخر نقي بجودة عالية وملمس ناعم جداً",
-    price: 80000,
-    currency: "ر.ي",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1776816134280-ha5exzH33zYkTvpCpOwlRvQWfKrh50.png",
-    tag: "أفضل الخيارات",
+    slug: "japanese-white",
+    title: "قماش أبيض ياباني",
+    description: "قماش ياباني باللون الأبيض لتفصيل الثياب الرجالية",
     type: "ياباني",
     origin: "اليابان",
+    price: 80000,
+    currency: "ر.ي",
+    image: "/fabrics/japanese-white.webp",
+    colors: ["white"],
   },
   {
     id: 2,
-    slug: "honeycomb",
-    title: "خلية النحل",
-    titleEn: "Honeycomb",
-    description: "قماش كوري بنقشة خلية النحل المتميزة بجودة عالية",
-    price: 35000,
+    slug: "semiramis-pure",
+    title: "سميرا أميس الصافي – رقم 1",
+    description: "متوفر بأكثر من 20 لوناً، يبدأ من الأبيض",
+    type: "سميرا أميس",
+    price: 40000,
     currency: "ر.ي",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1776816161652-NIc4kOX6gdV6E7kw6mpr1bPWSOT0KH.png",
-    tag: "كوري",
-    type: "كوري",
-    origin: "كوريا",
-  },
-  {
-    id: 3,
-    slug: "striped-honeycomb",
-    title: "مقلم مع خلية",
-    titleEn: "Striped Honeycomb",
-    description: "قماش صيني بنقشة مقلم مع خلية النحل راقية وفاخرة",
-    price: 44900,
-    currency: "ر.ي",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1776816174191-3RmZIAS8OaYMqvTtYEAC7WpeUOUlFZ.png",
-    tag: "صيني",
-    type: "صيني",
-    origin: "الصين",
-  },
-  {
-    id: 4,
-    slug: "pure-kashmiri",
-    title: "صافي كشميري",
-    titleEn: "Pure Kashmiri",
-    description: "قماش كوري صافي برسمة كشميري ناعمة وراقية",
-    price: 32000,
-    currency: "ر.ي",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1776816145341-axDw2r668sD7qMifuZEvA30MVMkthy.png",
-    tag: "كوري",
-    type: "كوري",
-    origin: "كوريا",
-  },
-  {
-    id: 5,
-    slug: "checks",
-    title: "كروهات",
-    titleEn: "Checks",
-    description: "قماش تايلاندي برسمة كروهات فنية راقية وجميلة",
-    price: 30000,
-    currency: "ر.ي",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1776816123909-Pc7n4ctfQlE0InfcYF1aGrzXN5z93B.png",
-    tag: "تايلاندي",
-    type: "تايلاندي",
-    origin: "تايلاند",
+    image: "/fabrics/semiramis-colors.webp",
+    colorOptions: SEMIRAMIS_COLORS,
   },
   {
     id: 6,
-    slug: "thai-pure",
-    title: "تايلاندي صافي",
-    titleEn: "Thai Pure",
-    description: "قماش تايلاندي صافي بجودة ممتازة وملمس ناعم جداً",
-    price: 38000,
+    slug: "honeycomb-formal",
+    title: "خلية النحل الرسمي",
+    description: "قماش بنقشة خلية النحل، متوفر بـ10 ألوان",
+    type: "خلية النحل",
+    price: 40000,
     currency: "ر.ي",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1776816190328-dbv7RK7UdZvu6QFiZtbc0CojJed6ZT.png",
-    tag: "تايلاندي",
-    type: "تايلاندي",
-    origin: "تايلاند",
+    image: "/fabrics/honeycomb-colors.webp",
+    colorOptions: HONEYCOMB_COLORS,
+  },
+  {
+    id: 3,
+    slug: "korean-striped",
+    title: "كوري مقلم",
+    description: "قماش كوري بنقشة مقلّمة",
+    type: "كوري",
+    origin: "كوريا",
+    currency: "ر.ي",
+  },
+  {
+    id: 4,
+    slug: "chinese-premium",
+    title: "صيني ممتاز",
+    description: "قماش صيني بجودة ممتازة",
+    type: "صيني",
+    origin: "الصين",
+    currency: "ر.ي",
+  },
+  {
+    id: 5,
+    slug: "winter-checks",
+    title: "شتوي كاروهات",
+    description: "قماش شتوي بنقشة كاروهات",
+    type: "شتوي",
+    currency: "ر.ي",
   },
 ]
 
@@ -184,11 +192,21 @@ export const PRODUCTS: Product[] = [
 // Set to true to show prices again everywhere (cards, details, messages).
 export const SHOW_PRICES = false
 
-// The business's last published label for the listed price.
-export const PRICE_LABEL = "سعر تفصيل الثوب"
+// Prices are for the complete thobe: fabric + tailoring (confirmed by the owner).
+export const PRICE_LABEL = "سعر الثوب كامل (القماش مع التفصيل)"
+export const PRICE_ON_REQUEST = "السعر عند الطلب"
 
 export function getProduct(slug: string) {
   return PRODUCTS.find((p) => p.slug === slug)
+}
+
+/** Arabic count of colors: "10 ألوان" / "20 لوناً". */
+export function colorCount(n: number) {
+  return n >= 3 && n <= 10 ? `${n} ألوان` : `${n} لوناً`
+}
+
+export function colorOptionLabel(o: ColorOption) {
+  return `${o.label} (رقم ${o.number})`
 }
 
 export function formatPrice(value: number, currency = "ر.ي") {

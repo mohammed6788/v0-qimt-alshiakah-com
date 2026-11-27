@@ -34,7 +34,7 @@ export function FabricCatalog() {
     return PRODUCTS.filter((p) => {
       if (type !== "all" && p.type !== type) return false
       if (!q) return true
-      return [p.title, p.titleEn, p.description, p.type, p.origin ?? ""].some((f) => normalize(f).includes(q))
+      return [p.title, p.description, p.type, p.origin ?? ""].some((f) => normalize(f).includes(q))
     })
   }, [query, type])
 

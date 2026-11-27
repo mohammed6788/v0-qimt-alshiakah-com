@@ -1,5 +1,6 @@
-import type { Metadata } from "next"
 import Image from "next/image"
+import type { Metadata } from "next"
+import { FabricImage } from "@/components/fabric-image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Check, ChevronLeft, Ruler, Scissors } from "lucide-react"
@@ -9,9 +10,10 @@ import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { TrackView } from "@/components/track-view"
 import { TrackedLink } from "@/components/tracked-link"
 import { JsonLd } from "@/components/json-ld"
-import { BRAND, PRODUCTS, SHOW_PRICES, SITE_URL, getProduct, whatsappHref } from "@/lib/constants"
+import { BRAND, PRODUCTS, SHOW_PRICES, SITE_URL, getProduct, whatsappHref, colorCount } from "@/lib/constants"
 import { EVENTS } from "@/lib/analytics"
 import { breadcrumbSchema } from "@/lib/breadcrumbs"
+import { pageOpenGraph } from "@/lib/seo"
 
 type Params = { params: Promise<{ slug: string }> }
 
@@ -25,14 +27,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params
   const p = getProduct(slug)
   if (!p) return {}
-  const title = `قماش ${p.title}${p.origin ? ` – ${p.origin}` : ""}`
-  const description = `${p.description}. اطلب قماش ${p.title} وتفصيل ثوبك الرجالي من قمة الشياكة في المكلا عبر واتساب.`
+  const name = p.title.startsWith("قماش") ? p.title : `قماش ${p.title}`
+  const title = `${name}${p.origin ? ` – ${p.origin}` : ""}`
+  const description = `${p.description}. اطلب ${p.title} وتفصيل ثوبك الرجالي من قمة الشياكة في المكلا عبر واتساب.`
   return {
     title,
     description,
     alternates: { canonical: `/fabrics/${p.slug}` },
-    openGraph: { title: `${title} | ${BRAND.name}`, description, url: `${SITE_URL}/fabrics/${p.slug}`, images: [{ url: p.image, alt: p.title }] },
-    twitter: { images: [p.image] },
+    openGraph: pageOpenGraph(`/fabrics/${p.slug}`, `${title} | ${BRAND.name}`, description, p.image ? { url: p.image, alt: p.title } : undefined),
   }
 }
 
@@ -49,13 +51,12 @@ export default async function FabricDetailPage({ params }: Params) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
-    alternateName: product.titleEn,
     description: product.description,
-    image: product.image,
+    ...(product.image && { image: `${SITE_URL}${product.image}` }),
     category: "أقمشة ثياب رجالية",
     ...(product.origin && { countryOfOrigin: product.origin }),
     brand: { "@type": "Brand", name: BRAND.name },
-    ...(SHOW_PRICES ? { offers: {
+    ...(SHOW_PRICES && product.price !== undefined ? { offers: {
       "@type": "Offer",
       price: product.price,
       priceCurrency: "YER",
@@ -95,14 +96,7 @@ export default async function FabricDetailPage({ params }: Params) {
 
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
             <div className="relative aspect-square overflow-hidden rounded-3xl bg-silver-light motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500">
-              <Image
-                src={product.image}
-                alt={`قماش ${product.title}${product.origin ? ` – ${product.origin}` : ""}`}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
-              />
+              <FabricImage product={product} alt={`${product.title.startsWith("قماش") ? product.title : `قماش ${product.title}`}${product.origin ? ` – ${product.origin}` : ""}`} priority sizes="(max-width: 1024px) 100vw, 50vw" />
             </div>
 
             <div className="flex flex-col">
@@ -111,7 +105,6 @@ export default async function FabricDetailPage({ params }: Params) {
                 <AvailabilityBadge product={product} className="text-sm" />
               </div>
               <h1 className="type-h1 mt-4 text-navy">{product.title}</h1>
-              <p className="mt-1 text-sm font-medium text-silver-dark" dir="ltr" lang="en">{product.titleEn}</p>
               <p className="mt-4 text-base text-muted-foreground">{product.description}.</p>
 
               <div className="mt-6 rounded-2xl border border-navy/10 bg-white p-5">
@@ -176,6 +169,27 @@ export default async function FabricDetailPage({ params }: Params) {
           </div>
         </div>
       </section>
+
+      {product.colorOptions && product.colorOptions.length > 0 && (
+        <section className="bg-ivory pb-16" aria-labelledby="colors-heading">
+          <div className="container-site">
+            <h2 id="colors-heading" className="type-h2 text-navy">الألوان المتوفرة ({colorCount(product.colorOptions.length)})</h2>
+            <p className="mt-2 text-muted-foreground">اختر اللون برقمه عند الطلب، ويؤكد فريقنا توفّره قبل اعتماد الطلب.</p>
+            <ul className="mt-6 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+              {product.colorOptions.map((o) => (
+                <li key={o.id} className="overflow-hidden rounded-2xl border border-navy/10 bg-white">
+                  <span className="relative block aspect-[4/3]">
+                    <Image src={o.image} alt={`${product.title} – ${o.label}`} fill sizes="(max-width: 640px) 33vw, (max-width: 1024px) 25vw, 20vw" className="object-cover" />
+                  </span>
+                  <span className="block px-2 py-2 text-center text-sm font-medium text-navy">
+                    <span className="num text-muted-foreground">{o.number}</span> · {o.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       <section className="bg-white py-16">
         <div className="container-site">

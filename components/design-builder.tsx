@@ -5,8 +5,8 @@ import Image from "next/image"
 import { ArrowLeft, ArrowRight, ClipboardList, Pencil } from "lucide-react"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { EditSheet } from "@/components/design/edit-sheet"
+import { FabricImage } from "@/components/fabric-image"
 import {
-  CONSULT_FABRIC,
   AvailabilityNotice,
   ButtonsSection,
   CollarSection,
@@ -17,6 +17,9 @@ import {
   QuantityStepper,
   SleeveSection,
 
+  colorName,
+  fabricFromParam,
+  fabricLabel,
   initialDesign,
   sectionError,
   type DesignState,
@@ -29,7 +32,7 @@ import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
   BUTTONS,
   COLLARS,
-  FABRIC_COLORS,
+  PATTERNS,
   POCKETS,
   SLEEVES,
   THOBE_STYLES,
@@ -48,7 +51,7 @@ type StepId = SectionKey | "review"
 
 const STEPS: { id: StepId; title: string; short: string }[] = [
   { id: "fabric", title: "اختر القماش", short: "القماش" },
-  { id: "color", title: "اللون المطلوب", short: "اللون" },
+  { id: "color", title: "اللون والنقشة", short: "اللون" },
   { id: "collar", title: "التفصيل والياقة", short: "الياقة" },
   { id: "sleeve", title: "تصميم الأكمام", short: "الأكمام" },
   { id: "buttons", title: "الأزرار (الجبزور)", short: "الأزرار" },
@@ -87,7 +90,7 @@ function customerErrors(c: Customer) {
 
 // Only design choices (no personal data) are kept for the browser session.
 const DRAFT_KEY = "qs_design_draft_v2"
-const DRAFT_FIELDS = ["fabric", "color", "customColor", "style", "collar", "sleeve", "buttons", "pocket", "extrasNote", "quantity"] as const
+const DRAFT_FIELDS = ["fabric", "color", "customColor", "pattern", "style", "collar", "sleeve", "buttons", "pocket", "extrasNote", "quantity"] as const
 
 function loadDraft(): Partial<DesignState> {
   try {
@@ -140,7 +143,7 @@ export function DesignBuilder() {
     const draft = loadDraft()
     // Read ?fabric= after mount so the page can be prerendered (no layout shift).
     const slug = new URLSearchParams(window.location.search).get("fabric")
-    setSt((p) => ({ ...p, ...draft, ...(slug && getProduct(slug) ? { fabric: slug } : {}) }))
+    setSt((p) => ({ ...p, ...draft, ...(fabricFromParam(slug) ? { fabric: fabricFromParam(slug)! } : {}) }))
     setSaved(loadProfile())
     setHydrated(true)
     trackEvent(EVENTS.designStart, { placement: "design_page", prefilled_fabric: slug ?? "none" })
@@ -176,7 +179,7 @@ export function DesignBuilder() {
 
   // ── Derived values ──
   const product = getProduct(st.fabric)
-  const colorLabel = st.color === "other" ? st.customColor.trim() || "لون آخر" : optionLabel(FABRIC_COLORS, st.color)
+  const colorLabel = colorName(st.fabric, st.color, st.customColor)
   const city = customer.cityMode === "mukalla" ? "المكلا" : customer.cityMode === "other" ? customer.city.trim() : ""
   const includeMeasurements =
     (st.customerType === "new" && st.newMode === "enter") || (st.customerType === "returning" && st.returningMode === "device" && st.deviceVerified)
@@ -195,7 +198,8 @@ export function DesignBuilder() {
     return ""
   }, [st])
 
-  const fabricText = product ? `${product.title} (قماش ${product.type})` : st.fabric === CONSULT_FABRIC ? "أحتاج مساعدة في اختيار القماش" : ""
+  const fabricText = fabricLabel(st.fabric)
+  const patternLabel = optionLabel(PATTERNS, st.pattern)
 
   const orderDetails = {
     kind: "design" as const,
@@ -204,6 +208,7 @@ export function DesignBuilder() {
     city,
     fabric: fabricText ? { title: fabricText } : undefined,
     color: colorLabel,
+    pattern: patternLabel,
     style: optionLabel(THOBE_STYLES, st.style),
     collar: optionLabel(COLLARS, st.collar),
     sleeve: optionLabel(SLEEVES, st.sleeve),
@@ -311,7 +316,7 @@ export function DesignBuilder() {
   // ── Summary rows ──
   const rows: { key: EditKey; k: string; v: string; err?: string }[] = [
     { key: "fabric", k: "القماش", v: fabricText, err: sectionError("fabric", st) },
-    { key: "color", k: "اللون المطلوب", v: st.color ? colorLabel : "", err: sectionError("color", st) },
+    { key: "color", k: "اللون والنقشة", v: st.color ? [colorLabel, patternLabel].filter(Boolean).join(" · ") : "", err: sectionError("color", st) },
     { key: "collar", k: "التفصيل والياقة", v: [optionLabel(THOBE_STYLES, st.style), optionLabel(COLLARS, st.collar)].filter(Boolean).join(" · "), err: sectionError("collar", st) },
     { key: "sleeve", k: "الأكمام", v: optionLabel(SLEEVES, st.sleeve), err: sectionError("sleeve", st) },
     { key: "buttons", k: "الأزرار", v: optionLabel(BUTTONS, st.buttons), err: sectionError("buttons", st) },
@@ -521,7 +526,7 @@ export function DesignBuilder() {
           {product && (
             <div className="mb-3 flex items-center gap-3">
               <span className="relative size-14 overflow-hidden rounded-xl bg-silver-light">
-                <Image src={product.image} alt="" fill sizes="56px" className="object-cover" />
+                <FabricImage product={product} sizes="56px" compact />
               </span>
               <span className="text-sm">
                 <span className="block font-semibold text-navy">{product.title}</span>

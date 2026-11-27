@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const pages = ['/', '/fabrics', '/fabrics/honeycomb', '/design', '/measurements', '/about', '/contact', '/nope-404'];
+const pages = ['/', '/fabrics', '/fabrics/japanese-white', '/design', '/measurements', '/about', '/contact', '/nope-404'];
 const results = []; const ok = (n, c, x='') => results.push([c?'PASS':'FAIL', n, x]);
 (async () => {
   const b = await chromium.launch();

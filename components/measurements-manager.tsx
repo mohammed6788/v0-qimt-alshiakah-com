@@ -10,6 +10,7 @@ import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-n
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
   MEASUREMENT_FIELDS,
+  MEASUREMENT_UNIT,
   buildOrderMessage,
   clearProfile,
   hasMeasurements,
@@ -143,7 +144,7 @@ export function MeasurementsManager() {
           phone: profile.phone,
           city: profile.city,
           fabric: reorderFabricProduct
-            ? { title: `${reorderFabricProduct.title} (قماش ${reorderFabricProduct.type})` }
+            ? { title: reorderFabricProduct.title }
             : { title: "نفس القماش السابق أو حسب الاستشارة" },
           quantity: reorderQty,
           measurementStatus: "مقاساتي المحفوظة على جهازي (مرفقة أدناه) – أرجو مراجعتها قبل التفصيل",
@@ -247,7 +248,7 @@ export function MeasurementsManager() {
               <div key={f.key} className="bg-white p-4">
                 <dt className="text-xs text-muted-foreground">{f.label}</dt>
                 <dd className="num mt-1 text-lg font-semibold text-navy">
-                  {profile.measurements[f.key] ? `${profile.measurements[f.key]} سم` : "—"}
+                  {profile.measurements[f.key] ? `${profile.measurements[f.key]} ${MEASUREMENT_UNIT}` : "—"}
                 </dd>
               </div>
             ))}
@@ -309,7 +310,7 @@ export function MeasurementsManager() {
       {editing && (
         <div className="card-surface p-5 sm:p-7">
           <h3 className="type-h3 text-navy">{profile ? "تعديل مقاساتك" : "سجّل مقاساتك"}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">القياسات بالسنتيمتر. اكتب ما تعرفه منها، ونستكمل الباقي معك.</p>
+          <p className="mt-1 text-sm text-muted-foreground">القياسات بالإنش (هنش). اكتب ما تعرفه منها، ونستكمل الباقي معك.</p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <TextField label="الاسم" error={errors.name}>

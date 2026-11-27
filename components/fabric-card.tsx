@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { FabricImage } from "@/components/fabric-image"
 import { ArrowLeft } from "lucide-react"
 import { WhatsAppLink } from "@/components/whatsapp-link"
 import { TrackedLink } from "@/components/tracked-link"
@@ -7,6 +7,7 @@ import {
   AVAILABILITY_LABEL,
   AVAILABILITY_UNKNOWN,
   PRICE_LABEL,
+  PRICE_ON_REQUEST,
   SHOW_PRICES,
   formatPrice,
   whatsappHref,
@@ -54,6 +55,7 @@ export function AvailabilityBadge({ product, className }: { product: Product; cl
 
 export function PriceBlock({ product, large }: { product: Product; large?: boolean }) {
   if (!SHOW_PRICES) return null
+  if (product.price === undefined) return <p className={cn("font-semibold text-navy", large ? "text-xl" : "text-base")}>{PRICE_ON_REQUEST}</p>
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
   return (
     <div>
@@ -83,14 +85,7 @@ export function FabricCard({ product, priority }: { product: Product; priority?:
         tabIndex={-1}
         aria-hidden="true"
       >
-        <Image
-          src={product.image}
-          alt=""
-          fill
-          priority={priority}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
-        />
+        <FabricImage product={product} priority={priority} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="transition-transform duration-500 motion-safe:group-hover:scale-105" />
         {product.tag && product.tag !== product.type && (
           <span className="absolute right-3 top-3 rounded-full bg-navy/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
             {product.tag}

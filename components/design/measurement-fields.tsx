@@ -1,6 +1,6 @@
 "use client"
 
-import { MEASUREMENT_FIELDS, REQUIRED_MEASUREMENTS, measurementError, normalizeDigits, type Measurements } from "@/lib/tailoring"
+import { MEASUREMENT_FIELDS, MEASUREMENT_UNIT, REQUIRED_MEASUREMENTS, measurementError, normalizeDigits, type Measurements } from "@/lib/tailoring"
 import { cn } from "@/lib/utils"
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   showErrors?: boolean
 }
 
-/** Measurement inputs (cm). Required fields are marked; others are optional. */
+/** Measurement inputs (inches). Required fields are marked; others are optional. */
 export function MeasurementFields({ value, onChange, showErrors }: Props) {
   return (
     <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-4">
@@ -25,7 +25,7 @@ export function MeasurementFields({ value, onChange, showErrors }: Props) {
             </span>
             <span className="relative block">
               <input
-                className={cn("field-input pe-4 ps-11", err && "border-destructive")}
+                className={cn("field-input pe-4 ps-12", err && "border-destructive")}
                 inputMode="decimal"
                 dir="ltr"
                 name={`m_${f.key}`}
@@ -37,7 +37,7 @@ export function MeasurementFields({ value, onChange, showErrors }: Props) {
                 }
                 aria-describedby={`hint-${f.key}`}
               />
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-silver-dark">سم</span>
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-silver-dark">{MEASUREMENT_UNIT}</span>
             </span>
             <span id={`hint-${f.key}`} className={cn("mt-1 block text-xs", err ? "font-semibold text-destructive" : "text-muted-foreground")}>
               {err || f.hint}

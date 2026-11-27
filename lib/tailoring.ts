@@ -15,16 +15,27 @@ export const THOBE_STYLES: Option[] = [
   { id: "emirati", label: "تفصيل إماراتي" },
 ]
 
-// Colors are a request; availability per fabric is confirmed by the shop.
+// Colors approved by the shop. Availability per fabric is confirmed on order.
 export const FABRIC_COLORS: (Option & { swatch: string })[] = [
   { id: "white", label: "أبيض", swatch: "#ffffff" },
-  { id: "offwhite", label: "أوف وايت", swatch: "#f3efe4" },
-  { id: "cream", label: "سكري / بيج", swatch: "#e3d6bd" },
-  { id: "lightgrey", label: "رمادي فاتح", swatch: "#c9ccd1" },
-  { id: "grey", label: "رمادي", swatch: "#8e939a" },
-  { id: "sky", label: "سماوي فاتح", swatch: "#cfe6f3" },
+  { id: "cream", label: "سكري", swatch: "#f1ead8" },
+  { id: "beige", label: "بيج", swatch: "#d9c7a7" },
+  { id: "desert", label: "صحراوي", swatch: "#c2a477" },
+  { id: "grey", label: "رصاصي", swatch: "#8a8f96" },
   { id: "navy", label: "كحلي", swatch: "#1b2a4a" },
-  { id: "other", label: "لون آخر", swatch: "conic-gradient(#f3efe4,#c9ccd1,#1b2a4a,#cfe6f3,#f3efe4)" },
+  { id: "black", label: "أسود", swatch: "#151515" },
+  { id: "other", label: "لون آخر", hint: "اكتبه", swatch: "conic-gradient(#f1ead8,#8a8f96,#1b2a4a,#c2a477,#f1ead8)" },
+]
+
+// Fabric patterns approved by the shop.
+export const PATTERNS: (Option & { popular?: boolean })[] = [
+  { id: "bisht_threads", label: "خيوط البشت", hint: "الأكثر طلباً", popular: true },
+  { id: "honeycomb", label: "خلية النحل" },
+  { id: "honeycomb_striped", label: "خلية مع مقلم" },
+  { id: "striped", label: "مقلم" },
+  { id: "lined", label: "مخطط" },
+  { id: "checks", label: "كاروهات" },
+  { id: "plain", label: "سادة / بدون نقشة" },
 ]
 
 // Approved collar models (shop reference sheet).
@@ -42,6 +53,7 @@ export const SLEEVES: Option[] = [
   { id: "plain_open", label: "سادة مفتوح", image: img("cuff-plain-open") },
   { id: "cufflink_formal", label: "كبك رسمي", image: img("cuff-formal") },
   { id: "cufflink_french", label: "كبك فرنسي", hint: "يدجبزور", image: img("cuff-french") },
+  { id: "half_sleeve", label: "نص كم" },
 ]
 
 // Approved placket (جبزور) / button models.
@@ -66,25 +78,21 @@ export function optionLabel(opts: Option[], id: string | undefined) {
   return opts.find((o) => o.id === id)?.label ?? ""
 }
 
-export type MeasurementKey =
-  | "length"
-  | "shoulder"
-  | "chest"
-  | "waist"
-  | "sleeve"
-  | "neck"
-  | "wrist"
-  | "bottom"
+export type MeasurementKey = "length" | "shoulder" | "sleeve" | "width" | "neck" | "armhole" | "midArm" | "cuff"
 
+/** Measurement unit used by the shop: inches. */
+export const MEASUREMENT_UNIT = "إنش"
+
+// The shop's approved measurements, in inches.
 export const MEASUREMENT_FIELDS: { key: MeasurementKey; label: string; hint: string }[] = [
-  { key: "length", label: "طول الثوب", hint: "من أعلى الكتف حتى الكعب" },
-  { key: "shoulder", label: "عرض الكتف", hint: "من طرف الكتف إلى الطرف الآخر" },
-  { key: "chest", label: "محيط الصدر", hint: "حول أعرض جزء من الصدر" },
-  { key: "waist", label: "محيط الوسط", hint: "حول البطن عند السرة" },
-  { key: "sleeve", label: "طول الكم", hint: "من الكتف حتى المعصم" },
-  { key: "neck", label: "محيط الرقبة", hint: "حول قاعدة الرقبة" },
-  { key: "wrist", label: "محيط المعصم", hint: "لفتحة الكم" },
-  { key: "bottom", label: "عرض الذيل", hint: "عرض أسفل الثوب" },
+  { key: "length", label: "الطول", hint: "من أعلى الكتف حتى الكعب" },
+  { key: "shoulder", label: "الكتف", hint: "من طرف الكتف إلى الطرف الآخر" },
+  { key: "sleeve", label: "طول اليد", hint: "من الكتف حتى المعصم" },
+  { key: "width", label: "العرض", hint: "عرض الثوب عند الصدر" },
+  { key: "neck", label: "الرقبة", hint: "محيط قاعدة الرقبة" },
+  { key: "armhole", label: "فتح اليد (الإبط)", hint: "اتساع الكم عند الإبط" },
+  { key: "midArm", label: "وسط اليد", hint: "اتساع الكم عند منتصف الذراع" },
+  { key: "cuff", label: "أسفل اليد (الكبك)", hint: "اتساع فتحة الكم عند المعصم" },
 ]
 
 export type Measurements = Partial<Record<MeasurementKey, string>>
@@ -99,7 +107,8 @@ export type MeasurementProfile = {
 }
 
 // ── Local measurement storage (this device only) ──────────────
-const STORAGE_KEY = "qs_measurement_profile_v1"
+// v2: inches and the approved measurement set.
+const STORAGE_KEY = "qs_measurement_profile_v2"
 
 export function loadProfile(): MeasurementProfile | null {
   try {
@@ -143,6 +152,7 @@ export type OrderDetails = {
   city?: string
   fabric?: Pick<Product, "title" | "price" | "currency"> | { title: string; price?: number; currency?: string }
   color?: string
+  pattern?: string
   style?: string
   collar?: string
   sleeve?: string
@@ -165,7 +175,7 @@ const KIND_TITLE: Record<OrderDetails["kind"], string> = {
 export function formatMeasurements(m: Measurements | undefined) {
   if (!m) return []
   return MEASUREMENT_FIELDS.filter((f) => m[f.key] && m[f.key]!.trim() !== "").map(
-    (f) => `• ${f.label}: ${m[f.key]!.trim()} سم`,
+    (f) => `• ${f.label}: ${m[f.key]!.trim()} ${MEASUREMENT_UNIT}`,
   )
 }
 
@@ -187,6 +197,7 @@ export function buildOrderMessage(o: OrderDetails) {
     thobe.push(`القماش: ${o.fabric.title}${price}`)
   }
   if (o.color) thobe.push(`اللون المطلوب: ${o.color}`)
+  if (o.pattern) thobe.push(`النقشة: ${o.pattern}`)
   if (o.style) thobe.push(`الطراز: ${o.style}`)
   if (o.collar) thobe.push(`الياقة: ${o.collar}`)
   if (o.sleeve) thobe.push(`الأكمام: ${o.sleeve}`)
@@ -198,7 +209,7 @@ export function buildOrderMessage(o: OrderDetails) {
 
   const meas = formatMeasurements(o.measurements)
   if (o.measurementStatus || meas.length) {
-    lines.push("*المقاس*")
+    lines.push(meas.length ? `*المقاس (بالإنش)*` : "*المقاس*")
     if (o.measurementStatus) lines.push(o.measurementStatus)
     lines.push(...meas, "")
   }
@@ -210,7 +221,7 @@ export function buildOrderMessage(o: OrderDetails) {
 }
 
 // ── Validation helpers ─────────────────────────────────────────
-export const REQUIRED_MEASUREMENTS: MeasurementKey[] = ["length", "shoulder", "chest", "sleeve"]
+export const REQUIRED_MEASUREMENTS: MeasurementKey[] = ["length", "shoulder", "sleeve", "width", "neck"]
 
 /** Converts Arabic-Indic / Persian digits to Latin digits. */
 export function normalizeDigits(s: string) {
@@ -243,6 +254,6 @@ export function samePhone(a: string, b: string) {
 export function measurementError(value: string | undefined) {
   if (!value || !value.trim()) return "مطلوب"
   const n = Number(normalizeDigits(value))
-  if (!Number.isFinite(n) || n < 10 || n > 250) return "قيمة غير منطقية (10–250 سم)"
+  if (!Number.isFinite(n) || n < 3 || n > 80) return "قيمة غير منطقية (3–80 إنش)"
   return ""
 }

@@ -6,13 +6,14 @@ import { useState } from "react"
 import { Check, Info, Minus, Plus, ShieldCheck, Store, UserPlus, UserRoundCheck } from "lucide-react"
 import { WhatsAppLink } from "@/components/whatsapp-link"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
-import { AvailabilityBadge } from "@/components/fabric-card"
+import { FabricImage } from "@/components/fabric-image"
 import { MeasurementFields } from "@/components/design/measurement-fields"
-import { PRODUCTS, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
+import { PRODUCTS, SHOW_PRICES, colorCount, colorOptionLabel, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
 import {
   BUTTONS,
   COLLARS,
   FABRIC_COLORS,
+  PATTERNS,
   POCKETS,
   REQUIRED_MEASUREMENTS,
   SLEEVES,
@@ -36,6 +37,7 @@ export type DesignState = {
   fabric: string
   color: string
   customColor: string
+  pattern: string
   style: string
   collar: string
   sleeve: string
@@ -56,6 +58,7 @@ export const initialDesign: DesignState = {
   fabric: "",
   color: "",
   customColor: "",
+  pattern: "",
   style: "",
   collar: "",
   sleeve: "",
@@ -78,10 +81,38 @@ export type SectionProps = {
 }
 
 /** Colors allowed for the chosen fabric (all colors until the shop confirms a list). */
-export function colorsFor(fabricSlug: string) {
-  const p = getProduct(fabricSlug)
-  if (!p?.colors?.length) return { list: FABRIC_COLORS, confirmed: false }
-  return { list: FABRIC_COLORS.filter((c) => p.colors!.includes(c.id) || c.id === "other"), confirmed: true }
+/** Readable name of the chosen color (photographed fabric color, approved color, or free text). */
+export function colorName(fabric: string, color: string, customColor: string) {
+  if (color === "other") return customColor.trim() || "لون آخر"
+  const photo = getProduct(fabric)?.colorOptions?.find((o) => o.id === color)
+  if (photo) return colorOptionLabel(photo)
+  return FABRIC_COLORS.find((c) => c.id === color)?.label ?? ""
+}
+
+/** Color ids valid for a fabric (used to drop a color when the fabric changes). */
+function allowedColorIds(fabric: string) {
+  const photos = getProduct(fabric)?.colorOptions
+  if (photos?.length) return [...photos.map((o) => o.id), "other"]
+  return colorsFor(fabric).list.map((c) => c.id)
+}
+
+export function colorsFor(fabric: string) {
+  const confirmedIds = getProduct(fabric)?.colors
+  if (!confirmedIds?.length) return { list: FABRIC_COLORS, confirmed: false }
+  // A fabric whose color is fixed (e.g. Japanese white) offers only that color.
+  return { list: FABRIC_COLORS.filter((c) => confirmedIds.includes(c.id)), confirmed: true }
+}
+
+/** Validates a ?fabric= catalog slug. */
+export function fabricFromParam(slug: string | null): string | null {
+  return slug && getProduct(slug) ? slug : null
+}
+
+/** Human-readable fabric name for the summary and the WhatsApp message. */
+export function fabricLabel(fabric: string) {
+  const product = getProduct(fabric)
+  if (product) return product.title
+  return fabric === CONSULT_FABRIC ? "أحتاج مساعدة في اختيار القماش" : ""
 }
 
 // ── Validation per section ───────────────────────────────────
@@ -223,34 +254,28 @@ export function AvailabilityNotice({ className }: { className?: string }) {
 
 // ── Sections ─────────────────────────────────────────────────
 export function FabricSection({ st, set, showErrors }: SectionProps) {
-  const pick = (slug: string) => {
-    const { list } = colorsFor(slug)
+  const pick = (id: string) => {
     // Drop a color that is not offered for the new fabric.
-    const keepColor = !st.color || list.some((c) => c.id === st.color)
-    set({ fabric: slug, ...(keepColor ? {} : { color: "", customColor: "" }) })
+    const keepColor = !st.color || allowedColorIds(id).includes(st.color)
+    set({ fabric: id, ...(keepColor ? {} : { color: "", customColor: "" }) })
   }
   return (
     <>
       <AvailabilityNotice className="mb-4" />
-      <div role="radiogroup" aria-label="القماش" className="grid gap-3 sm:grid-cols-2">
+      <div role="radiogroup" aria-label="نوع القماش" className="grid gap-3 sm:grid-cols-2">
         {PRODUCTS.map((p) => (
-          <Tile key={p.slug} selected={st.fabric === p.slug} onSelect={() => pick(p.slug)} label={p.title} className="items-stretch gap-3 p-2.5">
-            <span className="relative block size-24 shrink-0 overflow-hidden rounded-xl bg-silver-light">
-              <Image src={p.image} alt="" fill sizes="96px" className="object-cover" />
+          <Tile key={p.slug} selected={st.fabric === p.slug} onSelect={() => pick(p.slug)} label={p.title} className="min-h-20 items-center gap-3 p-2.5">
+            <span className="relative block size-16 shrink-0 overflow-hidden rounded-xl bg-silver-light">
+              <FabricImage product={p} sizes="64px" compact />
             </span>
-            <span className="flex min-w-0 flex-col justify-center gap-1 pe-6">
-              <span className="font-semibold text-navy">{p.title}</span>
-              <span className="text-xs font-semibold text-navy-soft">
-                قماش {p.type}
-                {p.origin ? ` · ${p.origin}` : ""}
-              </span>
-              <span className="line-clamp-2 text-xs text-muted-foreground">{p.description}</span>
-              {SHOW_PRICES && <span className="num text-sm font-bold text-navy">{formatPrice(p.price, p.currency)}</span>}
-              <AvailabilityBadge product={p} className="mt-0.5 self-start !px-2 !py-0.5 !text-[11px]" />
+            <span className="min-w-0 pe-7">
+              <span className="block font-semibold text-navy">{p.title}</span>
+              <span className="block text-xs text-muted-foreground">{p.description}</span>
+              {SHOW_PRICES && <span className="num block text-sm font-bold text-navy">{p.price !== undefined ? formatPrice(p.price, p.currency) : "السعر عند الطلب"}</span>}
             </span>
           </Tile>
         ))}
-        <Tile selected={st.fabric === CONSULT_FABRIC} onSelect={() => set({ fabric: CONSULT_FABRIC })} className="min-h-20 items-center p-4 sm:col-span-2">
+        <Tile selected={st.fabric === CONSULT_FABRIC} onSelect={() => set({ fabric: CONSULT_FABRIC })} className="min-h-20 items-center p-4">
           <span className="pe-7">
             <span className="block font-semibold text-navy">ساعدوني في اختيار القماش</span>
             <span className="block text-sm text-muted-foreground">نقترح عليك الأنسب لمناسبتك</span>
@@ -279,14 +304,48 @@ export function FabricSection({ st, set, showErrors }: SectionProps) {
 
 export function ColorSection({ st, set, showErrors }: SectionProps) {
   const { list, confirmed } = colorsFor(st.fabric)
-  const product = getProduct(st.fabric)
+  const photos = getProduct(st.fabric)?.colorOptions
+  if (photos?.length) {
+    return (
+      <>
+        <p className="mb-4 text-sm text-muted-foreground">
+          ألوان {fabricLabel(st.fabric)} المتوفرة ({colorCount(photos.length)}). يؤكد فريقنا توفّر اللون قبل اعتماد الطلب.
+        </p>
+        <SubHeading>اللون</SubHeading>
+        <div role="radiogroup" aria-label="اللون المطلوب" className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
+          {photos.map((o) => (
+            <Tile key={o.id} selected={st.color === o.id} onSelect={() => set({ color: o.id })} label={colorOptionLabel(o)} className="flex-col overflow-hidden p-0">
+              <span className="relative block aspect-[4/3] w-full">
+                <Image src={o.image} alt="" fill sizes="(max-width: 640px) 33vw, 20vw" className="object-cover" />
+              </span>
+              <span className="px-1 py-2 text-center text-xs font-medium leading-snug text-navy sm:text-sm">
+                <span className="num text-muted-foreground">{o.number}</span> · {o.label}
+              </span>
+            </Tile>
+          ))}
+          <Tile selected={st.color === "other"} onSelect={() => set({ color: "other" })} label="لون آخر" className="items-center justify-center p-3 text-center">
+            <span className="text-sm font-medium text-navy">لون آخر</span>
+          </Tile>
+        </div>
+        {st.color === "other" && (
+          <label className="mt-4 block">
+            <span className="field-label">اكتب اللون المطلوب</span>
+            <input className="field-input" maxLength={40} value={st.customColor} onChange={(e) => set({ customColor: e.target.value })} placeholder="مثال: زيتي فاتح" />
+          </label>
+        )}
+        <PatternPicker st={st} set={set} />
+        <ErrorText show={showErrors} text={sectionError("color", st)} />
+      </>
+    )
+  }
   return (
     <>
       <p className="mb-4 text-sm text-muted-foreground">
         {confirmed
-          ? `الألوان المتوفرة لقماش ${product?.title}.`
-          : "اختر اللون الذي تفضّله. هذه ليست قائمة توفّر؛ يؤكد فريقنا الألوان المتاحة للقماش قبل اعتماد الطلب."}
+          ? `اللون المعتمد لـ${fabricLabel(st.fabric)}.`
+          : "ألواننا المعتمدة. يؤكد فريقنا توفّر اللون في القماش المختار قبل اعتماد الطلب."}
       </p>
+      <SubHeading>اللون</SubHeading>
       <div role="radiogroup" aria-label="اللون المطلوب" className="grid grid-cols-4 gap-2 sm:gap-3">
         {list.map((c) => (
           <button
@@ -311,7 +370,26 @@ export function ColorSection({ st, set, showErrors }: SectionProps) {
           <input className="field-input" maxLength={40} value={st.customColor} onChange={(e) => set({ customColor: e.target.value })} placeholder="مثال: زيتي فاتح" />
         </label>
       )}
+      <PatternPicker st={st} set={set} />
       <ErrorText show={showErrors} text={sectionError("color", st)} />
+    </>
+  )
+}
+
+function PatternPicker({ st, set }: SectionProps) {
+  return (
+    <>
+      <SubHeading>النقشة (اختياري)</SubHeading>
+      <div role="radiogroup" aria-label="النقشة" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {PATTERNS.map((o) => (
+          <Tile key={o.id} selected={st.pattern === o.id} onSelect={() => set({ pattern: st.pattern === o.id ? "" : o.id })} label={o.label} className="min-h-14 items-center px-4 py-3">
+            <span className="pe-7">
+              <span className="block font-medium text-navy">{o.label}</span>
+              {o.popular && <span className="mt-1 inline-block rounded-full bg-navy px-2 py-0.5 text-[11px] font-semibold text-sky">الأكثر طلباً</span>}
+            </span>
+          </Tile>
+        ))}
+      </div>
     </>
   )
 }
@@ -393,7 +471,7 @@ export function PocketSection(props: SectionProps) {
 type MeasureProps = SectionProps & { saved: MeasurementProfile | null }
 
 const NEW_MODES: { id: NewMode; label: string; hint: string }[] = [
-  { id: "enter", label: "سأدخل مقاساتي الآن", hint: "بالسنتيمتر" },
+  { id: "enter", label: "سأدخل مقاساتي الآن", hint: "بالإنش (هنش)" },
   { id: "whatsapp", label: "سأرسلها عبر واتساب", hint: "مناسب لمن هم خارج المكلا" },
   { id: "visit", label: "سأزور المحل للقياس", hint: "المكلا – الشرج" },
 ]

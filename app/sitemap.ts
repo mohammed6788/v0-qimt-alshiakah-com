@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.7,
-      images: [p.image],
+      ...(p.image && { images: [`${SITE_URL}${p.image}`] }),
     })),
   ]
 }
