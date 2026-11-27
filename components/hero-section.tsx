@@ -1,45 +1,80 @@
-import Link from "next/link"
-import { MapPin, MessageCircle, Scissors } from "lucide-react"
-import { WhatsAppLink } from "@/components/whatsapp-link"
-import { whatsappHref } from "@/lib/constants"
+import Image from "next/image"
+import { Clock, Layers, MapPin, Ruler, Scissors } from "lucide-react"
+import { TrackedLink } from "@/components/tracked-link"
+import { BRAND, IMAGES } from "@/lib/constants"
+import { EVENTS } from "@/lib/analytics"
+
+const PROMISES = [
+  { icon: Clock, title: "سرعة في الإنجاز", text: "ودقة في مواعيد التسليم" },
+  { icon: Ruler, title: "مقاساتك محفوظة", text: "أعد الطلب دون قياس جديد" },
+  { icon: MapPin, title: "داخل المكلا وخارجها", text: "اطلب من أي مكان" },
+]
 
 export function HeroSection() {
   return (
-    <section
-      id="home"
-      className="relative isolate flex min-h-[78svh] items-end justify-center overflow-hidden bg-[#161512] px-5 pb-16 pt-28 text-center sm:items-center sm:pb-20"
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(197,160,89,0.2),_transparent_42%)]" aria-hidden="true" />
-      <div className="relative z-10 max-w-3xl">
-        <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/40 px-4 py-2 text-sm font-bold text-gold backdrop-blur-sm">
-          <MapPin className="size-4" aria-hidden="true" />
-          المكلا · الشرج
-        </p>
-        <h1 className="mb-5 text-4xl font-bold leading-tight text-white text-balance sm:text-5xl md:text-7xl">
-          قمة الشياكة <span className="gold-gradient">للخياطة الرجالية</span>
-        </h1>
-        <p className="mx-auto mb-9 max-w-xl text-lg leading-relaxed text-gray-200 text-pretty sm:text-xl">
-          أناقة تبدأ من القماش، وتكتمل بتفصيل يناسبك.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <WhatsAppLink
-            href={whatsappHref("السلام عليكم، أريد تفصيل ثوب من قمة الشياكة وأريد معرفة الأسعار والمقاسات.")}
-            intent="whatsapp_order"
-            placement="hero_order"
-            className="btn-gold inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-8 py-4 text-lg font-bold text-black sm:px-10"
-          >
-            <MessageCircle className="size-5" aria-hidden="true" />
-            اطلب ثوبك عبر واتساب
-          </WhatsAppLink>
-          <Link
-            href="#products"
-            className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-8 sm:px-10 py-4 rounded-xl text-white font-bold text-lg hover:bg-white/20 transition"
-          >
-            <Scissors className="size-5" aria-hidden="true" />
-            شاهد الأقمشة
-          </Link>
+    <section id="home" className="navy-gradient relative isolate overflow-hidden pt-24 text-white sm:pt-28">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07] [background-image:repeating-linear-gradient(135deg,#c3c9d3_0_1px,transparent_1px_22px)]"
+        aria-hidden="true"
+      />
+      <div className="container-site grid items-center gap-10 pb-12 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:pb-20">
+        <div className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-700">
+          <p className="eyebrow mb-5 rounded-full border border-sky/30 bg-white/5 px-4 py-2">
+            <MapPin className="size-4" aria-hidden="true" />
+            خياطة رجالية في المكلا · الشرج
+          </p>
+          <h1 className="text-[2.4rem] font-extrabold leading-[1.15] text-balance sm:text-6xl">
+            ثوبك يُفصَّل لك
+            <span className="silver-text block pb-1">بدقة تليق بحضورك</span>
+          </h1>
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-silver text-pretty sm:text-xl">
+            {BRAND.tagline}. اختر قماشك، صمّم تفاصيل ثوبك، وأرسل طلبك عبر واتساب في دقائق.
+          </p>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <TrackedLink href="/design" event={EVENTS.designStart} properties={{ placement: "hero" }} className="btn btn-primary min-h-14 px-8 text-lg">
+              <Scissors className="size-5" aria-hidden="true" />
+              صمم ثوبك
+            </TrackedLink>
+            <TrackedLink href="/fabrics" event="hero_fabrics_click" className="btn btn-outline-light min-h-14 px-8 text-lg">
+              <Layers className="size-5" aria-hidden="true" />
+              استكشف الأقمشة
+            </TrackedLink>
+          </div>
+
+          <p className="mt-6 text-sm font-bold tracking-wide text-silver-dark">— {BRAND.slogan}</p>
         </div>
-        <p className="mt-6 text-sm text-gray-300">لمعرفة الأسعار والتوفر، تواصل معنا عبر واتساب.</p>
+
+        <div className="relative mx-auto w-full max-w-xl motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:duration-700">
+          <div className="absolute -inset-3 -z-10 rounded-[2rem] bg-gradient-to-br from-sky/25 via-transparent to-silver/10 blur-2xl" aria-hidden="true" />
+          <div className="overflow-hidden rounded-[1.75rem] border border-white/10 shadow-2xl">
+            <Image
+              src={IMAGES.heroThobe}
+              alt="ثوب رجالي أبيض مفصّل على مجسم في مشغل قمة الشياكة"
+              width={572}
+              height={384}
+              priority
+              sizes="(max-width: 1024px) 100vw, 560px"
+              className="h-auto w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-white/10 bg-navy-deep/60">
+        <ul className="container-site grid grid-cols-3 divide-x divide-white/10 py-5">
+          {PROMISES.map((p) => (
+            <li key={p.title} className="flex flex-col items-center gap-2 px-2 text-center sm:flex-row sm:gap-3 sm:text-start">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky/10 text-sky">
+                <p.icon className="size-5" aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block text-sm font-extrabold sm:text-base">{p.title}</span>
+                <span className="hidden text-sm text-silver sm:block">{p.text}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )
