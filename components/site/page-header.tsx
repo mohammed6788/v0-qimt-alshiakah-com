@@ -10,12 +10,14 @@ type Props = {
   children?: React.ReactNode
   /** Optional decorative photo shown beside the title (below it on mobile). */
   image?: { src: string; alt: string; width: number; height: number }
+  /** Shorter header on mobile (task pages where the content should start sooner). */
+  compact?: boolean
 }
 
 /** Shared navy page header used by every inner page. */
-export function PageHeader({ eyebrow, title, description, breadcrumb, children, image }: Props) {
+export function PageHeader({ eyebrow, title, description, breadcrumb, children, image, compact }: Props) {
   return (
-    <section className="navy-gradient pb-12 pt-28 text-white sm:pb-16 sm:pt-32">
+    <section className={`navy-gradient text-white sm:pb-16 sm:pt-32 ${compact ? "pb-12 pt-24" : "pb-12 pt-28"}`}>
       <div
         className={`container-site motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500 ${image ? "grid items-center gap-6 md:grid-cols-[1.1fr_1fr] md:gap-10" : ""}`}
       >
@@ -37,7 +39,7 @@ export function PageHeader({ eyebrow, title, description, breadcrumb, children, 
         )}
         {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
         <h1 className="type-h1">{title}</h1>
-        {description && <p className="mt-3 max-w-2xl text-base text-silver text-pretty">{description}</p>}
+        {description && <p className={`mt-3 max-w-2xl text-base text-silver text-pretty ${compact ? "hidden sm:block" : ""}`}>{description}</p>}
         {children}
         </div>
         {image && (

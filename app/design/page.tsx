@@ -22,6 +22,7 @@ export default function DesignPage() {
         title="صمّم ثوبك على ذوقك"
         description="اختر قماشك وتفاصيل ثوبك من موديلاتنا المعتمدة، وراجع الملخص قبل الإرسال. يصلنا طلبك منظماً عبر واتساب لنؤكده معك."
         breadcrumb={[{ href: "/design", label: "صمم ثوبك" }]}
+        compact
       />
       <section className="bg-ivory pb-10 sm:pb-20">
         <div className="container-site">
