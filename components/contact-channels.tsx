@@ -22,7 +22,7 @@ const CHANNELS = [
 export function SocialRow({ placement }: { placement: string }) {
   return (
     <div className="card-surface mt-3 flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-      <p className="font-bold text-navy">
+      <p className="font-semibold text-navy">
         تابعنا على جميع المنصات: <span dir="ltr" className="text-navy-soft">@{CONTACT.handle}</span>
       </p>
       <ul className="flex flex-wrap gap-2">
@@ -71,7 +71,7 @@ export function ContactChannels() {
               <c.icon className="size-5" />
             </span>
             <span>
-              <span className={"block font-extrabold " + ("primary" in c && c.primary ? "" : "text-navy")}>{c.title}</span>
+              <span className={"block font-semibold " + ("primary" in c && c.primary ? "" : "text-navy")}>{c.title}</span>
               <span className={"block text-sm " + ("primary" in c && c.primary ? "text-white/90" : "text-muted-foreground")} dir="auto">
                 {c.value}
               </span>

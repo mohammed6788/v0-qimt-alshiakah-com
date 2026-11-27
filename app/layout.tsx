@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import { Tajawal } from "next/font/google"
+import { IBM_Plex_Sans_Arabic } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Navigation } from "@/components/navigation"
 import { FooterSection } from "@/components/footer-section"
@@ -9,11 +9,13 @@ import { JsonLd } from "@/components/json-ld"
 import { BRAND, CONTACT, LOGOS, SITE_URL } from "@/lib/constants"
 import "./globals.css"
 
-const tajawal = Tajawal({
+const plexArabic = IBM_Plex_Sans_Arabic({
   subsets: ["arabic", "latin"],
-  weight: ["400", "500", "700", "800"],
-  variable: "--font-tajawal",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-arabic",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 })
 
 const DEFAULT_TITLE = "قمة الشياكة | خياطة رجالية وتفصيل ثياب في المكلا"
@@ -109,8 +111,8 @@ const businessSchema = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${tajawal.variable} scroll-smooth motion-reduce:scroll-auto`}>
-      <body className="font-sans antialiased">
+    <html lang="ar" dir="rtl" className={`${plexArabic.variable} scroll-smooth motion-reduce:scroll-auto`}>
+      <body className="font-sans">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-3 focus:text-navy"

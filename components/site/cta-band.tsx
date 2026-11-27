@@ -15,8 +15,8 @@ export function CtaBand({
   return (
     <section className="navy-gradient py-16 text-white sm:py-20">
       <div className="container-site flex flex-col items-center text-center">
-        <h2 className="text-3xl font-extrabold text-balance sm:text-4xl">{title}</h2>
-        <p className="mt-3 max-w-xl text-lg text-silver text-pretty">{text}</p>
+        <h2 className="type-h2">{title}</h2>
+        <p className="mt-3 max-w-xl text-base text-silver text-pretty">{text}</p>
         <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           <Link href="/design" className="btn btn-primary">
             <Scissors className="size-5" aria-hidden="true" />

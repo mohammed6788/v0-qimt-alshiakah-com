@@ -89,7 +89,7 @@ export default async function FabricDetailPage({ params }: Params) {
             <ol className="flex flex-wrap items-center gap-1">
               <li><Link href="/" className="hover:text-navy">الرئيسية</Link></li>
               <li className="flex items-center gap-1"><ChevronLeft className="size-4" aria-hidden="true" /><Link href="/fabrics" className="hover:text-navy">الأقمشة</Link></li>
-              <li className="flex items-center gap-1" aria-current="page"><ChevronLeft className="size-4" aria-hidden="true" /><span className="font-bold text-navy">{product.title}</span></li>
+              <li className="flex items-center gap-1" aria-current="page"><ChevronLeft className="size-4" aria-hidden="true" /><span className="font-semibold text-navy">{product.title}</span></li>
             </ol>
           </nav>
 
@@ -107,24 +107,24 @@ export default async function FabricDetailPage({ params }: Params) {
 
             <div className="flex flex-col">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-navy px-3 py-1 text-sm font-bold text-white">قماش {product.type}</span>
+                <span className="rounded-full bg-navy px-3 py-1 text-sm font-semibold text-white">قماش {product.type}</span>
                 <AvailabilityBadge product={product} className="text-sm" />
               </div>
-              <h1 className="mt-4 text-3xl font-extrabold text-navy sm:text-4xl">{product.title}</h1>
-              <p className="mt-1 text-sm font-medium tracking-wide text-silver-dark" dir="ltr" lang="en">{product.titleEn}</p>
-              <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{product.description}.</p>
+              <h1 className="type-h1 mt-4 text-navy">{product.title}</h1>
+              <p className="mt-1 text-sm font-medium text-silver-dark" dir="ltr" lang="en">{product.titleEn}</p>
+              <p className="mt-4 text-base text-muted-foreground">{product.description}.</p>
 
               <div className="mt-6 rounded-2xl border border-navy/10 bg-white p-5">
                 <PriceBlock product={product} large />
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
                     <dt className="text-xs text-muted-foreground">نوع القماش</dt>
-                    <dd className="mt-1 font-extrabold text-navy">{product.type}</dd>
+                    <dd className="type-title mt-1 text-navy">{product.type}</dd>
                   </div>
                   {product.origin && (
                     <div>
                       <dt className="text-xs text-muted-foreground">المنشأ</dt>
-                      <dd className="mt-1 font-extrabold text-navy">{product.origin}</dd>
+                      <dd className="type-title mt-1 text-navy">{product.origin}</dd>
                     </div>
                   )}
                 </dl>
@@ -168,7 +168,7 @@ export default async function FabricDetailPage({ params }: Params) {
                   </li>
                 ))}
               </ul>
-              <Link href="/measurements" className="mt-6 inline-flex items-center gap-2 font-bold text-navy-soft underline-offset-4 hover:underline">
+              <Link href="/measurements" className="mt-6 inline-flex items-center gap-2 font-semibold text-navy-soft underline-offset-4 hover:underline">
                 <Ruler className="size-4" aria-hidden="true" />
                 كيف أرسل مقاساتي؟
               </Link>
@@ -180,8 +180,8 @@ export default async function FabricDetailPage({ params }: Params) {
       <section className="bg-white py-16">
         <div className="container-site">
           <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-extrabold text-navy sm:text-3xl">أقمشة أخرى قد تعجبك</h2>
-            <Link href="/fabrics" className="shrink-0 text-sm font-bold text-navy-soft hover:underline">كل الأقمشة</Link>
+            <h2 className="type-h2 text-navy">أقمشة أخرى قد تعجبك</h2>
+            <Link href="/fabrics" className="shrink-0 text-sm font-semibold text-navy-soft hover:underline">كل الأقمشة</Link>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => (

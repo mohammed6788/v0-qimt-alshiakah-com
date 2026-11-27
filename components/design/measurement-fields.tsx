@@ -39,7 +39,7 @@ export function MeasurementFields({ value, onChange, showErrors }: Props) {
               />
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-silver-dark">سم</span>
             </span>
-            <span id={`hint-${f.key}`} className={cn("mt-1 block text-xs", err ? "font-bold text-destructive" : "text-muted-foreground")}>
+            <span id={`hint-${f.key}`} className={cn("mt-1 block text-xs", err ? "font-semibold text-destructive" : "text-muted-foreground")}>
               {err || f.hint}
             </span>
           </label>

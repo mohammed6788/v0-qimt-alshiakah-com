@@ -8,6 +8,7 @@ import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { EditSheet } from "@/components/design/edit-sheet"
 import {
   CONSULT_FABRIC,
+  AvailabilityNotice,
   ButtonsSection,
   CollarSection,
   ColorSection,
@@ -47,7 +48,7 @@ type StepId = SectionKey | "review"
 
 const STEPS: { id: StepId; title: string; short: string }[] = [
   { id: "fabric", title: "اختر القماش", short: "القماش" },
-  { id: "color", title: "لون القماش", short: "اللون" },
+  { id: "color", title: "اللون المطلوب", short: "اللون" },
   { id: "collar", title: "التفصيل والياقة", short: "الياقة" },
   { id: "sleeve", title: "تصميم الأكمام", short: "الأكمام" },
   { id: "buttons", title: "الأزرار (الجبزور)", short: "الأزرار" },
@@ -298,7 +299,7 @@ export function DesignBuilder() {
   // ── Summary rows ──
   const rows: { key: EditKey; k: string; v: string; err?: string }[] = [
     { key: "fabric", k: "القماش", v: fabricText, err: sectionError("fabric", st) },
-    { key: "color", k: "اللون", v: st.color ? colorLabel : "", err: sectionError("color", st) },
+    { key: "color", k: "اللون المطلوب", v: st.color ? colorLabel : "", err: sectionError("color", st) },
     { key: "collar", k: "التفصيل والياقة", v: [optionLabel(THOBE_STYLES, st.style), optionLabel(COLLARS, st.collar)].filter(Boolean).join(" · "), err: sectionError("collar", st) },
     { key: "sleeve", k: "الأكمام", v: optionLabel(SLEEVES, st.sleeve), err: sectionError("sleeve", st) },
     { key: "buttons", k: "الأزرار", v: optionLabel(BUTTONS, st.buttons), err: sectionError("buttons", st) },
@@ -315,13 +316,13 @@ export function DesignBuilder() {
       {/* Progress */}
       <div className="card-surface -mt-8 p-4 sm:-mt-10 sm:p-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-bold text-navy">
+          <p className="text-sm font-semibold text-navy">
             الخطوة {step + 1} من {STEPS.length}
           </p>
           <button
             type="button"
             onClick={() => setSummaryOpen(true)}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-ivory px-3 text-sm font-bold text-navy-soft hover:bg-sky-soft lg:hidden"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-ivory px-3 text-sm font-semibold text-navy-soft hover:bg-sky-soft lg:hidden"
           >
             <ClipboardList className="size-4" aria-hidden="true" />
             الملخص ({doneCount}/{SECTION_KEYS.length})
@@ -341,7 +342,7 @@ export function DesignBuilder() {
                 disabled={i > step}
                 aria-current={i === step ? "step" : undefined}
                 className={cn(
-                  "w-full truncate rounded-lg px-1 py-1.5 text-center text-xs font-bold transition-colors",
+                  "w-full truncate rounded-lg px-1 py-1.5 text-center text-xs font-semibold transition-colors",
                   i === step ? "bg-navy text-white" : i < step ? "text-navy-soft hover:bg-sky-soft" : "text-silver-dark",
                 )}
               >
@@ -354,7 +355,7 @@ export function DesignBuilder() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
         <div key={current.id} className="min-w-0 rounded-3xl bg-white p-5 shadow-[0_1px_2px_rgba(1,29,69,0.04)] motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:p-7">
-          <h2 className="mb-5 text-2xl font-extrabold text-navy">{current.title}</h2>
+          <h2 className="type-h2 mb-5 text-navy">{current.title}</h2>
 
           {current.id !== "review" && SECTION_COMPONENT[current.id]({ st, set, showErrors, saved })}
 
@@ -363,7 +364,7 @@ export function DesignBuilder() {
               <SummaryList rows={rows} onEdit={openEdit} showErrors={submitAttempted} />
 
               <fieldset className="space-y-4">
-                <legend className="mb-1 text-lg font-extrabold text-navy">بياناتك للتواصل</legend>
+                <legend className="type-h3 mb-1 text-navy">بياناتك للتواصل</legend>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="الاسم" required error={submitAttempted ? custErr.name : undefined}>
                     <input className="field-input" name="name" autoComplete="name" maxLength={60} value={customer.name} onChange={(e) => setC({ name: e.target.value })} />
@@ -396,7 +397,7 @@ export function DesignBuilder() {
                         aria-checked={customer.cityMode === c}
                         onClick={() => setC({ cityMode: c })}
                         className={cn(
-                          "min-h-12 rounded-2xl border font-bold text-navy transition-colors",
+                          "min-h-12 rounded-2xl border font-medium text-navy transition-colors",
                           customer.cityMode === c ? "border-navy bg-sky-soft shadow-[0_0_0_1px_var(--navy)]" : "border-navy/12",
                         )}
                       >
@@ -404,7 +405,7 @@ export function DesignBuilder() {
                       </button>
                     ))}
                   </div>
-                  {submitAttempted && custErr.cityMode && <p className="mt-1 text-sm font-bold text-destructive">{custErr.cityMode}</p>}
+                  {submitAttempted && custErr.cityMode && <p className="mt-1 text-sm font-semibold text-destructive">{custErr.cityMode}</p>}
                   {customer.cityMode === "other" && (
                     <Field label="اسم المدينة" required error={submitAttempted ? custErr.city : undefined} className="mt-3">
                       <input className="field-input" name="city" maxLength={40} value={customer.city} onChange={(e) => setC({ city: e.target.value })} placeholder="مثال: سيئون" />
@@ -422,7 +423,7 @@ export function DesignBuilder() {
                   />
                 </Field>
                 {st.customerType === "new" && st.newMode === "enter" && hasMeasurements(st.measurements) && (
-                  <label className="flex items-start gap-3 rounded-2xl bg-ivory p-4 text-sm leading-relaxed text-navy">
+                  <label className="flex items-start gap-3 rounded-2xl bg-ivory p-4 text-sm text-navy">
                     <input type="checkbox" className="mt-0.5 size-5 shrink-0 accent-[#011d45]" checked={customer.saveConsent} onChange={(e) => setC({ saveConsent: e.target.checked })} />
                     <span>
                       احفظ اسمي ورقمي ومقاساتي <strong>على هذا الجهاز فقط</strong> لإعادة الطلب لاحقاً (اختياري). لا تُرفع لأي خادم، ويمكن حذفها من صفحة المقاسات.
@@ -433,12 +434,12 @@ export function DesignBuilder() {
 
               {submitAttempted && !canSend && (
                 <div id="order-issues" className="rounded-2xl border border-destructive/30 bg-red-50 p-4" role="alert">
-                  <p className="font-extrabold text-destructive">لا يمكن إرسال الطلب قبل استكمال:</p>
+                  <p className="font-semibold text-destructive">لا يمكن إرسال الطلب قبل استكمال:</p>
                   <ul className="mt-2 space-y-1 text-sm text-destructive">
                     {sectionIssues.map((x) => (
                       <li key={x.key}>
                         •{" "}
-                        <button type="button" className="font-bold underline underline-offset-4" onClick={() => openEdit(x.key)}>
+                        <button type="button" className="font-semibold underline underline-offset-4" onClick={() => openEdit(x.key)}>
                           {x.error}
                         </button>
                       </li>
@@ -451,18 +452,19 @@ export function DesignBuilder() {
               )}
 
               <details className="rounded-2xl bg-ivory p-4">
-                <summary className="cursor-pointer font-bold text-navy">معاينة رسالة واتساب</summary>
-                <pre className="mt-3 whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-navy" data-testid="message-preview">
+                <summary className="cursor-pointer font-semibold text-navy">معاينة رسالة واتساب</summary>
+                <pre className="mt-3 whitespace-pre-wrap break-words font-sans text-sm text-navy" data-testid="message-preview">
                   {message}
                 </pre>
               </details>
 
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <AvailabilityNotice />
+              <p className="text-sm text-muted-foreground">
                 بعد الإرسال يراجع فريقنا طلبك عبر واتساب ويؤكد معك التفاصيل والسعر وموعد الاستلام، ويزوّدك برقم الطلب عند تسجيله.
               </p>
 
               {sent && (
-                <p className="rounded-2xl bg-emerald-50 p-4 text-sm font-bold text-emerald-800" role="status">
+                <p className="rounded-2xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800" role="status">
                   تم تجهيز رسالة طلبك. أكمل الإرسال من واتساب، وسيتواصل معك فريقنا لتأكيد الطلب.
                 </p>
               )}
@@ -492,8 +494,8 @@ export function DesignBuilder() {
         {/* Live summary (desktop) */}
         <aside className="sticky top-24 hidden rounded-3xl bg-white p-5 shadow-[0_1px_2px_rgba(1,29,69,0.04)] lg:block" aria-label="ملخص ثوبك">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-extrabold text-navy">ملخص ثوبك</h2>
-            <span className="text-xs font-bold text-muted-foreground">
+            <h2 className="type-h3 text-navy">ملخص ثوبك</h2>
+            <span className="text-xs font-semibold text-muted-foreground">
               {doneCount}/{SECTION_KEYS.length}
             </span>
           </div>
@@ -503,7 +505,7 @@ export function DesignBuilder() {
                 <Image src={product.image} alt="" fill sizes="56px" className="object-cover" />
               </span>
               <span className="text-sm">
-                <span className="block font-bold text-navy">{product.title}</span>
+                <span className="block font-semibold text-navy">{product.title}</span>
                 <span className="block text-muted-foreground">قماش {product.type}</span>
               </span>
             </div>
@@ -612,7 +614,7 @@ function SummaryList({
             >
               <span className="min-w-0">
                 <span className="block text-xs text-muted-foreground">{r.k}</span>
-                <span className={cn("block font-bold", compact && "text-sm", missing ? (showErrors ? "text-destructive" : "text-silver-dark") : "text-navy")}>
+                <span className={cn("block font-medium", compact && "text-sm", missing ? (showErrors ? "text-destructive" : "text-silver-dark") : "text-navy")}>
                   {r.v && !r.err ? r.v : showErrors && r.err ? r.err : "لم يُحدَّد بعد"}
                 </span>
               </span>
@@ -636,7 +638,7 @@ function Field({ label, required, error, className, children }: { label: string;
       </span>
       {children}
       {error && (
-        <span className="mt-1 block text-sm font-bold text-destructive" role="alert">
+        <span className="mt-1 block text-sm font-semibold text-destructive" role="alert">
           {error}
         </span>
       )}

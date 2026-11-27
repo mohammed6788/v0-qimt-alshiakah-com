@@ -94,7 +94,7 @@ export function FabricCatalog() {
           {type !== "all" && ` · قماش ${type}`}
         </p>
         {activeFilters > 0 && (
-          <button type="button" onClick={reset} className="inline-flex items-center gap-1 text-sm font-bold text-navy-soft underline-offset-4 hover:underline">
+          <button type="button" onClick={reset} className="inline-flex items-center gap-1 text-sm font-semibold text-navy-soft underline-offset-4 hover:underline">
             <X className="size-4" aria-hidden="true" /> مسح الفلاتر
           </button>
         )}
@@ -108,7 +108,7 @@ export function FabricCatalog() {
         </div>
       ) : (
         <div className="card-surface mt-5 p-10 text-center">
-          <p className="text-lg font-bold text-navy">لا توجد أقمشة مطابقة للبحث.</p>
+          <p className="type-h3 text-navy">لا توجد أقمشة مطابقة للبحث.</p>
           <p className="mt-2 text-muted-foreground">جرّب كلمة أخرى أو امسح الفلاتر، أو اسألنا مباشرة عبر واتساب.</p>
           <button type="button" onClick={reset} className="btn btn-outline-dark mt-5">
             عرض كل الأقمشة
@@ -122,7 +122,7 @@ export function FabricCatalog() {
 function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div role="group" aria-label={label} className="flex min-w-0 items-center gap-2">
-      <span className="hidden shrink-0 text-sm font-bold text-navy sm:inline">{label}:</span>
+      <span className="hidden shrink-0 text-sm font-semibold text-navy sm:inline">{label}:</span>
       <div className="-mx-1 flex min-w-0 gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">{children}</div>
     </div>
   )
@@ -135,7 +135,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "min-h-10 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm font-bold transition-colors",
+        "min-h-10 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-colors",
         active ? "border-navy bg-navy text-white" : "border-navy/15 bg-white text-navy hover:border-navy/40",
       )}
     >

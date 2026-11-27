@@ -14,17 +14,17 @@ export function TrendSection() {
       <div className="container-site">
         <div className="max-w-2xl">
           <p className="eyebrow">طريقة الطلب</p>
-          <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">من اختيار القماش إلى استلام ثوبك</h2>
+          <h2 className="type-h2 mt-2">من اختيار القماش إلى استلام ثوبك</h2>
         </div>
         <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
             <li key={s.title} className="relative rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-              <span className="absolute left-5 top-5 text-4xl font-extrabold text-white/10" aria-hidden="true">
+              <span className="num absolute left-5 top-4 text-4xl font-bold text-white/10" aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <s.icon className="size-7 text-sky" aria-hidden="true" />
-              <h3 className="mt-4 text-lg font-extrabold">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-silver">{s.text}</p>
+              <h3 className="type-title mt-4">{s.title}</h3>
+              <p className="mt-1.5 text-sm text-silver">{s.text}</p>
             </li>
           ))}
         </ol>

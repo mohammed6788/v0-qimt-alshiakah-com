@@ -35,10 +35,10 @@ export default function ContactPage() {
           <div className="mt-6 flex items-start gap-4 rounded-2xl border-2 border-sky/40 bg-sky-soft p-5 text-navy">
             <Truck className="mt-0.5 size-7 shrink-0 text-navy-soft" aria-hidden="true" />
             <div>
-              <h2 className="text-lg font-extrabold">نستقبل طلبات العملاء من خارج المكلا</h2>
-              <p className="mt-1 leading-relaxed">
+              <h2 className="type-h3">نستقبل طلبات العملاء من خارج المكلا</h2>
+              <p className="mt-1">
                 أرسل اختيارك ومقاساتك عبر واتساب، ونتواصل معك لتأكيد التفاصيل والسعر وطريقة الاستلام.{" "}
-                <TrackedLink href="/measurements" event="outside_mukalla_click" className="font-bold underline underline-offset-4">
+                <TrackedLink href="/measurements" event="outside_mukalla_click" className="font-semibold underline underline-offset-4">
                   أرسل مقاساتك من هنا
                 </TrackedLink>
               </p>
@@ -57,11 +57,11 @@ export default function ContactPage() {
               />
             </div>
             <div className="card-surface flex flex-col p-6">
-              <h2 className="flex items-center gap-2 text-xl font-extrabold text-navy">
+              <h2 className="type-h3 flex items-center gap-2 text-navy">
                 <MapPin className="size-6 text-navy-soft" aria-hidden="true" />
                 موقع المحل ({CONTACT.address.note})
               </h2>
-              <address className="mt-3 not-italic leading-loose text-navy">{FULL_ADDRESS}</address>
+              <address className="mt-3 not-italic text-navy">{FULL_ADDRESS}</address>
               <Image src={IMAGES.storefront} alt="واجهة محل قمة الشياكة" width={395} height={422} className="mt-4 h-48 w-full rounded-xl object-cover object-top" sizes="(max-width: 1024px) 100vw, 33vw" />
               <div className="mt-5 grid gap-3">
                 <TrackedLink

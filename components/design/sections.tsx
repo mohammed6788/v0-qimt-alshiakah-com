@@ -3,10 +3,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { Check, Minus, Plus, ShieldCheck, Store, UserPlus, UserRoundCheck } from "lucide-react"
+import { Check, Info, Minus, Plus, ShieldCheck, Store, UserPlus, UserRoundCheck } from "lucide-react"
+import { WhatsAppLink } from "@/components/whatsapp-link"
+import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { AvailabilityBadge } from "@/components/fabric-card"
 import { MeasurementFields } from "@/components/design/measurement-fields"
-import { PRODUCTS, SHOW_PRICES, formatPrice, getProduct } from "@/lib/constants"
+import { PRODUCTS, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
 import {
   BUTTONS,
   COLLARS,
@@ -176,7 +178,7 @@ export function ImageOptionGrid({
               <Image src={o.image} alt="" fill sizes="120px" className="object-contain p-1" />
             </span>
           )}
-          <span className="mt-2 text-center font-bold text-navy">{o.label}</span>
+          <span className="mt-2 text-center font-medium text-navy">{o.label}</span>
           {o.hint && <span className="text-center text-xs text-muted-foreground">{o.hint}</span>}
         </Tile>
       ))}
@@ -189,7 +191,7 @@ function TextOptionGrid({ options, value, onChange, label }: { options: Option[]
     <div role="radiogroup" aria-label={label} className="grid grid-cols-2 gap-3">
       {options.map((o) => (
         <Tile key={o.id} selected={value === o.id} onSelect={() => onChange(o.id)} className="min-h-14 items-center px-4 py-3">
-          <span className="pe-7 font-bold text-navy">{o.label}</span>
+          <span className="pe-7 font-medium text-navy">{o.label}</span>
         </Tile>
       ))}
     </div>
@@ -199,14 +201,24 @@ function TextOptionGrid({ options, value, onChange, label }: { options: Option[]
 function ErrorText({ show, text }: { show?: boolean; text: string }) {
   if (!show || !text) return null
   return (
-    <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-destructive" role="alert">
+    <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-destructive" role="alert">
       {text}
     </p>
   )
 }
 
 function SubHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-3 mt-6 text-base font-extrabold text-navy first:mt-0">{children}</h3>
+  return <h3 className="type-title mb-3 mt-6 text-navy first:mt-0">{children}</h3>
+}
+
+/** Reminder that availability and details are confirmed by the shop. */
+export function AvailabilityNotice({ className }: { className?: string }) {
+  return (
+    <p className={cn("flex items-start gap-2.5 rounded-2xl bg-sky-soft px-4 py-3 text-sm text-navy", className)} data-testid="availability-notice">
+      <Info className="mt-0.5 size-4 shrink-0 text-navy-soft" aria-hidden="true" />
+      <span>توفّر القماش واللون وتفاصيل التفصيل يؤكدها فريقنا معك قبل اعتماد الطلب.</span>
+    </p>
+  )
 }
 
 // ── Sections ─────────────────────────────────────────────────
@@ -219,6 +231,7 @@ export function FabricSection({ st, set, showErrors }: SectionProps) {
   }
   return (
     <>
+      <AvailabilityNotice className="mb-4" />
       <div role="radiogroup" aria-label="القماش" className="grid gap-3 sm:grid-cols-2">
         {PRODUCTS.map((p) => (
           <Tile key={p.slug} selected={st.fabric === p.slug} onSelect={() => pick(p.slug)} label={p.title} className="items-stretch gap-3 p-2.5">
@@ -226,25 +239,37 @@ export function FabricSection({ st, set, showErrors }: SectionProps) {
               <Image src={p.image} alt="" fill sizes="96px" className="object-cover" />
             </span>
             <span className="flex min-w-0 flex-col justify-center gap-1 pe-6">
-              <span className="font-extrabold text-navy">{p.title}</span>
-              <span className="text-xs font-bold text-navy-soft">
+              <span className="font-semibold text-navy">{p.title}</span>
+              <span className="text-xs font-semibold text-navy-soft">
                 قماش {p.type}
                 {p.origin ? ` · ${p.origin}` : ""}
               </span>
-              <span className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{p.description}</span>
-              {SHOW_PRICES && <span className="text-sm font-extrabold text-navy">{formatPrice(p.price, p.currency)}</span>}
+              <span className="line-clamp-2 text-xs text-muted-foreground">{p.description}</span>
+              {SHOW_PRICES && <span className="num text-sm font-bold text-navy">{formatPrice(p.price, p.currency)}</span>}
               <AvailabilityBadge product={p} className="mt-0.5 self-start !px-2 !py-0.5 !text-[11px]" />
             </span>
           </Tile>
         ))}
         <Tile selected={st.fabric === CONSULT_FABRIC} onSelect={() => set({ fabric: CONSULT_FABRIC })} className="min-h-20 items-center p-4 sm:col-span-2">
           <span className="pe-7">
-            <span className="block font-extrabold text-navy">ساعدوني في اختيار القماش</span>
+            <span className="block font-semibold text-navy">ساعدوني في اختيار القماش</span>
             <span className="block text-sm text-muted-foreground">نقترح عليك الأنسب لمناسبتك</span>
           </span>
         </Tile>
       </div>
-      <Link href="/fabrics" className="mt-4 inline-block text-sm font-bold text-navy-soft underline-offset-4 hover:underline">
+      <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-navy/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">محتار في اختيار القماش؟ راسلنا وسنقترح عليك الأنسب.</p>
+        <WhatsAppLink
+          href={whatsappHref("السلام عليكم، أحتاج مساعدة في اختيار قماش مناسب لتفصيل ثوب.")}
+          intent="whatsapp_fabric"
+          placement="design_fabric_help"
+          className="btn btn-outline-dark min-h-11 shrink-0 px-4 text-sm"
+        >
+          <WhatsAppIcon className="size-4" />
+          ساعدني في الاختيار عبر واتساب
+        </WhatsAppLink>
+      </div>
+      <Link href="/fabrics" className="mt-3 inline-block text-sm font-semibold text-navy-soft underline-offset-4 hover:underline">
         تفاصيل كل الأقمشة
       </Link>
       <ErrorText show={showErrors} text={sectionError("fabric", st)} />
@@ -260,11 +285,9 @@ export function ColorSection({ st, set, showErrors }: SectionProps) {
       <p className="mb-4 text-sm text-muted-foreground">
         {confirmed
           ? `الألوان المتوفرة لقماش ${product?.title}.`
-          : product
-            ? `الألوان المتوفرة لقماش ${product.title} يؤكدها فريقنا عند الطلب.`
-            : "نؤكد لك توفر اللون عند الطلب."}
+          : "اختر اللون الذي تفضّله. هذه ليست قائمة توفّر؛ يؤكد فريقنا الألوان المتاحة للقماش قبل اعتماد الطلب."}
       </p>
-      <div role="radiogroup" aria-label="لون القماش" className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div role="radiogroup" aria-label="اللون المطلوب" className="grid grid-cols-4 gap-2 sm:gap-3">
         {list.map((c) => (
           <button
             key={c.id}
@@ -278,7 +301,7 @@ export function ColorSection({ st, set, showErrors }: SectionProps) {
             )}
           >
             <span className="size-10 rounded-full border border-navy/15 shadow-inner sm:size-12" style={{ background: c.swatch }} aria-hidden="true" />
-            <span className="text-center text-xs font-bold leading-tight text-navy sm:text-sm">{c.label}</span>
+            <span className="text-center text-xs font-medium leading-snug text-navy sm:text-sm">{c.label}</span>
           </button>
         ))}
       </div>
@@ -326,14 +349,14 @@ export function ButtonsSection({ st, set, showErrors }: SectionProps) {
 export function QuantityStepper({ st, set }: SectionProps) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-2xl bg-ivory p-3">
-      <span className="font-extrabold text-navy" id="qty-label">
+      <span className="font-semibold text-navy" id="qty-label">
         الكمية
       </span>
       <div className="flex items-center gap-2" role="group" aria-labelledby="qty-label">
         <button type="button" className="btn btn-outline-dark size-12 bg-white px-0" onClick={() => set({ quantity: Math.max(1, st.quantity - 1) })} disabled={st.quantity <= 1} aria-label="إنقاص الكمية">
           <Minus className="size-5" aria-hidden="true" />
         </button>
-        <output className="w-10 text-center text-xl font-extrabold text-navy" aria-live="polite" data-testid="qty">
+        <output className="num w-10 text-center text-xl font-semibold text-navy" aria-live="polite" data-testid="qty">
           {st.quantity}
         </output>
         <button type="button" className="btn btn-outline-dark size-12 bg-white px-0" onClick={() => set({ quantity: Math.min(20, st.quantity + 1) })} disabled={st.quantity >= 20} aria-label="زيادة الكمية">
@@ -396,12 +419,12 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
       <div role="radiogroup" aria-label="نوع العميل" className="grid grid-cols-2 gap-3">
         <Tile selected={st.customerType === "new"} onSelect={() => set({ customerType: "new" })} className="flex-col items-center gap-2 p-4 text-center">
           <UserPlus className="size-7 text-navy-soft" aria-hidden="true" />
-          <span className="font-extrabold text-navy">عميل جديد</span>
+          <span className="font-semibold text-navy">عميل جديد</span>
           <span className="text-xs text-muted-foreground">أول طلب لدينا</span>
         </Tile>
         <Tile selected={st.customerType === "returning"} onSelect={() => set({ customerType: "returning" })} className="flex-col items-center gap-2 p-4 text-center">
           <UserRoundCheck className="size-7 text-navy-soft" aria-hidden="true" />
-          <span className="font-extrabold text-navy">عميل سابق</span>
+          <span className="font-semibold text-navy">عميل سابق</span>
           <span className="text-xs text-muted-foreground">مقاساتي محفوظة</span>
         </Tile>
       </div>
@@ -413,7 +436,7 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
             {NEW_MODES.map((m) => (
               <Tile key={m.id} selected={st.newMode === m.id} onSelect={() => set({ newMode: m.id })} className="min-h-16 items-center px-4 py-3">
                 <span className="pe-7">
-                  <span className="block font-bold text-navy">{m.label}</span>
+                  <span className="block font-medium text-navy">{m.label}</span>
                   <span className="block text-xs text-muted-foreground">{m.hint}</span>
                 </span>
               </Tile>
@@ -422,7 +445,7 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
           {st.newMode === "enter" && (
             <>
               <MeasurementFields value={st.measurements} onChange={(m) => set({ measurements: m })} showErrors={showErrors} />
-              <Link href="/measurements#guide" target="_blank" className="mt-3 inline-block text-sm font-bold text-navy-soft underline-offset-4 hover:underline">
+              <Link href="/measurements#guide" target="_blank" className="mt-3 inline-block text-sm font-semibold text-navy-soft underline-offset-4 hover:underline">
                 دليل أخذ المقاسات
               </Link>
             </>
@@ -437,7 +460,7 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
             <Tile selected={st.returningMode === "shop"} onSelect={() => set({ returningMode: "shop" })} className="min-h-16 items-center gap-3 px-4 py-3">
               <Store className="size-6 shrink-0 text-navy-soft" aria-hidden="true" />
               <span className="pe-7">
-                <span className="block font-bold text-navy">محفوظة لدى المحل</span>
+                <span className="block font-medium text-navy">محفوظة لدى المحل</span>
                 <span className="block text-xs text-muted-foreground">يراجعها فريقنا برقم جوالك</span>
               </span>
             </Tile>
@@ -445,7 +468,7 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
               <Tile selected={st.returningMode === "device"} onSelect={() => set({ returningMode: "device" })} className="min-h-16 items-center gap-3 px-4 py-3">
                 <ShieldCheck className="size-6 shrink-0 text-navy-soft" aria-hidden="true" />
                 <span className="pe-7">
-                  <span className="block font-bold text-navy">محفوظة على هذا الجهاز</span>
+                  <span className="block font-medium text-navy">محفوظة على هذا الجهاز</span>
                   <span className="block text-xs text-muted-foreground">تتطلب التحقق برقم الجوال</span>
                 </span>
               </Tile>
@@ -467,7 +490,7 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
                 onChange={(e) => set({ registeredPhone: e.target.value })}
                 placeholder="7XX XXX XXX"
               />
-              <span className="mt-1.5 block text-xs leading-relaxed text-muted-foreground">
+              <span className="mt-1.5 block text-xs text-muted-foreground">
                 لا يتم عرض مقاساتك هنا. سيراجع فريقنا المقاسات المحفوظة لديه بهذا الرقم ويؤكدها معك عبر واتساب.
               </span>
             </label>
@@ -477,8 +500,8 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
             <div className="mt-5">
               {st.deviceVerified ? (
                 <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900" role="status">
-                  <p className="font-extrabold">تم التحقق ✓ سيتم إرفاق مقاساتك المحفوظة بالطلب.</p>
-                  <button type="button" className="mt-2 font-bold underline underline-offset-4" onClick={() => setShowSaved((v) => !v)}>
+                  <p className="font-semibold">تم التحقق ✓ سيتم إرفاق مقاساتك المحفوظة بالطلب.</p>
+                  <button type="button" className="mt-2 font-semibold underline underline-offset-4" onClick={() => setShowSaved((v) => !v)}>
                     {showSaved ? "إخفاء المقاسات" : "عرض المقاسات للمراجعة"}
                   </button>
                   {showSaved && <MeasurementFields value={st.measurements} onChange={(m) => set({ measurements: m })} />}
@@ -502,7 +525,7 @@ export function MeasureSection({ st, set, showErrors, saved }: MeasureProps) {
                     </button>
                   </div>
                   {verifyError && (
-                    <p className="mt-2 text-sm font-bold text-destructive" role="alert">
+                    <p className="mt-2 text-sm font-semibold text-destructive" role="alert">
                       {verifyError}
                     </p>
                   )}

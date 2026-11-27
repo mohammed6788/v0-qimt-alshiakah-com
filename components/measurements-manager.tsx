@@ -145,7 +145,7 @@ export function MeasurementsManager() {
   return (
     <div className="space-y-6">
       {status && (
-        <p className="rounded-xl bg-sky-soft p-4 text-sm font-bold text-navy" role="status">
+        <p className="rounded-xl bg-sky-soft p-4 text-sm font-semibold text-navy" role="status">
           {status}
         </p>
       )}
@@ -156,7 +156,7 @@ export function MeasurementsManager() {
             <div className="flex items-center gap-3">
               <ShieldCheck className="size-7 text-sky" aria-hidden="true" />
               <div>
-                <p className="text-lg font-extrabold">مقاسات {profile.name}</p>
+                <p className="type-h3">مقاسات {profile.name}</p>
                 <p className="text-sm text-silver">محفوظة على هذا الجهاز · {new Date(profile.savedAt).toLocaleDateString("ar-EG")}</p>
               </div>
             </div>
@@ -174,7 +174,7 @@ export function MeasurementsManager() {
             {MEASUREMENT_FIELDS.map((f) => (
               <div key={f.key} className="bg-white p-4">
                 <dt className="text-xs text-muted-foreground">{f.label}</dt>
-                <dd className="mt-1 text-lg font-extrabold text-navy">
+                <dd className="num mt-1 text-lg font-semibold text-navy">
                   {profile.measurements[f.key] ? `${profile.measurements[f.key]} سم` : "—"}
                 </dd>
               </div>
@@ -182,7 +182,7 @@ export function MeasurementsManager() {
           </dl>
 
           <div className="space-y-4 p-5">
-            <h3 className="text-lg font-extrabold text-navy">أعد طلب ثوبك بنفس المقاسات</h3>
+            <h3 className="type-h3 text-navy">أعد طلب ثوبك بنفس المقاسات</h3>
             <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
               <label className="block">
                 <span className="field-label">القماش</span>
@@ -231,7 +231,7 @@ export function MeasurementsManager() {
 
       {editing && (
         <div className="card-surface p-5 sm:p-7">
-          <h3 className="text-xl font-extrabold text-navy">{profile ? "تعديل مقاساتك" : "سجّل مقاساتك"}</h3>
+          <h3 className="type-h3 text-navy">{profile ? "تعديل مقاساتك" : "سجّل مقاساتك"}</h3>
           <p className="mt-1 text-sm text-muted-foreground">القياسات بالسنتيمتر. اكتب ما تعرفه منها، ونستكمل الباقي معك.</p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
@@ -247,7 +247,7 @@ export function MeasurementsManager() {
           </div>
 
           <MeasurementFields value={draft.measurements} onChange={(m) => setDraft({ ...draft, measurements: m })} />
-          {errors.measurements && <p className="mt-2 text-sm font-bold text-destructive" role="alert">{errors.measurements}</p>}
+          {errors.measurements && <p className="mt-2 text-sm font-semibold text-destructive" role="alert">{errors.measurements}</p>}
 
           <label className="mt-5 block">
             <span className="field-label">ملاحظات على المقاس (اختياري)</span>
@@ -264,7 +264,7 @@ export function MeasurementsManager() {
             <input type="checkbox" className="mt-0.5 size-5 accent-[#011d45]" checked={draft.consent} onChange={(e) => setDraft({ ...draft, consent: e.target.checked })} />
             <span>
               أوافق على حفظ اسمي ورقمي ومقاساتي <strong>على هذا الجهاز فقط</strong> لاستخدامها في الطلبات القادمة، ويمكنني حذفها في أي وقت.
-              {errors.consent && <span className="mt-1 block font-bold text-destructive">{errors.consent}</span>}
+              {errors.consent && <span className="mt-1 block font-semibold text-destructive">{errors.consent}</span>}
             </span>
           </label>
 
@@ -279,7 +279,7 @@ export function MeasurementsManager() {
             </a>
           </div>
           {profile && (
-            <button type="button" onClick={() => setEditing(false)} className="mt-4 text-sm font-bold text-navy-soft hover:underline">
+            <button type="button" onClick={() => setEditing(false)} className="mt-4 text-sm font-semibold text-navy-soft hover:underline">
               إلغاء التعديل
             </button>
           )}
@@ -294,7 +294,7 @@ function TextField({ label, error, children }: { label: string; error?: string; 
     <label className="block">
       <span className="field-label">{label}</span>
       {children}
-      {error && <span className="mt-1 block text-sm font-bold text-destructive" role="alert">{error}</span>}
+      {error && <span className="mt-1 block text-sm font-semibold text-destructive" role="alert">{error}</span>}
     </label>
   )
 }

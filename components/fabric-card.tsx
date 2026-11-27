@@ -29,7 +29,7 @@ export function AvailabilityBadge({ product, className }: { product: Product; cl
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
         a === "in_stock" && "bg-emerald-50 text-emerald-800",
         a === "limited" && "bg-amber-50 text-amber-800",
         a === "out_of_stock" && "bg-red-50 text-red-800",
@@ -57,7 +57,7 @@ export function PriceBlock({ product, large }: { product: Product; large?: boole
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
   return (
     <div>
-      <p className={cn("font-extrabold text-navy", large ? "text-3xl" : "text-xl")}>
+      <p className={cn("num font-bold text-navy", large ? "text-[1.625rem] leading-snug" : "text-xl leading-snug")}>
         {formatPrice(product.price, product.currency)}
         {hasDiscount && (
           <s className="ms-2 text-sm font-medium text-silver-dark">
@@ -92,7 +92,7 @@ export function FabricCard({ product, priority }: { product: Product; priority?:
           className="object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
         />
         {product.tag && product.tag !== product.type && (
-          <span className="absolute right-3 top-3 rounded-full bg-navy/90 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+          <span className="absolute right-3 top-3 rounded-full bg-navy/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
             {product.tag}
           </span>
         )}
@@ -100,10 +100,10 @@ export function FabricCard({ product, priority }: { product: Product; priority?:
 
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-          <span className="rounded-full bg-navy px-2.5 py-1 font-bold text-white">قماش {product.type}</span>
+          <span className="rounded-full bg-navy px-2.5 py-1 font-semibold text-white">قماش {product.type}</span>
           <AvailabilityBadge product={product} />
         </div>
-        <h3 className="text-xl font-extrabold text-navy">
+        <h3 className="type-title text-navy">
           <TrackedLink
             href={href}
             event={EVENTS.fabricDetailsClick}
@@ -113,7 +113,7 @@ export function FabricCard({ product, priority }: { product: Product; priority?:
             {product.title}
           </TrackedLink>
         </h3>
-        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
 
         {SHOW_PRICES && (
           <div className="mt-4 border-t border-navy/10 pt-4">

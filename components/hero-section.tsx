@@ -23,26 +23,26 @@ export function HeroSection() {
             <MapPin className="size-4" aria-hidden="true" />
             خياطة رجالية في المكلا · الشرج
           </p>
-          <h1 className="text-[2.4rem] font-extrabold leading-[1.15] text-balance sm:text-6xl">
+          <h1 className="type-hero">
             ثوبك يُفصَّل لك
             <span className="silver-text block pb-1">بدقة تليق بحضورك</span>
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-silver text-pretty sm:text-xl">
+          <p className="mt-4 max-w-xl text-base text-silver text-pretty">
             {BRAND.tagline}. اختر قماشك، صمّم تفاصيل ثوبك، وأرسل طلبك عبر واتساب في دقائق.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <TrackedLink href="/design" event={EVENTS.designStart} properties={{ placement: "hero" }} className="btn btn-primary min-h-14 px-8 text-lg">
+            <TrackedLink href="/design" event={EVENTS.designStart} properties={{ placement: "hero" }} className="btn btn-primary min-h-14 px-8">
               <Scissors className="size-5" aria-hidden="true" />
               صمم ثوبك
             </TrackedLink>
-            <TrackedLink href="/fabrics" event="hero_fabrics_click" className="btn btn-outline-light min-h-14 px-8 text-lg">
+            <TrackedLink href="/fabrics" event="hero_fabrics_click" className="btn btn-outline-light min-h-14 px-8">
               <Layers className="size-5" aria-hidden="true" />
               استكشف الأقمشة
             </TrackedLink>
           </div>
 
-          <p className="mt-6 text-sm font-bold tracking-wide text-silver-dark">— {BRAND.slogan}</p>
+          <p className="mt-6 text-sm font-medium text-silver-dark">— {BRAND.slogan}</p>
         </div>
 
         <div className="relative mx-auto w-full max-w-xl motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:duration-700">
@@ -69,7 +69,7 @@ export function HeroSection() {
                 <p.icon className="size-5" aria-hidden="true" />
               </span>
               <span>
-                <span className="block text-sm font-extrabold sm:text-base">{p.title}</span>
+                <span className="block text-sm font-semibold sm:text-base">{p.title}</span>
                 <span className="hidden text-sm text-silver sm:block">{p.text}</span>
               </span>
             </li>

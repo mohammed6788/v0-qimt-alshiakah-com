@@ -14,7 +14,7 @@ export function ServicesSection() {
       <div className="container-site">
         <div className="mx-auto max-w-2xl text-center">
           <p className="eyebrow !text-navy-soft">لماذا قمة الشياكة؟</p>
-          <h2 className="mt-2 text-3xl font-extrabold text-navy text-balance sm:text-4xl">تفصيل عصري… وجودة عالية</h2>
+          <h2 className="type-h2 mt-2 text-navy">تفصيل عصري… وجودة عالية</h2>
         </div>
         <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {services.map((s) => (
@@ -22,8 +22,8 @@ export function ServicesSection() {
               <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-navy text-sky sm:size-14">
                 <s.icon className="size-6" aria-hidden="true" />
               </span>
-              <h3 className="mt-4 font-extrabold text-navy sm:text-lg">{s.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.description}</p>
+              <h3 className="type-title mt-4 text-navy">{s.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{s.description}</p>
             </div>
           ))}
         </div>

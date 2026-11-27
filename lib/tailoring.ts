@@ -183,7 +183,7 @@ export function buildOrderMessage(o: OrderDetails) {
     const price = SHOW_PRICES && o.fabric.price ? ` (${formatPrice(o.fabric.price, o.fabric.currency)})` : ""
     thobe.push(`القماش: ${o.fabric.title}${price}`)
   }
-  if (o.color) thobe.push(`اللون: ${o.color}`)
+  if (o.color) thobe.push(`اللون المطلوب: ${o.color}`)
   if (o.style) thobe.push(`الطراز: ${o.style}`)
   if (o.collar) thobe.push(`الياقة: ${o.collar}`)
   if (o.sleeve) thobe.push(`الأكمام: ${o.sleeve}`)

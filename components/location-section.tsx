@@ -17,18 +17,18 @@ export function LocationSection() {
             sizes="(max-width: 1024px) 100vw, 448px"
             className="h-auto w-full rounded-3xl shadow-xl"
           />
-          <span className="absolute -bottom-4 right-6 rounded-full bg-navy px-4 py-2 text-sm font-bold text-white shadow-lg">{CONTACT.address.note}</span>
+          <span className="absolute -bottom-4 right-6 rounded-full bg-navy px-4 py-2 text-sm font-semibold text-white shadow-lg">{CONTACT.address.note}</span>
         </div>
         <div>
           <p className="eyebrow !text-navy-soft">زورونا</p>
-          <h2 className="mt-2 text-3xl font-extrabold text-navy sm:text-4xl">محلنا في المكلا – الشرج</h2>
-          <p className="mt-4 flex items-start gap-2 text-lg leading-relaxed text-navy">
+          <h2 className="type-h2 mt-2 text-navy">محلنا في المكلا – الشرج</h2>
+          <p className="mt-4 flex items-start gap-2 text-base text-navy">
             <MapPin className="mt-1 size-5 shrink-0 text-navy-soft" aria-hidden="true" />
             {FULL_ADDRESS}
           </p>
           <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white p-4 text-navy shadow-sm">
             <Truck className="mt-0.5 size-6 shrink-0 text-navy-soft" aria-hidden="true" />
-            <p className="leading-relaxed">
+            <p>
               <strong>من خارج المكلا؟</strong> نستقبل طلبك ومقاساتك عبر واتساب ونرتّب معك التفاصيل.
             </p>
           </div>

@@ -14,14 +14,14 @@ export function FooterSection() {
       <div className="container-site grid gap-12 md:grid-cols-[1.4fr_1fr_1.2fr]">
         <div className="space-y-5">
           <Logo size={56} />
-          <p className="max-w-sm leading-relaxed text-silver">
+          <p className="max-w-sm text-silver">
             {BRAND.tagline}. نستقبل طلبات العملاء في المكلا ومن خارجها.
           </p>
-          <p className="silver-text text-xl font-extrabold">{BRAND.slogan}</p>
+          <p className="silver-text type-h3">{BRAND.slogan}</p>
         </div>
 
         <nav aria-label="روابط الموقع">
-          <h2 className="mb-4 text-sm font-bold tracking-widest text-sky">روابط سريعة</h2>
+          <h2 className="mb-4 text-sm font-semibold text-sky">روابط سريعة</h2>
           <ul className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-1">
             {NAV_LINKS.map((l) => (
               <li key={l.href}>
@@ -34,7 +34,7 @@ export function FooterSection() {
         </nav>
 
         <div>
-          <h2 className="mb-4 text-sm font-bold tracking-widest text-sky">تواصل معنا</h2>
+          <h2 className="mb-4 text-sm font-semibold text-sky">تواصل معنا</h2>
           <ul className="space-y-3">
             <li>
               <a
@@ -60,7 +60,7 @@ export function FooterSection() {
             </li>
             <li className="flex items-start gap-3">
               <MapPin className="mt-0.5 size-5 shrink-0 text-sky" aria-hidden="true" />
-              <span className="leading-relaxed">{FULL_ADDRESS}</span>
+              <span>{FULL_ADDRESS}</span>
             </li>
           </ul>
           <div className="mt-5 flex flex-wrap gap-2">

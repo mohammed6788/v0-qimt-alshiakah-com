@@ -51,10 +51,10 @@ export default function MeasurementsPage() {
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-navy text-sky">
                     <j.icon className="size-5" aria-hidden="true" />
                   </span>
-                  <span className="text-xs font-bold text-silver-dark">الخطوة {i + 1}</span>
+                  <span className="text-xs font-semibold text-silver-dark">الخطوة {i + 1}</span>
                 </div>
-                <h2 className="mt-3 font-extrabold text-navy">{j.title}</h2>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{j.text}</p>
+                <h2 className="type-title mt-3 text-navy">{j.title}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{j.text}</p>
               </li>
             ))}
           </ol>
@@ -64,22 +64,22 @@ export default function MeasurementsPage() {
 
             <aside className="space-y-4">
               <div className="card-surface p-5">
-                <h2 className="flex items-center gap-2 font-extrabold text-navy">
+                <h2 className="type-title flex items-center gap-2 text-navy">
                   <Lock className="size-5 text-navy-soft" aria-hidden="true" />
                   أين تُحفظ بياناتك؟
                 </h2>
-                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+                <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                   <li>• عند الضغط على «احفظ على جهازي» تُحفظ البيانات في متصفحك على هذا الجهاز فقط، ولا تُرفع إلى أي خادم.</li>
                   <li>• عند الضغط على «أرسل مقاساتي للمحل» تصلنا رسالة واتساب منك، ونحتفظ بمقاساتك لدينا لطلباتك القادمة.</li>
                   <li>• يمكنك حذف البيانات من جهازك في أي وقت.</li>
                 </ul>
               </div>
               <div className="card-surface p-5">
-                <h2 className="flex items-center gap-2 font-extrabold text-navy">
+                <h2 className="type-title flex items-center gap-2 text-navy">
                   <ClipboardCheck className="size-5 text-navy-soft" aria-hidden="true" />
                   من خارج المكلا؟
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-2 text-sm text-muted-foreground">
                   أرسل مقاساتك عبر النموذج، ونتواصل معك لتأكيد التفاصيل وطريقة الاستلام.
                 </p>
               </div>
@@ -92,12 +92,12 @@ export default function MeasurementsPage() {
         <div className="container-site grid gap-10 lg:grid-cols-2">
           <div>
             <p className="eyebrow !text-navy-soft">دليل القياس</p>
-            <h2 className="mt-2 text-2xl font-extrabold text-navy sm:text-3xl">كيف تأخذ مقاساتك بدقة؟</h2>
+            <h2 className="type-h2 mt-2 text-navy">كيف تأخذ مقاساتك بدقة؟</h2>
             <ul className="mt-6 space-y-3">
               {TIPS.map((t) => (
                 <li key={t} className="flex gap-3 text-navy">
                   <span className="mt-2 size-2 shrink-0 rounded-full bg-sky" aria-hidden="true" />
-                  <span className="leading-relaxed">{t}</span>
+                  <span>{t}</span>
                 </li>
               ))}
             </ul>
@@ -105,7 +105,7 @@ export default function MeasurementsPage() {
           <dl className="grid gap-3 sm:grid-cols-2">
             {MEASUREMENT_FIELDS.map((f) => (
               <div key={f.key} className="rounded-xl border border-navy/10 p-4">
-                <dt className="font-extrabold text-navy">{f.label}</dt>
+                <dt className="font-semibold text-navy">{f.label}</dt>
                 <dd className="mt-1 text-sm text-muted-foreground">{f.hint}</dd>
               </div>
             ))}

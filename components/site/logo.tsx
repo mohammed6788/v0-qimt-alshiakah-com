@@ -18,9 +18,9 @@ export function Logo({ size = 44, withText = true, className, priority }: Props)
         className="rounded-xl ring-1 ring-white/10"
       />
       {withText && (
-        <span className="flex flex-col leading-tight">
-          <span className="text-lg font-extrabold text-white sm:text-xl">{BRAND.name}</span>
-          <span className="text-[11px] font-medium tracking-wide text-silver">للخياطة الرجالية</span>
+        <span className="flex flex-col leading-snug">
+          <span className="text-lg font-bold text-white">{BRAND.name}</span>
+          <span className="text-xs font-normal text-silver">للخياطة الرجالية</span>
         </span>
       )}
     </Link>

@@ -26,7 +26,7 @@ export function EditSheet({ open, onOpenChange, title, description, children, fo
           <div className="mx-auto mt-3 h-1.5 w-12 shrink-0 rounded-full bg-silver" aria-hidden="true" />
           <div className="flex items-start justify-between gap-4 px-5 pb-3 pt-4 sm:px-7">
             <div>
-              <Drawer.Title className="text-xl font-extrabold text-navy">{title}</Drawer.Title>
+              <Drawer.Title className="type-h3 text-navy">{title}</Drawer.Title>
               {description ? (
                 <Drawer.Description className="mt-1 text-sm text-muted-foreground">{description}</Drawer.Description>
               ) : (

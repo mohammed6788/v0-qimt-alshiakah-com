@@ -43,7 +43,14 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-tajawal), 'Tajawal', system-ui, sans-serif;
+  --font-sans: var(--font-plex-arabic), 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  /* Type scale: body 16 · caption 14 · small 12 (Arabic needs generous leading) */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.6;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.7;
+  --text-base: 1rem;
+  --text-base--line-height: 1.8;
   --color-navy: var(--navy);
   --color-navy-deep: var(--navy-deep);
   --color-navy-soft: var(--navy-soft);
@@ -88,6 +95,13 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: 1rem;
+    line-height: 1.8;
+    font-weight: 400;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: lining-nums;
     overflow-x: clip;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
@@ -114,10 +128,10 @@
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
   }
   .eyebrow {
-    @apply inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-sky sm:text-sm;
+    @apply inline-flex items-center gap-2 text-sm font-semibold text-sky;
   }
   .btn {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-6 text-base font-bold transition-[background-color,color,border-color,transform,box-shadow] duration-200 motion-safe:active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-6 text-base font-semibold leading-none transition-[background-color,color,border-color,transform,box-shadow] duration-200 motion-safe:active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-primary {
     @apply bg-sky text-navy-deep shadow-[0_8px_24px_-12px_rgba(61,181,230,0.7)] hover:bg-white;
@@ -135,11 +149,69 @@
     @apply rounded-2xl border border-navy/10 bg-white shadow-[0_1px_2px_rgba(1,29,69,0.04),0_12px_32px_-20px_rgba(1,29,69,0.25)];
   }
   .field-label {
-    @apply mb-1.5 block text-sm font-bold text-navy;
+    @apply mb-1.5 block text-sm font-semibold text-navy;
   }
   .field-input {
-    @apply block min-h-12 w-full rounded-xl border border-input bg-white px-4 text-base text-navy placeholder:text-silver-dark focus:border-sky focus:outline-none focus:ring-2 focus:ring-sky/30;
+    @apply block min-h-12 w-full rounded-xl border border-input bg-white px-4 text-base font-medium text-navy placeholder:text-silver-dark focus:border-sky focus:outline-none focus:ring-2 focus:ring-sky/30;
   }
+  /* ── Typography scale (IBM Plex Sans Arabic) ─────────────
+     Hero 28/36 · H1 26/32 · H2 22/26 · H3 19/22 (mobile/desktop)
+     Headings 700 · Sub-headings 600 · UI text 500 · Body 400 */
+  .type-hero {
+    font-size: 1.75rem;
+    line-height: 1.45;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+  .type-h1 {
+    font-size: 1.625rem;
+    line-height: 1.45;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+  .type-h2 {
+    font-size: 1.375rem;
+    line-height: 1.5;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+  .type-h3 {
+    font-size: 1.1875rem;
+    line-height: 1.55;
+    font-weight: 600;
+  }
+  /* Card/tile titles inside a section (sub-heading weight at body+ size). */
+  .type-title {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    font-weight: 600;
+  }
+  .type-body {
+    font-size: 1rem;
+    line-height: 1.8;
+    font-weight: 400;
+  }
+  .type-caption {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+  .type-small {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  /* Numbers (qty, phones, measurements) – even widths, LTR-safe. */
+  .num {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  @media (min-width: 768px) {
+    .type-hero { font-size: 2.25rem; line-height: 1.4; }
+    .type-h1 { font-size: 2rem; line-height: 1.4; }
+    .type-h2 { font-size: 1.625rem; line-height: 1.45; }
+    .type-h3 { font-size: 1.375rem; line-height: 1.5; }
+  }
+
   .silver-text {
     background: linear-gradient(180deg, #ffffff 0%, var(--silver) 60%, var(--silver-dark) 100%);
     -webkit-background-clip: text;

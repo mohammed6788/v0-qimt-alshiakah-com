@@ -34,7 +34,7 @@ export default function AboutPage() {
 
       <section className="bg-ivory py-16">
         <div className="container-site grid items-center gap-10 lg:grid-cols-2">
-          <div className="space-y-5 text-lg leading-loose text-navy">
+          <div className="space-y-5 text-base text-navy">
             <p>
               بدأت <strong>{BRAND.name}</strong> بشغف بسيط: أن يلبس كل رجل ثوبه وهو واثق أنه مختلف.
             </p>
@@ -44,7 +44,7 @@ export default function AboutPage() {
             <p className="text-muted-foreground">
               هدفنا؟ لما تلبس ثوبك، تحس إنك <strong className="text-navy">«نسخة أقوى منك»</strong>.
             </p>
-            <p className="text-2xl font-extrabold text-navy-soft">{BRAND.slogan}</p>
+            <p className="type-h3 text-navy-soft">{BRAND.slogan}</p>
           </div>
           <figure className="overflow-hidden rounded-3xl bg-navy shadow-xl">
             <Image src={IMAGES.storefront} alt="واجهة محل قمة الشياكة للخياطة الرجالية في الشرج، المكلا" width={395} height={422} sizes="(max-width: 1024px) 100vw, 50vw" className="h-auto w-full" />
@@ -56,13 +56,13 @@ export default function AboutPage() {
       <section className="navy-gradient py-16 text-white">
         <div className="container-site">
           <p className="eyebrow">ما نلتزم به</p>
-          <h2 className="mt-2 text-3xl font-extrabold">قيم نخيط بها كل ثوب</h2>
+          <h2 className="type-h2 mt-2">قيم نخيط بها كل ثوب</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {VALUES.map((v) => (
               <div key={v.title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
                 <v.icon className="size-7 text-sky" aria-hidden="true" />
-                <h3 className="mt-4 text-lg font-extrabold">{v.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-silver">{v.text}</p>
+                <h3 className="type-title mt-4">{v.title}</h3>
+                <p className="mt-2 text-sm text-silver">{v.text}</p>
               </div>
             ))}
           </div>
@@ -73,7 +73,7 @@ export default function AboutPage() {
         <div className="container-site grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-navy/10 p-6">
             <Sparkles className="size-7 text-navy-soft" aria-hidden="true" />
-            <h2 className="mt-3 text-xl font-extrabold text-navy">ماذا نقدم؟</h2>
+            <h2 className="type-h3 mt-3 text-navy">ماذا نقدم؟</h2>
             <ul className="mt-3 space-y-2 text-muted-foreground">
               <li>• تفصيل ثياب رجالية حسب المقاس (سعودي، إماراتي، كويتي)</li>
               <li>• أقمشة ثياب مختارة من مناشئ متعددة</li>
@@ -84,8 +84,8 @@ export default function AboutPage() {
           </div>
           <div className="rounded-2xl border border-navy/10 p-6">
             <Target className="size-7 text-navy-soft" aria-hidden="true" />
-            <h2 className="mt-3 text-xl font-extrabold text-navy">طموحنا</h2>
-            <p className="mt-3 leading-relaxed text-muted-foreground">
+            <h2 className="type-h3 mt-3 text-navy">طموحنا</h2>
+            <p className="mt-3 text-muted-foreground">
               أن نبني علامة يمنية متخصصة في الخياطة الرجالية، يثق بها الرجل في المكلا وحضرموت وخارجها، ويعود إليها في كل مناسبة.
             </p>
           </div>

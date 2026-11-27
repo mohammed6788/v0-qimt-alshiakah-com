@@ -12,7 +12,7 @@ export function ProductsSection() {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="eyebrow !text-navy-soft">مختارات الأقمشة</p>
-            <h2 className="mt-2 text-3xl font-extrabold text-navy sm:text-4xl">أقمشة ثياب رجالية مختارة</h2>
+            <h2 className="type-h2 mt-2 text-navy">أقمشة ثياب رجالية مختارة</h2>
             <p className="mt-2 max-w-xl text-muted-foreground">ياباني، كوري، صيني وتايلاندي — وطلب مباشر عبر واتساب.</p>
           </div>
           <TrackedLink href="/fabrics" event="home_all_fabrics_click" className="btn btn-outline-dark shrink-0">

@@ -107,7 +107,7 @@ export function Navigation() {
                 href={link.href}
                 aria-current={isActive(link.href) ? "page" : undefined}
                 className={cn(
-                  "flex min-h-13 items-center rounded-xl px-4 text-lg font-bold",
+                  "flex min-h-13 items-center rounded-xl px-4 text-lg font-semibold",
                   isActive(link.href) ? "bg-white/5 text-sky" : "text-white hover:bg-white/5",
                 )}
               >

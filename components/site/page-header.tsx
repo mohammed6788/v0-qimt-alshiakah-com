@@ -30,8 +30,8 @@ export function PageHeader({ eyebrow, title, description, breadcrumb, children }
           </nav>
         )}
         {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-        <h1 className="text-3xl font-extrabold leading-tight text-balance sm:text-5xl">{title}</h1>
-        {description && <p className="mt-4 max-w-2xl text-lg leading-relaxed text-silver text-pretty">{description}</p>}
+        <h1 className="type-h1">{title}</h1>
+        {description && <p className="mt-3 max-w-2xl text-base text-silver text-pretty">{description}</p>}
         {children}
       </div>
     </section>

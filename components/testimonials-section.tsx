@@ -26,7 +26,7 @@ export function TestimonialsSection() {
               className="p-8 border border-white/10 rounded-2xl relative hover:border-gold/30 transition-colors duration-300"
             >
               <Quote className="w-8 h-8 text-gold mb-6" />
-              <p className="text-base sm:text-lg italic leading-relaxed text-gray-300">
+              <p className="text-base sm:text-lg italic text-gray-300">
                 {testimonial.text}
               </p>
               <div className="mt-8 flex text-gold gap-1">
