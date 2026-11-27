@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
+import { pageOpenGraph } from "@/lib/seo"
 import Image from "next/image"
 import { Clock, Gem, Ruler, Sparkles, Target, Users } from "lucide-react"
 import { PageHeader } from "@/components/site/page-header"
 import { CtaBand } from "@/components/site/cta-band"
 import { JsonLd } from "@/components/json-ld"
-import { BRAND, IMAGES, SITE_URL } from "@/lib/constants"
+import { BRAND, IMAGES } from "@/lib/constants"
 import { breadcrumbSchema } from "@/lib/breadcrumbs"
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   description:
     "قمة الشياكة للخياطة الرجالية في المكلا: شغف بالتفصيل الدقيق، جودة وإتقان، التزام بالمواعيد، وطموح لبناء علامة متخصصة في الخياطة الرجالية.",
   alternates: { canonical: "/about" },
-  openGraph: { url: `${SITE_URL}/about`, title: "من نحن | قمة الشياكة" },
+  openGraph: pageOpenGraph("/about", "من نحن | قمة الشياكة"),
 }
 
 const VALUES = [

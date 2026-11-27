@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
+import { pageOpenGraph } from "@/lib/seo"
 import { ClipboardCheck, Lock, RotateCcw, Ruler, Smartphone, UserRound } from "lucide-react"
 import { MeasurementsManager } from "@/components/measurements-manager"
 import { PageHeader } from "@/components/site/page-header"
 import { CtaBand } from "@/components/site/cta-band"
 import { JsonLd } from "@/components/json-ld"
-import { SITE_URL } from "@/lib/constants"
 import { MEASUREMENT_FIELDS } from "@/lib/tailoring"
 import { breadcrumbSchema } from "@/lib/breadcrumbs"
 
@@ -13,14 +13,14 @@ export const metadata: Metadata = {
   description:
     "احفظ مقاسات ثوبك مرة واحدة وأعد طلب التفصيل من قمة الشياكة دون إعادة أخذ المقاس في كل مرة. مناسب للعملاء داخل المكلا وخارجها.",
   alternates: { canonical: "/measurements" },
-  openGraph: { url: `${SITE_URL}/measurements`, title: "حفظ المقاسات وإعادة الطلب | قمة الشياكة" },
+  openGraph: pageOpenGraph("/measurements", "حفظ المقاسات وإعادة الطلب | قمة الشياكة"),
 }
 
 const JOURNEY = [
   { icon: UserRound, title: "سجّل بياناتك", text: "اسمك ورقم تواصلك، بموافقتك فقط." },
   { icon: Ruler, title: "احفظ مقاساتك", text: "أدخلها بنفسك أو نأخذها لك في المحل." },
-  { icon: Smartphone, title: "استرجعها متى شئت", text: "تبقى محفوظة على جهازك ولدينا عند إرسالها." },
-  { icon: RotateCcw, title: "أعد الطلب بضغطة", text: "اختر القماش والكمية ويصلنا طلبك عبر واتساب." },
+  { icon: Smartphone, title: "مراجعة الموظف", text: "عند إعادة الطلب يراجع موظفنا مقاساتك السابقة ويؤكدها معك." },
+  { icon: RotateCcw, title: "أعد الطلب بسهولة", text: "اختر القماش والكمية ويصلنا طلبك برقم طلب عبر واتساب." },
 ]
 
 const TIPS = [
@@ -38,7 +38,7 @@ export default function MeasurementsPage() {
       <PageHeader
         eyebrow="خدمة حصرية"
         title={<>مقاساتك محفوظة… <span className="text-sky">وطلبك القادم أسهل</span></>}
-        description="نقدّم خدمة حفظ المقاسات إلكترونياً، لتعيد طلب ثوبك مستقبلاً دون الحاجة لأخذ المقاسات في كل مرة — سواء كنت في المكلا أو خارجها."
+        description="نقدّم خدمة حفظ المقاسات إلكترونياً، لتعيد طلب ثوبك مستقبلاً دون إعادة القياس في كل مرة — في المكلا أو خارجها. حالياً يراجع موظفنا المقاسات السابقة يدوياً ويؤكدها معك قبل التفصيل."
         breadcrumb={[{ href: "/measurements", label: "المقاسات" }]}
       />
 
@@ -70,7 +70,8 @@ export default function MeasurementsPage() {
                 </h2>
                 <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                   <li>• عند الضغط على «احفظ على جهازي» تُحفظ البيانات في متصفحك على هذا الجهاز فقط، ولا تُرفع إلى أي خادم.</li>
-                  <li>• عند الضغط على «أرسل مقاساتي للمحل» تصلنا رسالة واتساب منك، ونحتفظ بمقاساتك لدينا لطلباتك القادمة.</li>
+                  <li>• عند الضغط على «أرسل مقاساتي للمحل» تصلنا رسالة واتساب منك، ونحتفظ بمقاساتك لدينا، ويراجعها موظفنا يدوياً عند طلبك القادم.</li>
+                  <li>• لا توجد حالياً حسابات للعملاء أو استرجاع تلقائي للمقاسات من قاعدة بيانات.</li>
                   <li>• يمكنك حذف البيانات من جهازك في أي وقت.</li>
                 </ul>
               </div>
@@ -113,7 +114,7 @@ export default function MeasurementsPage() {
         </div>
       </section>
 
-      <CtaBand title="مقاساتك جاهزة؟" text="صمّم ثوبك الجديد الآن، وسنستخدم مقاساتك المحفوظة تلقائياً." placement="measurements_cta" />
+      <CtaBand title="مقاساتك جاهزة؟" text="صمّم ثوبك الجديد الآن، واختر «عميل سابق» ليراجع موظفنا مقاساتك المحفوظة." placement="measurements_cta" />
     </>
   )
 }

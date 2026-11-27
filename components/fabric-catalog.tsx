@@ -88,6 +88,7 @@ export function FabricCatalog() {
         </div>
       </div>
 
+      <h2 className="sr-only">قائمة الأقمشة</h2>
       <div className="mt-8 flex items-center justify-between gap-4" aria-live="polite">
         <p className="text-sm text-muted-foreground">
           {results.length} {results.length === 1 ? "قماش" : "أقمشة"}

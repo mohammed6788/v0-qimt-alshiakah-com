@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { pageOpenGraph } from "@/lib/seo"
 import { FabricCatalog } from "@/components/fabric-catalog"
 import { PageHeader } from "@/components/site/page-header"
 import { JsonLd } from "@/components/json-ld"
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   description:
     "تصفح أقمشة الثياب الرجالية في قمة الشياكة بالمكلا: ياباني، كوري، صيني وتايلاندي. تعرّف على الأنواع واطلب القماش وتفصيل ثوبك عبر واتساب.",
   alternates: { canonical: "/fabrics" },
-  openGraph: { url: `${SITE_URL}/fabrics`, title: "أقمشة ثياب رجالية | قمة الشياكة" },
+  openGraph: pageOpenGraph("/fabrics", "أقمشة ثياب رجالية | قمة الشياكة"),
 }
 
 const itemList = {
@@ -36,6 +37,7 @@ export default function FabricsPage() {
         title="أقمشة ثياب رجالية مختارة"
         description="تصفّح أنواع الأقمشة: ياباني، كوري، صيني وتايلاندي، ثم اطلب القماش مباشرة عبر واتساب أو صمّم ثوبك خطوة بخطوة."
         breadcrumb={[{ href: "/fabrics", label: "الأقمشة" }]}
+        image={{ src: "/brand/fabrics-stack.webp", alt: "تشكيلة من أقمشة الثياب الرجالية بدرجات ألوان هادئة", width: 1200, height: 790 }}
       />
       <section className="bg-ivory pb-20">
         <div className="container-site">

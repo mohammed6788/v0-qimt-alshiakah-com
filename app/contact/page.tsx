@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
+import { pageOpenGraph } from "@/lib/seo"
 import Image from "next/image"
 import { MapPin, Navigation2, Phone, Truck } from "lucide-react"
 import { PageHeader } from "@/components/site/page-header"
 import { JsonLd } from "@/components/json-ld"
 import { ContactChannels } from "@/components/contact-channels"
 import { TrackedLink } from "@/components/tracked-link"
-import { CONTACT, FULL_ADDRESS, IMAGES, SITE_URL } from "@/lib/constants"
+import { CONTACT, FULL_ADDRESS, IMAGES } from "@/lib/constants"
 import { EVENTS } from "@/lib/analytics"
 import { breadcrumbSchema } from "@/lib/breadcrumbs"
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   description:
     "تواصل مع قمة الشياكة للخياطة الرجالية عبر واتساب أو الاتصال المباشر، أو زرنا في المكلا – الشرج، نهاية الشارع الرابع مقابل كشخة ياعيال. نستقبل الطلبات من خارج المكلا.",
   alternates: { canonical: "/contact" },
-  openGraph: { url: `${SITE_URL}/contact`, title: "تواصل معنا | قمة الشياكة" },
+  openGraph: pageOpenGraph("/contact", "تواصل معنا | قمة الشياكة"),
 }
 
 export default function ContactPage() {

@@ -9,7 +9,7 @@ type Props = { title?: string; text?: string; placement?: string }
 /** Closing call-to-action used at the end of most pages. */
 export function CtaBand({
   title = "جاهز لثوبك القادم؟",
-  text = "صمّم ثوبك في دقيقة، أو راسلنا مباشرة وسنساعدك في اختيار القماش والتفصيل.",
+  text = "صمّم ثوبك بسهولة، أو راسلنا مباشرة وسنساعدك في اختيار القماش والتفصيل.",
   placement = "cta_band",
 }: Props) {
   return (

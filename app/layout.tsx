@@ -20,7 +20,7 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 
 const DEFAULT_TITLE = "قمة الشياكة | خياطة رجالية وتفصيل ثياب في المكلا"
 const DEFAULT_DESCRIPTION =
-  "قمة الشياكة للخياطة الرجالية في الشرج، المكلا – حضرموت. تفصيل ثياب رجالية وثوب سعودي حسب المقاس، أقمشة فاخرة، حفظ المقاسات لإعادة الطلب، وطلب سهل عبر واتساب من داخل المكلا وخارجها."
+  "خياطة رجالية في المكلا – الشرج: تفصيل ثياب رجالية وثوب سعودي حسب المقاس، أقمشة فاخرة، وحفظ المقاسات، وطلب سهل عبر واتساب من داخل المكلا وخارجها."
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -43,13 +43,11 @@ export const metadata: Metadata = {
     type: "website",
     siteName: BRAND.name,
     url: SITE_URL,
-    images: [{ url: LOGOS.og, width: 1200, height: 630, alt: `شعار ${BRAND.name}` }],
   },
   twitter: {
     card: "summary_large_image",
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
-    images: [LOGOS.og],
   },
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },

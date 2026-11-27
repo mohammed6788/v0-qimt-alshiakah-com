@@ -6,7 +6,7 @@ import { EVENTS } from "@/lib/analytics"
 
 const PROMISES = [
   { icon: Clock, title: "سرعة في الإنجاز", text: "ودقة في مواعيد التسليم" },
-  { icon: Ruler, title: "مقاساتك محفوظة", text: "أعد الطلب دون قياس جديد" },
+  { icon: Ruler, title: "مقاساتك محفوظة", text: "يراجعها موظفنا عند إعادة الطلب" },
   { icon: MapPin, title: "داخل المكلا وخارجها", text: "اطلب من أي مكان" },
 ]
 
@@ -28,7 +28,7 @@ export function HeroSection() {
             <span className="silver-text block pb-1">بدقة تليق بحضورك</span>
           </h1>
           <p className="mt-4 max-w-xl text-base text-silver text-pretty">
-            {BRAND.tagline}. اختر قماشك، صمّم تفاصيل ثوبك، وأرسل طلبك عبر واتساب في دقائق.
+            {BRAND.tagline}. اختر قماشك، صمّم تفاصيل ثوبك، وأرسل طلبك عبر واتساب بسهولة.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">

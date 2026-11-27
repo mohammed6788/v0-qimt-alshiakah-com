@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Pencil, RotateCcw, Save, Scissors, ShieldCheck, Trash2 } from "lucide-react"
+import { Lock, Pencil, RotateCcw, Save, Scissors, ShieldCheck, Trash2 } from "lucide-react"
 import { MeasurementFields } from "@/components/design/measurement-fields"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { PRODUCTS, whatsappHref } from "@/lib/constants"
+import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
   MEASUREMENT_FIELDS,
@@ -13,7 +14,9 @@ import {
   clearProfile,
   hasMeasurements,
   loadProfile,
+  samePhone,
   saveProfile,
+  validatePhone,
   type MeasurementProfile,
   type Measurements,
 } from "@/lib/tailoring"
@@ -32,6 +35,12 @@ export function MeasurementsManager() {
   const [status, setStatus] = useState("")
   const [reorderFabric, setReorderFabric] = useState("")
   const [reorderQty, setReorderQty] = useState(1)
+  // Saved measurements stay hidden until the phone number is confirmed.
+  const [unlocked, setUnlocked] = useState(false)
+  const [verifyPhone, setVerifyPhone] = useState("")
+  const [verifyError, setVerifyError] = useState("")
+  const [sending, setSending] = useState(false)
+  const [orderNumber, setOrderNumber] = useState<string | null>(null)
 
   useEffect(() => {
     const p = loadProfile()
@@ -66,7 +75,8 @@ export function MeasurementsManager() {
     if (saveProfile(p)) {
       setProfile(p)
       setEditing(false)
-      setStatus("تم حفظ مقاساتك على هذا الجهاز. يمكنك الآن إعادة الطلب في أي وقت.")
+      setUnlocked(true)
+      setStatus("تم حفظ مقاساتك على هذا الجهاز. عند إعادة الطلب يراجعها موظفنا ويؤكدها معك قبل التفصيل.")
       trackEvent(EVENTS.measurementsSaved, { placement: "measurements_page" })
     } else {
       setStatus("تعذّر الحفظ على هذا المتصفح (قد يكون في وضع التصفح الخاص). أرسل مقاساتك لنا عبر واتساب لنحتفظ بها.")
@@ -124,21 +134,48 @@ export function MeasurementsManager() {
   }
 
   const reorderFabricProduct = PRODUCTS.find((p) => p.slug === reorderFabric)
-  const reorderHref = profile
-    ? whatsappHref(
-        buildOrderMessage({
+  const reorderMessage = (number?: string) =>
+    profile
+      ? buildOrderMessage({
           kind: "reorder",
+          orderNumber: number,
           name: profile.name,
           phone: profile.phone,
           city: profile.city,
-          fabric: reorderFabricProduct ?? { title: "نفس القماش السابق أو حسب الاستشارة" },
+          fabric: reorderFabricProduct
+            ? { title: `${reorderFabricProduct.title} (قماش ${reorderFabricProduct.type})` }
+            : { title: "نفس القماش السابق أو حسب الاستشارة" },
           quantity: reorderQty,
-          measurementStatus: "نفس مقاساتي المحفوظة (مرفقة أدناه)",
+          measurementStatus: "مقاساتي المحفوظة على جهازي (مرفقة أدناه) – أرجو مراجعتها قبل التفصيل",
           measurements: profile.measurements,
           notes: profile.notes,
-        }),
-      )
-    : "#"
+        })
+      : ""
+  const reorderHref = profile ? whatsappHref(reorderMessage(orderNumber ?? undefined)) : "#"
+
+  const verify = () => {
+    if (!profile) return
+    if (!validatePhone(verifyPhone).ok) return setVerifyError("اكتب رقم جوال صحيح")
+    if (samePhone(verifyPhone, profile.phone)) {
+      setUnlocked(true)
+      setVerifyError("")
+    } else {
+      setVerifyError("الرقم لا يطابق المقاسات المحفوظة على هذا الجهاز.")
+    }
+  }
+
+  const onReorder = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (!profile || sending) return
+    const win = openPendingWindow()
+    setSending(true)
+    const number = orderNumber ?? (await requestOrderNumber("reorder"))
+    if (number) setOrderNumber(number)
+    navigateTo(win, whatsappHref(reorderMessage(number ?? undefined)))
+    setSending(false)
+    trackWhatsAppClick("whatsapp_reorder", "measurements_reorder")
+    trackEvent(EVENTS.orderSubmit, { flow: "reorder", fabric: reorderFabric || "same", quantity: reorderQty, numbered: !!number })
+  }
 
   if (!ready) return <div className="card-surface h-72 animate-pulse" aria-hidden="true" />
 
@@ -150,7 +187,42 @@ export function MeasurementsManager() {
         </p>
       )}
 
-      {profile && !editing && (
+      {profile && !editing && !unlocked && (
+        <div className="card-surface p-5 sm:p-7" data-testid="measurements-locked">
+          <div className="flex items-start gap-3">
+            <Lock className="mt-1 size-6 shrink-0 text-navy-soft" aria-hidden="true" />
+            <div>
+              <h3 className="type-h3 text-navy">توجد مقاسات محفوظة على هذا الجهاز</h3>
+              <p className="mt-1 text-sm text-muted-foreground">لحماية بياناتك، أدخل رقم الجوال الذي حفظت به المقاسات لعرضها أو إعادة الطلب بها.</p>
+            </div>
+          </div>
+          <div className="mt-5 flex gap-2">
+            <input
+              className="field-input"
+              type="tel"
+              inputMode="tel"
+              dir="ltr"
+              value={verifyPhone}
+              onChange={(e) => setVerifyPhone(e.target.value)}
+              placeholder="7XX XXX XXX"
+              aria-label="رقم الجوال للتحقق"
+            />
+            <button type="button" onClick={verify} className="btn btn-navy shrink-0 px-5">
+              تحقق
+            </button>
+          </div>
+          {verifyError && (
+            <p className="mt-2 text-sm font-semibold text-destructive" role="alert">
+              {verifyError}
+            </p>
+          )}
+          <button type="button" onClick={onDelete} className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-destructive hover:underline">
+            <Trash2 className="size-4" aria-hidden="true" /> حذف البيانات المحفوظة من هذا الجهاز
+          </button>
+        </div>
+      )}
+
+      {profile && !editing && unlocked && (
         <div className="card-surface overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 bg-navy p-5 text-white">
             <div className="flex items-center gap-3">
@@ -183,6 +255,7 @@ export function MeasurementsManager() {
 
           <div className="space-y-4 p-5">
             <h3 className="type-h3 text-navy">أعد طلب ثوبك بنفس المقاسات</h3>
+            <p className="-mt-2 text-sm text-muted-foreground">يراجع موظفنا مقاساتك المحفوظة ويؤكدها معك قبل البدء في التفصيل.</p>
             <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
               <label className="block">
                 <span className="field-label">القماش</span>
@@ -211,20 +284,24 @@ export function MeasurementsManager() {
                 href={reorderHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => {
-                  trackWhatsAppClick("whatsapp_reorder", "measurements_reorder")
-                  trackEvent(EVENTS.orderSubmit, { flow: "reorder", fabric: reorderFabric || "same", quantity: reorderQty })
-                }}
+                onClick={onReorder}
+                aria-busy={sending}
+                data-testid="reorder-send"
                 className="btn bg-[#25D366] text-white hover:bg-[#1ebe5a]"
               >
                 <RotateCcw className="size-5" aria-hidden="true" />
-                أرسل طلب إعادة التفصيل
+                {sending ? "جارٍ تجهيز الطلب…" : "أرسل طلب إعادة التفصيل"}
               </a>
               <Link href="/design" className="btn btn-outline-dark">
                 <Scissors className="size-5" aria-hidden="true" />
                 صمم ثوباً جديداً بمقاساتي
               </Link>
             </div>
+            {orderNumber && (
+              <p className="rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800" role="status" data-testid="reorder-number">
+                رقم طلبك: <span className="num" dir="ltr">{orderNumber}</span>
+              </p>
+            )}
           </div>
         </div>
       )}

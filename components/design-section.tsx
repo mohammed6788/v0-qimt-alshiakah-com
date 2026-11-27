@@ -12,7 +12,7 @@ export function DesignSection() {
           <h2 className="type-h2 mt-5">ثوبك… على ذوقك</h2>
           <p className="mt-3 text-silver">اختر القماش واللون والياقة والأكمام والأزرار والإضافات، وشاهد ملخص طلبك قبل الإرسال.</p>
           <ul className="mt-6 space-y-2 text-silver-light">
-            {["ثماني خطوات سهلة بيد واحدة", "ملخص واضح قبل الإرسال", "رسالة واتساب منظمة برقم مرجعي"].map((t) => (
+            {["ثماني خطوات سهلة بيد واحدة", "ملخص واضح قبل الإرسال", "رسالة واتساب منظمة برقم طلب"].map((t) => (
               <li key={t} className="flex items-center gap-2">
                 <Check className="size-5 text-sky" aria-hidden="true" /> {t}
               </li>
@@ -28,7 +28,7 @@ export function DesignSection() {
           <Ruler className="mt-5 size-9 text-navy-soft" aria-hidden="true" />
           <h2 className="type-h2 mt-4 text-navy">مقاساتك محفوظة إلكترونياً</h2>
           <p className="mt-3 text-navy/80">
-            احفظ مقاساتك مرة واحدة، وأعد طلب ثوبك في المستقبل دون الحاجة لأخذ المقاسات من جديد — حتى لو كنت خارج المكلا.
+            احفظ مقاساتك مرة واحدة، وأعد طلب ثوبك مستقبلاً دون إعادة القياس في كل مرة — حتى لو كنت خارج المكلا. يراجع موظفنا مقاساتك السابقة ويؤكدها معك قبل التفصيل.
           </p>
           <div className="mt-auto flex flex-col gap-3 pt-8 sm:flex-row">
             <TrackedLink href="/measurements" event="home_measurements_click" className="btn btn-navy">

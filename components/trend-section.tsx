@@ -2,7 +2,7 @@ import { Layers, MessageCircle, Package, Ruler } from "lucide-react"
 
 const STEPS = [
   { icon: Layers, title: "اختر القماش", text: "تصفّح الأقمشة وتعرّف على أنواعها." },
-  { icon: Ruler, title: "حدّد التفاصيل والمقاس", text: "صمّم ثوبك وأرسل مقاساتك أو استخدم المحفوظة." },
+  { icon: Ruler, title: "حدّد التفاصيل والمقاس", text: "صمّم ثوبك وأرسل مقاساتك، أو اطلب مراجعة مقاساتك السابقة." },
   { icon: MessageCircle, title: "أرسل الطلب عبر واتساب", text: "رسالة منظمة بكل اختياراتك، ونؤكد معك التفاصيل والموعد." },
   { icon: Package, title: "استلم ثوبك", text: "في الموعد المتفق عليه، من المحل أو حسب الترتيب معك." },
 ]

@@ -136,6 +136,8 @@ export function hasMeasurements(m: Measurements | undefined) {
 // ── Unified WhatsApp message ──────────────────────────────────
 export type OrderDetails = {
   kind: "design" | "fabric" | "reorder" | "measurements"
+  /** Sequential number issued by /api/orders (never generated client-side). */
+  orderNumber?: string
   name?: string
   phone?: string
   city?: string
@@ -170,6 +172,7 @@ export function formatMeasurements(m: Measurements | undefined) {
 export function buildOrderMessage(o: OrderDetails) {
   const lines: string[] = []
   lines.push(`*${KIND_TITLE[o.kind]} – ${BRAND.name}*`)
+  if (o.orderNumber) lines.push(`رقم الطلب: ${o.orderNumber}`)
   lines.push("")
 
   const customer: string[] = []
