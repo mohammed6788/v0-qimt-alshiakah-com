@@ -26,9 +26,34 @@ export function FabricCatalog() {
   const [sort, setSort] = useState<"featured" | "price_asc" | "price_desc">("featured")
   const searchTracked = useRef(false)
 
+  const urlReady = useRef(false)
+
   useEffect(() => {
     trackEvent(EVENTS.fabricListView, { product_count: PRODUCTS.length })
+    // Restore filters from a shared link, e.g. /fabrics?type=صيني&sort=price_asc
+    const params = new URLSearchParams(window.location.search)
+    const t = params.get("type")
+    if (t && TYPES.includes(t)) setType(t)
+    const q = params.get("q")
+    if (q) setQuery(q.slice(0, 60))
+    const so = params.get("sort")
+    if (so === "price_asc" || so === "price_desc") setSort(so)
+    urlReady.current = true
   }, [])
+
+  // Keep the address bar in sync so the filtered view can be shared.
+  useEffect(() => {
+    if (!urlReady.current) return
+    const params = new URLSearchParams()
+    if (type !== "all") params.set("type", type)
+    if (query.trim()) params.set("q", query.trim())
+    if (sort !== "featured") params.set("sort", sort)
+    const qs = params.toString()
+    const next = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`
+    if (next !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+      window.history.replaceState(window.history.state, "", next)
+    }
+  }, [type, query, sort])
 
   const results = useMemo(() => {
     const q = normalize(query)

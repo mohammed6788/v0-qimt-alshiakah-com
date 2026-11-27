@@ -265,9 +265,38 @@ export function samePhone(a: string, b: string) {
   return x.ok && y.ok && x.normalized === y.normalized
 }
 
-export function measurementError(value: string | undefined) {
-  if (!value || !value.trim()) return "مطلوب"
+/**
+ * Plausible range (inches) for each measurement of an adult or teen thobe.
+ * Wide enough for every real customer, tight enough to catch typos such as
+ * a neck of 44 or swapped fields.
+ */
+export const MEASUREMENT_RANGES: Record<MeasurementKey, [number, number]> = {
+  length: [30, 70],
+  shoulder: [11, 28],
+  sleeve: [14, 34],
+  width: [14, 64],
+  neck: [11, 24],
+  armhole: [6, 30],
+  midArm: [5, 24],
+  cuff: [4, 18],
+}
+
+/**
+ * Validates one measurement. Required fields must be filled; optional fields
+ * are only checked when the customer typed something.
+ */
+export function measurementError(key: MeasurementKey, value: string | undefined, required = true) {
+  if (!value || !value.trim()) return required ? "مطلوب" : ""
   const n = Number(normalizeDigits(value))
-  if (!Number.isFinite(n) || n < 3 || n > 80) return "قيمة غير منطقية (3–80 إنش)"
+  const [min, max] = MEASUREMENT_RANGES[key]
+  if (!Number.isFinite(n) || n < min || n > max) return `تأكد من القيمة (عادةً بين ${min} و${max} إنش)`
   return ""
+}
+
+/** First invalid measurement message, checking required fields and any filled optional ones. */
+export function measurementsError(m: Measurements) {
+  for (const f of MEASUREMENT_FIELDS) {
+    if (measurementError(f.key, m[f.key], REQUIRED_MEASUREMENTS.includes(f.key))) return true
+  }
+  return false
 }

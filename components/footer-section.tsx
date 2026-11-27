@@ -5,7 +5,7 @@ import { MapPin, Phone } from "lucide-react"
 import { Logo } from "@/components/site/logo"
 import { SOCIAL_ICONS, WhatsAppIcon } from "@/components/site/brand-icons"
 import { NAV_LINKS } from "@/components/navigation"
-import { BRAND, CONTACT, FULL_ADDRESS, SOCIAL_LINKS, whatsappHref } from "@/lib/constants"
+import { BRAND, CONTACT, FULL_ADDRESS, POLICY_LINKS, SOCIAL_LINKS, whatsappHref } from "@/lib/constants"
 import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 
 export function FooterSection() {
@@ -85,8 +85,19 @@ export function FooterSection() {
         </div>
       </div>
 
-      <div className="container-site mt-12 border-t border-white/10 pt-6 text-sm text-silver-dark">
-        © {new Date().getFullYear()} {BRAND.fullName}. جميع الحقوق محفوظة.
+      <div className="container-site mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-silver-dark sm:flex-row sm:items-center sm:justify-between">
+        <p>© {new Date().getFullYear()} {BRAND.fullName}. جميع الحقوق محفوظة.</p>
+        <nav aria-label="سياسات المتجر">
+          <ul className="flex flex-wrap gap-x-5 gap-y-2">
+            {POLICY_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className="hover:text-white">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </footer>
   )

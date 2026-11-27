@@ -15,10 +15,9 @@ import {
   FABRIC_COLORS,
   PATTERNS,
   POCKETS,
-  REQUIRED_MEASUREMENTS,
   SLEEVES,
   THOBE_STYLES,
-  measurementError,
+  measurementsError,
   samePhone,
   validatePhone,
   type MeasurementProfile,
@@ -140,8 +139,8 @@ export function sectionError(key: SectionKey, st: DesignState): string {
       if (!st.customerType) return "حدد إن كنت عميلاً جديداً أو سابقاً"
       if (st.customerType === "new") {
         if (!st.newMode) return "اختر طريقة تزويدنا بالمقاسات"
-        if (st.newMode === "enter" && REQUIRED_MEASUREMENTS.some((k) => measurementError(st.measurements[k])))
-          return "أكمل المقاسات المطلوبة (*) بقيم صحيحة"
+        if (st.newMode === "enter" && measurementsError(st.measurements))
+          return "أكمل المقاسات المطلوبة (*) وتأكد أن كل قيمة منطقية"
         return ""
       }
       if (!st.returningMode) return "اختر مكان حفظ مقاساتك"

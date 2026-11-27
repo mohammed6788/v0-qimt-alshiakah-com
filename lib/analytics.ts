@@ -3,7 +3,7 @@ import { track } from "@vercel/analytics"
 declare global {
   interface Window {
     dataLayer?: unknown[]
-    gtag?: (command: string, eventName: string, parameters?: Record<string, string>) => void
+    gtag?: (command: string, eventName: string, parameters?: Record<string, unknown>) => void
   }
 }
 
@@ -14,6 +14,8 @@ export function trackEvent(name: string, properties: EventProperties = {}) {
 
   window.dataLayer ??= []
   window.dataLayer.push({ event: name, ...properties })
+  // Also reported to Google Analytics 4 when NEXT_PUBLIC_GA_ID is configured.
+  window.gtag?.("event", name, properties)
   track(name, properties)
 }
 

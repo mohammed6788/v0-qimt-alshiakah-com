@@ -18,6 +18,11 @@ const plexArabic = IBM_Plex_Sans_Arabic({
   adjustFontFallback: true,
 })
 
+// Google Analytics 4 (G-XXXXXXX) and Search Console verification are set in
+// Vercel → Project → Settings → Environment Variables; nothing loads while unset.
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID?.trim()
+const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim()
+
 const DEFAULT_TITLE = "قمة الشياكة | خياطة رجالية وتفصيل ثياب في المكلا"
 const DEFAULT_DESCRIPTION =
   "خياطة رجالية في المكلا – الشرج: تفصيل ثياب رجالية وثوب سعودي حسب المقاس، أقمشة فاخرة، وحفظ المقاسات، وطلب سهل عبر واتساب من داخل المكلا وخارجها."
@@ -52,6 +57,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   formatDetection: { telephone: false },
+  ...(GOOGLE_SITE_VERIFICATION && { verification: { google: GOOGLE_SITE_VERIFICATION } }),
 }
 
 export const viewport: Viewport = {
@@ -124,7 +130,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <FloatingWhatsApp />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=AW-18082853572" strategy="afterInteractive" />
         <Script id="google-ads" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', 'AW-18082853572');`}
+          {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', 'AW-18082853572');${GA_ID ? ` gtag('config', ${JSON.stringify(GA_ID)});` : ""}`}
         </Script>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>

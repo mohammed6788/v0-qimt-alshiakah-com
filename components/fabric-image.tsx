@@ -1,10 +1,11 @@
 import Image from "next/image"
+import { Layers } from "lucide-react"
 import type { Product } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 type Props = { product: Product; sizes: string; priority?: boolean; className?: string; alt?: string; compact?: boolean }
 
-/** Fabric photo, or a branded placeholder until the shop supplies one. */
+/** Fabric photo, or a branded placeholder until the shop supplies one (the fabric is still orderable). */
 export function FabricImage({ product, sizes, priority, className, alt = "", compact }: Props) {
   if (product.image) {
     return <Image src={product.image} alt={alt} fill priority={priority} sizes={sizes} className={cn("object-cover", className)} />
@@ -15,9 +16,12 @@ export function FabricImage({ product, sizes, priority, className, alt = "", com
       role={alt ? "img" : undefined}
       aria-label={alt || undefined}
     >
-      <span className={cn("text-center font-medium text-silver", compact ? "text-[10px] leading-tight" : "text-sm")}>
-        {compact ? "قريباً" : "الصورة قريباً"}
-      </span>
+      {/* Only the photo is pending — the fabric itself is available to order. */}
+      {compact ? (
+        <Layers className="size-6 text-silver" aria-hidden="true" />
+      ) : (
+        <span className="text-center text-sm font-medium text-silver">صورة القماش قريباً</span>
+      )}
     </span>
   )
 }

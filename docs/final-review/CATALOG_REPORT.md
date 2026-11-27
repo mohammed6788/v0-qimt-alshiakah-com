@@ -18,7 +18,7 @@
 
 ## الصور
 - `public/fabrics/japanese-white.webp`، `semiramis-colors.webp`، `honeycomb-colors.webp`، `honeycomb-striped-colors.webp`، `bisht-threads-real.webp`
-- `public/fabrics/semiramis/01..20`، `honeycomb/01..10`، `honeycomb-striped/01..10`، `bisht-threads/01..20` (WebP، مقسمة من كتالوجات المالك، كل لون مستقل؛ خلية النحل وخلية مع مقلم في مجلدين منفصلين)
+- `public/fabrics/colors/01..20` (ألوان سادة مشتركة: سميرا أميس، كوري، صيني، شتوي)، `honeycomb/01..10`، `honeycomb-striped/01..10`، `bisht-threads/01..20` (WebP، مقسمة من كتالوجات المالك، كل لون مستقل؛ خلية النحل وخلية مع مقلم في مجلدين منفصلين)
 - لم تُستخدم صور مولدة على أنها صور فعلية. جُرّبت صورة مولدة لـ«خيوط البشت» واستُبعدت لأنها لا تمثل القماش الحقيقي.
 
 ## الاختبارات

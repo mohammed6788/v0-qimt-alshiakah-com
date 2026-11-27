@@ -8,15 +8,17 @@ type Props = {
   onChange: (m: Measurements) => void
   /** When true, required fields show validation messages. */
   showErrors?: boolean
+  /** When false, empty fields are allowed and only filled values are checked. */
+  enforceRequired?: boolean
 }
 
 /** Measurement inputs (inches). Required fields are marked; others are optional. */
-export function MeasurementFields({ value, onChange, showErrors }: Props) {
+export function MeasurementFields({ value, onChange, showErrors, enforceRequired = true }: Props) {
   return (
     <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-4">
       {MEASUREMENT_FIELDS.map((f) => {
         const required = REQUIRED_MEASUREMENTS.includes(f.key)
-        const err = showErrors && required ? measurementError(value[f.key]) : ""
+        const err = showErrors ? measurementError(f.key, value[f.key], required && enforceRequired) : ""
         return (
           <label key={f.key} className="block min-w-0">
             <span className="field-label">

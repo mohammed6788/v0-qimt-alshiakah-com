@@ -66,6 +66,21 @@ export const SOCIAL_LINKS = [
   { id: "x", label: "إكس", href: CONTACT.x },
 ] as const
 
+// ─────────────────────────────────────────────────────────────
+// GOOGLE REVIEWS — paste real reviews from the shop's Google Maps page.
+// Copy them exactly as written on Google (name, stars, text). While the list
+// is empty, the home page shows a button to read and write reviews on Google.
+// ─────────────────────────────────────────────────────────────
+export type GoogleReview = { author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; date?: string }
+export const GOOGLE_REVIEWS: GoogleReview[] = []
+
+/** Store policy pages, linked from the footer and from each policy page. */
+export const POLICY_LINKS = [
+  { href: "/guarantee", label: "ضمان التفصيل والتعديلات" },
+  { href: "/privacy", label: "سياسة الخصوصية" },
+  { href: "/terms", label: "الشروط والأحكام" },
+] as const
+
 export const FULL_ADDRESS = `${CONTACT.address.region} – ${CONTACT.address.city} – ${CONTACT.address.district}، ${CONTACT.address.street}`
 
 export function whatsappHref(message?: string) {
@@ -92,13 +107,20 @@ function numberedColors(prefix: string, dir: string, colors: [string, string][])
   })
 }
 
-const SEMIRAMIS_COLORS = numberedColors("semiramis", "semiramis", [
+// The shop's 20 plain colors (photos in /fabrics/colors/, numbered as on the swatch card).
+// Shared by every plain fabric; each fabric keeps its own color ids.
+const PLAIN_COLORS: [string, string][] = [
   ["white", "أبيض"], ["offwhite", "أوف وايت"], ["cream", "سكري"], ["ivory", "كريمي"],
   ["beige", "بيج"], ["sand", "بيج رملي"], ["desert", "صحراوي"], ["silver", "فضي"],
   ["light-grey", "رصاصي فاتح"], ["grey", "رصاصي"], ["charcoal", "رمادي فحمي"], ["black", "أسود"],
   ["navy", "كحلي"], ["royal-blue", "أزرق ملكي"], ["sky", "سماوي"], ["light-sky", "سماوي فاتح"],
   ["olive", "زيتي"], ["dark-green", "أخضر غامق"], ["burgundy", "عنابي"], ["brown", "بني"],
-])
+]
+
+const SEMIRAMIS_COLORS = numberedColors("semiramis", "colors", PLAIN_COLORS)
+const KOREAN_COLORS = numberedColors("korean", "colors", PLAIN_COLORS)
+const CHINESE_COLORS = numberedColors("chinese", "colors", PLAIN_COLORS)
+const WINTER_COLORS = numberedColors("winter", "colors", PLAIN_COLORS)
 
 const HONEYCOMB_STRIPED_COLORS = numberedColors("honeycomb-striped", "honeycomb-striped", [
   ["white", "أبيض"], ["offwhite", "أوف وايت"], ["cream", "سكري"], ["beige", "بيج"], ["camel", "جملي"],
@@ -163,6 +185,18 @@ function priced(p: Omit<Product, "price" | "compareAtPrice">): Product {
 
 export const PRODUCTS: Product[] = [
   {
+    id: 8,
+    slug: "bisht-threads",
+    title: "خيوط البشت",
+    description: "النقشة الأكثر طلباً، متوفرة بـ20 لوناً",
+    type: "خيوط البشت",
+    tag: "الأكثر طلباً",
+    currency: "ر.ي",
+    image: "/fabrics/bisht-threads-real.webp",
+    colorOptions: BISHT_COLORS,
+    pattern: "bisht_threads",
+  },
+  {
     id: 1,
     slug: "japanese-white",
     title: "قماش أبيض ياباني",
@@ -187,28 +221,32 @@ export const PRODUCTS: Product[] = [
     id: 3,
     slug: "korean-striped",
     title: "كوري مقلم",
-    description: "قماش كوري بنقشة مقلّمة",
+    description: "قماش كوري بنقشة مقلّمة، متوفر بـ20 لوناً",
     type: "كوري",
     origin: "كوريا",
     currency: "ر.ي",
+    colorOptions: KOREAN_COLORS,
     pattern: "striped",
   },
   {
     id: 4,
     slug: "chinese-premium",
     title: "صيني ممتاز",
-    description: "قماش صيني بجودة ممتازة",
+    description: "قماش صيني بجودة ممتازة، متوفر بـ20 لوناً",
     type: "صيني",
     origin: "الصين",
     currency: "ر.ي",
+    image: "/fabrics/plain-colors.webp",
+    colorOptions: CHINESE_COLORS,
   },
   {
     id: 5,
     slug: "winter-checks",
     title: "شتوي كاروهات",
-    description: "قماش شتوي بنقشة كاروهات",
+    description: "قماش شتوي بنقشة كاروهات، متوفر بـ20 لوناً",
     type: "شتوي",
     currency: "ر.ي",
+    colorOptions: WINTER_COLORS,
     pattern: "checks",
   },
   {
@@ -232,18 +270,6 @@ export const PRODUCTS: Product[] = [
     image: "/fabrics/honeycomb-striped-colors.webp",
     colorOptions: HONEYCOMB_STRIPED_COLORS,
     pattern: "honeycomb_striped",
-  },
-  {
-    id: 8,
-    slug: "bisht-threads",
-    title: "خيوط البشت",
-    description: "النقشة الأكثر طلباً، متوفرة بـ20 لوناً",
-    type: "خيوط البشت",
-    tag: "الأكثر طلباً",
-    currency: "ر.ي",
-    image: "/fabrics/bisht-threads-real.webp",
-    colorOptions: BISHT_COLORS,
-    pattern: "bisht_threads",
   },
 ].map(priced)
 

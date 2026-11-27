@@ -15,6 +15,7 @@ import {
   clearProfile,
   hasMeasurements,
   loadProfile,
+  measurementError,
   samePhone,
   saveProfile,
   validatePhone,
@@ -53,9 +54,10 @@ export function MeasurementsManager() {
   const validate = (requireConsent: boolean) => {
     const e: Record<string, string> = {}
     if (draft.name.trim().length < 2) e.name = "يرجى كتابة الاسم"
-    const digits = draft.phone.replace(/\D/g, "")
-    if (digits.length < 7 || digits.length > 15) e.phone = "يرجى كتابة رقم تواصل صحيح"
+    if (!validatePhone(draft.phone).ok) e.phone = "اكتب رقم جوال صحيح، مثل 7XXXXXXXX أو رقم دولي يبدأ بـ +"
     if (!hasMeasurements(draft.measurements)) e.measurements = "أدخل مقاساً واحداً على الأقل"
+    else if (MEASUREMENT_FIELDS.some((f) => measurementError(f.key, draft.measurements[f.key], false)))
+      e.measurements = "بعض المقاسات غير منطقية، راجع الحقول المظللة"
     if (requireConsent && !draft.consent) e.consent = "يلزم موافقتك لحفظ البيانات على هذا الجهاز"
     setErrors(e)
     return Object.keys(e).length === 0
@@ -324,7 +326,7 @@ export function MeasurementsManager() {
             </TextField>
           </div>
 
-          <MeasurementFields value={draft.measurements} onChange={(m) => setDraft({ ...draft, measurements: m })} />
+          <MeasurementFields value={draft.measurements} onChange={(m) => setDraft({ ...draft, measurements: m })} showErrors={!!errors.measurements} enforceRequired={false} />
           {errors.measurements && <p className="mt-2 text-sm font-semibold text-destructive" role="alert">{errors.measurements}</p>}
 
           <label className="mt-5 block">

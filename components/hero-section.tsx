@@ -24,7 +24,7 @@ export function HeroSection() {
             خياطة رجالية في المكلا · الشرج
           </p>
           <h1 className="type-hero">
-            ثوبك يُفصَّل لك
+            ثوبك يُفصَّل لك{" "}
             <span className="silver-text block pb-1">بدقة تليق بحضورك</span>
           </h1>
           <p className="mt-4 max-w-xl text-base text-silver text-pretty">
