@@ -26,9 +26,9 @@ import {
   type SectionKey,
   type SectionProps,
 } from "@/components/design/sections"
-import { PRICE_LABEL, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
+import { CONTACT, PRICE_LABEL, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
 import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
-import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { EVENTS, gaEvent, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
   BUTTONS,
   COLLARS,
@@ -134,6 +134,8 @@ export function DesignBuilder() {
   const [inputFocused, setInputFocused] = useState(false)
   const topRef = useRef<HTMLDivElement>(null)
   const firstStepRender = useRef(true)
+  const designTracked = useRef(false)
+  const lastSubmitted = useRef<string | null>(null)
 
   const set = useCallback((patch: Partial<DesignState>) => setSt((p) => ({ ...p, ...patch })), [])
   const setC = (patch: Partial<Customer>) => setCustomer((p) => ({ ...p, ...patch }))
@@ -153,6 +155,10 @@ export function DesignBuilder() {
     setSaved(loadProfile())
     setHydrated(true)
     trackEvent(EVENTS.designStart, { placement: "design_page", prefilled_fabric: slug ?? "none" })
+    if (!designTracked.current) {
+      designTracked.current = true
+      gaEvent("design_thobe", { fabric: fromParam ?? draft.fabric ?? "", placement: fromParam ? "fabric_link" : "design_page" })
+    }
   }, [])
 
   useEffect(() => {
@@ -316,6 +322,22 @@ export function DesignBuilder() {
       numbered: !!number,
     })
     trackWhatsAppClick("whatsapp_design_order", "design_review")
+    // One order_submit per distinct order: re-tapping "send" for the same order is not counted again.
+    const orderKey = JSON.stringify(orderDetails)
+    if (lastSubmitted.current !== orderKey) {
+      lastSubmitted.current = orderKey
+      const unit = getProduct(st.fabric)?.price
+      gaEvent("order_submit", {
+        flow: "design",
+        fabric: st.fabric,
+        quantity: st.quantity,
+        customer_type: st.customerType,
+        measure_mode: st.newMode || st.returningMode,
+        city_type: customer.cityMode,
+        numbered: !!number,
+        ...(unit !== undefined && { value: unit * st.quantity, currency: "YER" }),
+      })
+    }
     setSent(true)
   }
 
@@ -509,7 +531,7 @@ export function DesignBuilder() {
               السابق
             </button>
             {isLast ? (
-              <a href={whatsappHref(message)} target="_blank" rel="noopener noreferrer" aria-busy={sending} onClick={onSend} className="btn bg-[#25D366] px-8 text-white hover:bg-[#1ebe5a]" data-testid="send-desktop">
+              <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" aria-busy={sending} onClick={onSend} className="btn bg-[#25D366] px-8 text-white hover:bg-[#1ebe5a]" data-testid="send-desktop">
                 <WhatsAppIcon />
                 {sending ? "جارٍ تجهيز الطلب…" : "أرسل الطلب عبر واتساب"}
               </a>
@@ -567,7 +589,7 @@ export function DesignBuilder() {
           </button>
           {isLast ? (
             <a
-              href={whatsappHref(message)}
+              href={CONTACT.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
               aria-busy={sending}

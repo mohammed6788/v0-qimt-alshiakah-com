@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Lock, Pencil, RotateCcw, Save, Scissors, ShieldCheck, Trash2 } from "lucide-react"
 import { MeasurementFields } from "@/components/design/measurement-fields"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
-import { PRODUCTS, whatsappHref } from "@/lib/constants"
+import { CONTACT, PRODUCTS, whatsappHref } from "@/lib/constants"
 import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
-import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { EVENTS, gaEvent, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
 import {
   MEASUREMENT_FIELDS,
   MEASUREMENT_UNIT,
@@ -42,6 +42,7 @@ export function MeasurementsManager() {
   const [verifyPhone, setVerifyPhone] = useState("")
   const [verifyError, setVerifyError] = useState("")
   const [sending, setSending] = useState(false)
+  const lastReorder = useRef<string | null>(null)
   const [orderNumber, setOrderNumber] = useState<string | null>(null)
 
   useEffect(() => {
@@ -98,10 +99,11 @@ export function MeasurementsManager() {
   )
 
   const onSendToShop = (e: React.MouseEvent) => {
-    if (!validate(false)) {
-      e.preventDefault()
-      return
-    }
+    // The link's href stays a plain wa.me address so the customer's name, phone and
+    // measurements never appear in a link URL that analytics could record.
+    e.preventDefault()
+    if (!validate(false)) return
+    navigateTo(openPendingWindow(), sendToShopHref)
     if (draft.consent) {
       const p = toProfile()
       if (saveProfile(p)) setProfile(p)
@@ -154,7 +156,6 @@ export function MeasurementsManager() {
           notes: profile.notes,
         })
       : ""
-  const reorderHref = profile ? whatsappHref(reorderMessage(orderNumber ?? undefined)) : "#"
 
   const verify = () => {
     if (!profile) return
@@ -178,6 +179,12 @@ export function MeasurementsManager() {
     setSending(false)
     trackWhatsAppClick("whatsapp_reorder", "measurements_reorder")
     trackEvent(EVENTS.orderSubmit, { flow: "reorder", fabric: reorderFabric || "same", quantity: reorderQty, numbered: !!number })
+    // Count each distinct re-order once, even if "send" is tapped again.
+    const orderKey = `${reorderFabric}|${reorderQty}|${number ?? ""}`
+    if (lastReorder.current !== orderKey) {
+      lastReorder.current = orderKey
+      gaEvent("order_submit", { flow: "reorder", fabric: reorderFabric || "same", quantity: reorderQty, numbered: !!number })
+    }
   }
 
   if (!ready) return <div className="card-surface h-72 animate-pulse" aria-hidden="true" />
@@ -284,7 +291,7 @@ export function MeasurementsManager() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <a
-                href={reorderHref}
+                href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={onReorder}
@@ -353,7 +360,7 @@ export function MeasurementsManager() {
               <Save className="size-5" aria-hidden="true" />
               احفظ على جهازي
             </button>
-            <a href={sendToShopHref} target="_blank" rel="noopener noreferrer" onClick={onSendToShop} className="btn bg-[#25D366] text-white hover:bg-[#1ebe5a]">
+            <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" onClick={onSendToShop} className="btn bg-[#25D366] text-white hover:bg-[#1ebe5a]">
               <WhatsAppIcon />
               أرسل مقاساتي للمحل للحفظ
             </a>

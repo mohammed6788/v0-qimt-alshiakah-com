@@ -49,7 +49,8 @@ export function OffersSection() {
                 <TrackedLink
                   href={`/design?fabric=${p.slug}`}
                   event="offer_design_click"
-                  properties={{ fabric: p.slug }}
+                  properties={{ fabric: p.slug, placement: "home_offers" }}
+                  ga="select_fabric"
                   className="btn btn-primary mt-5 min-h-11 justify-center text-sm"
                 >
                   <Scissors className="size-4" aria-hidden="true" />

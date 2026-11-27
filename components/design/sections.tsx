@@ -25,6 +25,7 @@ import {
   type Option,
 } from "@/lib/tailoring"
 import { cn } from "@/lib/utils"
+import { gaEvent } from "@/lib/analytics"
 
 // ── Design state ─────────────────────────────────────────────
 export const CONSULT_FABRIC = "consult"
@@ -258,6 +259,7 @@ export function FabricSection({ st, set, showErrors }: SectionProps) {
     const keepColor = !st.color || allowedColorIds(id).includes(st.color)
     // A fabric with a built-in pattern (e.g. honeycomb) preselects it.
     const natural = getProduct(id)?.pattern
+    if (id !== st.fabric) gaEvent("select_fabric", { fabric: id, placement: "design_builder" })
     set({ fabric: id, ...(keepColor ? {} : { color: "", customColor: "" }), ...(natural ? { pattern: natural } : {}) })
   }
   return (
@@ -276,7 +278,10 @@ export function FabricSection({ st, set, showErrors }: SectionProps) {
             </span>
           </Tile>
         ))}
-        <Tile selected={st.fabric === CONSULT_FABRIC} onSelect={() => set({ fabric: CONSULT_FABRIC })} className="min-h-20 items-center p-4">
+        <Tile selected={st.fabric === CONSULT_FABRIC} onSelect={() => {
+            if (st.fabric !== CONSULT_FABRIC) gaEvent("select_fabric", { fabric: CONSULT_FABRIC, placement: "design_builder" })
+            set({ fabric: CONSULT_FABRIC })
+          }} className="min-h-20 items-center p-4">
           <span className="pe-7">
             <span className="block font-semibold text-navy">ساعدوني في اختيار القماش</span>
             <span className="block text-sm text-muted-foreground">نقترح عليك الأنسب لمناسبتك</span>

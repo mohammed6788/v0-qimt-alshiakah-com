@@ -74,6 +74,12 @@ export const SOCIAL_LINKS = [
 export type GoogleReview = { author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; date?: string }
 export const GOOGLE_REVIEWS: GoogleReview[] = []
 
+/** Google Analytics 4 stream for qimt-alshiakah.com (overridable with NEXT_PUBLIC_GA_ID). */
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-9ZFZYLX60X"
+
+/** GA4 only collects on the real domain; previews and local runs stay out of the reports. */
+export const GA_HOST_PATTERN = "(^|\\.)qimt-alshiakah\\.com$"
+
 /** Store policy pages, linked from the footer and from each policy page. */
 export const POLICY_LINKS = [
   { href: "/guarantee", label: "ضمان التفصيل والتعديلات" },

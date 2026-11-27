@@ -6,7 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { FooterSection } from "@/components/footer-section"
 import { FloatingWhatsApp } from "@/components/floating-whatsapp"
 import { JsonLd } from "@/components/json-ld"
-import { BRAND, CONTACT, LOGOS, SITE_URL } from "@/lib/constants"
+import { BRAND, CONTACT, GA_HOST_PATTERN, GA_MEASUREMENT_ID, LOGOS, SITE_URL } from "@/lib/constants"
 import "./globals.css"
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -18,9 +18,7 @@ const plexArabic = IBM_Plex_Sans_Arabic({
   adjustFontFallback: true,
 })
 
-// Google Analytics 4 (G-XXXXXXX) and Search Console verification are set in
-// Vercel → Project → Settings → Environment Variables; nothing loads while unset.
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID?.trim()
+// Search Console verification is set in Vercel → Settings → Environment Variables.
 const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim()
 
 const DEFAULT_TITLE = "قمة الشياكة | خياطة رجالية وتفصيل ثياب في المكلا"
@@ -129,8 +127,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <FooterSection />
         <FloatingWhatsApp />
         <Script async src="https://www.googletagmanager.com/gtag/js?id=AW-18082853572" strategy="afterInteractive" />
-        <Script id="google-ads" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', 'AW-18082853572');${GA_ID ? ` gtag('config', ${JSON.stringify(GA_ID)});` : ""}`}
+        <Script id="google-tag" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', 'AW-18082853572');` +
+            // GA4: the same gtag.js serves Google Ads and GA4. GA4 only collects on the real
+            // domain (or with ?ga_debug=1 for testing, shown in GA4 DebugView).
+            `(function(){var d=/[?&]ga_debug=1(&|$)/.test(location.search);if(!d&&!new RegExp(${JSON.stringify(GA_HOST_PATTERN)}).test(location.hostname))return;window.__gaEnabled=true;gtag('config',${JSON.stringify(GA_MEASUREMENT_ID)},d?{debug_mode:true}:{});})();`}
         </Script>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
