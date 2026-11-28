@@ -13,7 +13,7 @@ import { breadcrumbSchema } from "@/lib/breadcrumbs"
 export const metadata: Metadata = {
   title: "تواصل معنا – موقع المحل في المكلا الشرج",
   description:
-    "تواصل مع قمة الشياكة للخياطة الرجالية عبر واتساب أو الاتصال المباشر، أو زرنا في المكلا – الشرج، نهاية الشارع الرابع مقابل كشخة ياعيال. نستقبل الطلبات من خارج المكلا.",
+    `تواصل مع قمة الشياكة للخياطة الرجالية عبر واتساب أو الاتصال المباشر، أو زرنا في: ${FULL_ADDRESS}. نستقبل الطلبات من خارج المكلا.`,
   alternates: { canonical: "/contact" },
   openGraph: pageOpenGraph("/contact", "تواصل معنا | قمة الشياكة"),
 }

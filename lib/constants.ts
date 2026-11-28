@@ -90,7 +90,12 @@ export const POLICY_LINKS = [
   { href: "/terms", label: "الشروط والأحكام" },
 ] as const
 
-export const FULL_ADDRESS = `${CONTACT.address.region} – ${CONTACT.address.city} – ${CONTACT.address.district}، ${CONTACT.address.street}`
+/**
+ * The shop's official address, exactly as approved by the owner:
+ * "حضرموت، المكلا، الشرج، نهاية الشارع الرابع، مقابل كشخة ياعيال".
+ * (Google's listing shows its own street name; the site always uses this text.)
+ */
+export const FULL_ADDRESS = `${CONTACT.address.region}، ${CONTACT.address.city}، ${CONTACT.address.district}، ${CONTACT.address.street}`
 
 export function whatsappHref(message?: string) {
   if (!message) return CONTACT.whatsapp
