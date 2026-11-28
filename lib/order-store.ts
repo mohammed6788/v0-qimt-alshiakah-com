@@ -50,6 +50,13 @@ export async function nextOrderNumber(kind: string) {
   const seq = Number(n)
   if (!Number.isInteger(seq) || seq < 1) throw new Error("invalid sequence value")
   const number = formatOrderNumber(seq)
-  await pipeline([["HSET", `qs:order:${number}`, "kind", kind, "created_at", new Date().toISOString()]])
+  // INCR is atomic in Redis: concurrent requests can never receive the same number.
+  // The metadata below is informational; if it fails, the reserved number is still
+  // returned (otherwise it would be lost and the customer would get no number).
+  try {
+    await pipeline([["HSET", `qs:order:${number}`, "kind", kind, "created_at", new Date().toISOString()]])
+  } catch (e) {
+    console.error("[orders] could not store order metadata", number, e)
+  }
   return number
 }

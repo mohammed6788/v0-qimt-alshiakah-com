@@ -6,8 +6,9 @@ import { Lock, Pencil, RotateCcw, Save, Scissors, ShieldCheck, Trash2 } from "lu
 import { MeasurementFields } from "@/components/design/measurement-fields"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
 import { CONTACT, PRODUCTS, whatsappHref } from "@/lib/constants"
-import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
+import { navigateTo, openPendingWindow } from "@/lib/order-number"
 import { EVENTS, trackEvent, trackWhatsAppClick, trackWhatsAppOrderStart } from "@/lib/analytics"
+import { useOrderSubmission } from "@/lib/order-submission"
 import {
   MEASUREMENT_FIELDS,
   MEASUREMENT_UNIT,
@@ -41,8 +42,6 @@ export function MeasurementsManager() {
   const [unlocked, setUnlocked] = useState(false)
   const [verifyPhone, setVerifyPhone] = useState("")
   const [verifyError, setVerifyError] = useState("")
-  const [sending, setSending] = useState(false)
-  const [orderNumber, setOrderNumber] = useState<string | null>(null)
 
   useEffect(() => {
     const p = loadProfile()
@@ -156,6 +155,10 @@ export function MeasurementsManager() {
         })
       : ""
 
+  // One re-order = one random id; changing the fabric or quantity starts a new order.
+  const reorder = useOrderSubmission(profile ? JSON.stringify([profile.phone, profile.savedAt, reorderFabric, reorderQty]) : "")
+  const { sending, orderNumber } = reorder
+
   const verify = () => {
     if (!profile) return
     if (!validatePhone(verifyPhone).ok) return setVerifyError("اكتب رقم جوال صحيح")
@@ -169,22 +172,21 @@ export function MeasurementsManager() {
 
   const onReorder = async (e: React.MouseEvent) => {
     e.preventDefault()
-    if (!profile || sending) return
-    const win = openPendingWindow()
-    setSending(true)
-    const number = orderNumber ?? (await requestOrderNumber("reorder"))
-    if (number) setOrderNumber(number)
-    navigateTo(win, whatsappHref(reorderMessage(number ?? undefined)))
-    setSending(false)
-    // A re-order opened in WhatsApp is a lead, not a confirmed order or a sale.
-    const unit = reorderFabric ? PRODUCTS.find((p) => p.slug === reorderFabric)?.price : undefined
-    trackWhatsAppOrderStart(`reorder|${reorderFabric}|${reorderQty}|${number ?? ""}`, "whatsapp_reorder", "measurements_reorder", {
-      flow: "reorder",
-      fabric: reorderFabric || "same",
-      quantity: reorderQty,
-      customer_type: "returning",
-      orderRef: number,
-      estimatedValue: unit !== undefined ? unit * reorderQty : undefined,
+    if (!profile) return
+    const unit = reorderFabricProduct?.price
+    await reorder.send({
+      kind: "reorder",
+      buildUrl: (number) => whatsappHref(reorderMessage(number ?? undefined)),
+      // Once per re-order, only when WhatsApp actually opened (a lead, not a sale).
+      onFirstOpen: (orderId, number) =>
+        trackWhatsAppOrderStart(orderId, "whatsapp_reorder", "measurements_reorder", {
+          flow: "reorder",
+          fabric: reorderFabric || "same",
+          quantity: reorderQty,
+          customer_type: "returning",
+          orderRef: number,
+          estimatedValue: unit !== undefined ? unit * reorderQty : undefined,
+        }),
     })
   }
 
@@ -308,9 +310,25 @@ export function MeasurementsManager() {
                 صمم ثوباً جديداً بمقاساتي
               </Link>
             </div>
-            {orderNumber && (
-              <p className="rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800" role="status" data-testid="reorder-number">
-                رقم طلبك: <span className="num" dir="ltr">{orderNumber}</span>
+            {reorder.sent && (
+              <div className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800" role="status" data-testid="reorder-number">
+                <p className="font-semibold">
+                  {orderNumber ? (
+                    <>
+                      رقم طلبك: <span className="num" dir="ltr">{orderNumber}</span>
+                    </>
+                  ) : (
+                    "تم تجهيز رسالة طلبك. سيزوّدك فريقنا برقم الطلب عند تأكيده."
+                  )}
+                </p>
+                <button type="button" onClick={reorder.startNewOrder} className="mt-1 font-semibold text-emerald-900 underline underline-offset-4">
+                  طلب آخر بنفس التفاصيل
+                </button>
+              </div>
+            )}
+            {reorder.cancelled && (
+              <p className="rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900" role="alert">
+                لم يُفتح واتساب، ولم يُرسل طلبك بعد. اضغط زر الإرسال مرة أخرى.
               </p>
             )}
           </div>

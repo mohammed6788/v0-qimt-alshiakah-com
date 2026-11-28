@@ -154,21 +154,23 @@ type OrderStartParams = {
 
 /**
  * The customer opened WhatsApp with a ready order message. This is the start of a
- * conversation, not a confirmed order or a sale. Reported once per distinct order:
- * tapping "send" again for the same order is not counted again (GA4 or Google Ads).
+ * conversation, not a confirmed order or a sale. `orderId` is the order's random
+ * unique id (useOrderSubmission): reported once per order — tapping "send" again for
+ * the same order is not counted again (GA4 or Google Ads), while a separate order
+ * with the same details has its own id and is counted. The id is never sent anywhere.
  * Returns true when it was reported.
  */
 export function trackWhatsAppOrderStart(
-  orderKey: string,
+  orderId: string,
   intent: Extract<WhatsAppIntent, "whatsapp_design_order" | "whatsapp_reorder">,
   placement: string,
   p: OrderStartParams,
 ) {
-  if (startedOrders.has(orderKey)) {
+  if (startedOrders.has(orderId)) {
     trackEvent(intent, { placement, repeat: true })
     return false
   }
-  startedOrders.add(orderKey)
+  startedOrders.add(orderId)
   const params = {
     flow: p.flow,
     fabric: p.fabric,
