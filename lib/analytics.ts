@@ -1,5 +1,5 @@
 import { track } from "@vercel/analytics"
-import { GA_ALLOWED_HOSTS, GA_MEASUREMENT_ID } from "@/lib/constants"
+import { GA_ALLOWED_HOSTS, GA_MEASUREMENT_ID, GOOGLE_ADS_LEAD_CONVERSION } from "@/lib/constants"
 
 declare global {
   interface Window {
@@ -87,11 +87,16 @@ declare global {
   }
 }
 
+/** True only on the official domain. Google tags never send anything anywhere else. */
+function onOfficialHost() {
+  return typeof window !== "undefined" && (GA_ALLOWED_HOSTS as readonly string[]).includes(window.location.hostname)
+}
+
 /** Sends one GA4 event to the site's GA4 stream only (not to Google Ads). */
 export function gaEvent(name: GaEventName, params: Record<string, unknown> = {}) {
   if (typeof window === "undefined" || !window.__gaEnabled || !window.gtag) return
   // Second, independent host check (the loader in app/layout.tsx is the first).
-  if (!(GA_ALLOWED_HOSTS as readonly string[]).includes(window.location.hostname)) return
+  if (!onOfficialHost()) return
   // debug_mode on the event itself: gtag does not reliably mark events from the config-level
   // setting alone, and DebugView only shows events that carry it.
   window.gtag("event", name, { ...gaParams(params), ...(window.__gaDebug && { debug_mode: true }), send_to: GA_MEASUREMENT_ID })
@@ -110,7 +115,8 @@ export type WhatsAppIntent =
 const ORDER_INTENTS: WhatsAppIntent[] = ["whatsapp_design_order", "whatsapp_reorder"]
 
 /**
- * Google Ads conversion AW-18082853572/Q_umCKiWrKAcEMTlya5D — unchanged.
+ * Google Ads conversion AW-18082853572/Q_umCKiWrKAcEMTlya5D (same label as before).
+ * Sent only on the official domain (qimt-alshiakah.com).
  * It measures the START of a WhatsApp conversation only (a lead), never a confirmed
  * order or a sale: no value, currency or transaction id is sent with it.
  * Fired for every WhatsApp contact; for order links, once per distinct order
@@ -122,8 +128,10 @@ export function trackWhatsAppClick(intent: WhatsAppIntent, placement: string) {
   if (typeof window === "undefined") return
   if (!ORDER_INTENTS.includes(intent)) gaEvent("whatsapp_click", { intent, placement })
 
+  // Same host rule as GA4: never report an Ads conversion from previews or other domains.
+  if (!onOfficialHost()) return
   window.gtag?.("event", "conversion", {
-    send_to: "AW-18082853572/Q_umCKiWrKAcEMTlya5D",
+    send_to: GOOGLE_ADS_LEAD_CONVERSION,
     event_category: "engagement",
     event_label: `${intent}:${placement}`,
   })

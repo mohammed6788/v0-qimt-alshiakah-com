@@ -77,9 +77,14 @@ export const GOOGLE_REVIEWS: GoogleReview[] = []
 /** Google Analytics 4 stream for qimt-alshiakah.com (overridable with NEXT_PUBLIC_GA_ID). */
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-9ZFZYLX60X"
 
+/** Google Ads account and the WhatsApp-contact (lead) conversion label. */
+export const GOOGLE_ADS_ID = "AW-18082853572"
+export const GOOGLE_ADS_LEAD_CONVERSION = "AW-18082853572/Q_umCKiWrKAcEMTlya5D"
+
 /**
- * The only host where GA4 may load (exact match). Vercel previews, local runs and
- * any other domain never send GA4 data, even with ?ga_debug=1.
+ * The only host where the Google tag (GA4 and Google Ads) may load (exact match).
+ * Vercel previews, local runs and any other domain never send GA4 or Ads data,
+ * even with ?ga_debug=1.
  * www.qimt-alshiakah.com is not listed: it only redirects (307) to the apex domain,
  * so no page ever runs there.
  */
