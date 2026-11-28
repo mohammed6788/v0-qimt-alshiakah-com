@@ -74,7 +74,7 @@ export default async function FabricDetailPage({ params }: Params) {
 
   return (
     <>
-      <TrackView event={EVENTS.fabricDetailView} properties={{ fabric: product.slug }} />
+      <TrackView event={EVENTS.fabricDetailView} properties={{ fabric: product.slug }} ga="view_fabric" />
       <JsonLd data={productSchema} />
       <JsonLd
         data={breadcrumbSchema([
@@ -140,6 +140,7 @@ export default async function FabricDetailPage({ params }: Params) {
                   href={`/design?fabric=${product.slug}`}
                   event={EVENTS.designStart}
                   properties={{ placement: "fabric_detail", fabric: product.slug }}
+                  ga="select_fabric"
                   className="btn btn-outline-dark"
                 >
                   <Scissors className="size-5" aria-hidden="true" />

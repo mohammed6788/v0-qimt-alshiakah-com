@@ -26,9 +26,9 @@ import {
   type SectionKey,
   type SectionProps,
 } from "@/components/design/sections"
-import { PRICE_LABEL, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
-import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
-import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { CONTACT, PRICE_LABEL, SHOW_PRICES, formatPrice, getProduct, whatsappHref } from "@/lib/constants"
+import { EVENTS, gaEvent, trackEvent, trackWhatsAppOrderStart } from "@/lib/analytics"
+import { useOrderSubmission } from "@/lib/order-submission"
 import {
   BUTTONS,
   COLLARS,
@@ -124,9 +124,6 @@ export function DesignBuilder() {
   const [saved, setSaved] = useState<MeasurementProfile | null>(null)
   const [showErrors, setShowErrors] = useState(false)
   const [submitAttempted, setSubmitAttempted] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [sending, setSending] = useState(false)
-  const [orderNumber, setOrderNumber] = useState<string | null>(null)
   const [editKey, setEditKey] = useState<EditKey | null>(null)
   const [editDraft, setEditDraft] = useState<DesignState>(initialDesign)
   const [editErrors, setEditErrors] = useState(false)
@@ -134,6 +131,7 @@ export function DesignBuilder() {
   const [inputFocused, setInputFocused] = useState(false)
   const topRef = useRef<HTMLDivElement>(null)
   const firstStepRender = useRef(true)
+  const designTracked = useRef(false)
 
   const set = useCallback((patch: Partial<DesignState>) => setSt((p) => ({ ...p, ...patch })), [])
   const setC = (patch: Partial<Customer>) => setCustomer((p) => ({ ...p, ...patch }))
@@ -153,6 +151,10 @@ export function DesignBuilder() {
     setSaved(loadProfile())
     setHydrated(true)
     trackEvent(EVENTS.designStart, { placement: "design_page", prefilled_fabric: slug ?? "none" })
+    if (!designTracked.current) {
+      designTracked.current = true
+      gaEvent("design_thobe", { fabric: fromParam ?? draft.fabric ?? "", placement: fromParam ? "fabric_link" : "design_page" })
+    }
   }, [])
 
   useEffect(() => {
@@ -226,6 +228,9 @@ export function DesignBuilder() {
     measurements: includeMeasurements ? st.measurements : undefined,
     notes: customer.notes,
   }
+  // One order = one random id (see useOrderSubmission); editing anything starts a new order.
+  const order = useOrderSubmission(JSON.stringify(orderDetails))
+  const { sent, sending, orderNumber } = order
   const message = buildOrderMessage({ ...orderDetails, orderNumber: orderNumber ?? undefined })
 
   const sectionIssues = SECTION_KEYS.map((k) => ({ key: k, error: sectionError(k, st) })).filter((x) => x.error)
@@ -288,14 +293,25 @@ export function DesignBuilder() {
       document.getElementById("order-issues")?.scrollIntoView({ behavior: "smooth", block: "center" })
       return
     }
-    if (sending) return
-    // Open WhatsApp's window inside the click, then fill in the final link.
-    const win = openPendingWindow()
-    setSending(true)
-    const number = orderNumber ?? (await requestOrderNumber("design"))
-    if (number) setOrderNumber(number)
-    navigateTo(win, whatsappHref(buildOrderMessage({ ...orderDetails, orderNumber: number ?? undefined })))
-    setSending(false)
+    const unit = getProduct(st.fabric)?.price
+    const outcome = await order.send({
+      kind: "design",
+      buildUrl: (number) => whatsappHref(buildOrderMessage({ ...orderDetails, orderNumber: number ?? undefined })),
+      // Runs once per order, only when WhatsApp actually opened. Opening WhatsApp is a
+      // lead, not a confirmed order or a sale.
+      onFirstOpen: (orderId, number) =>
+        trackWhatsAppOrderStart(orderId, "whatsapp_design_order", "design_review", {
+          flow: "design",
+          fabric: st.fabric,
+          quantity: st.quantity,
+          customer_type: st.customerType,
+          measure_mode: st.newMode || st.returningMode,
+          city_type: customer.cityMode,
+          orderRef: number,
+          estimatedValue: unit !== undefined ? unit * st.quantity : undefined,
+        }),
+    })
+    if (outcome !== "opened") return
     if (customer.saveConsent && st.customerType === "new" && st.newMode === "enter" && hasMeasurements(st.measurements)) {
       const ok = saveProfile({
         name: customer.name.trim(),
@@ -306,17 +322,6 @@ export function DesignBuilder() {
       })
       if (ok) trackEvent(EVENTS.measurementsSaved, { placement: "design_builder" })
     }
-    trackEvent(EVENTS.orderSubmit, {
-      flow: "design",
-      fabric: st.fabric,
-      quantity: st.quantity,
-      customer_type: st.customerType,
-      measure_mode: st.newMode || st.returningMode,
-      city_type: customer.cityMode,
-      numbered: !!number,
-    })
-    trackWhatsAppClick("whatsapp_design_order", "design_review")
-    setSent(true)
   }
 
   // ── Summary rows ──
@@ -489,14 +494,24 @@ export function DesignBuilder() {
               </p>
 
               {sent && (
-                <p className="rounded-2xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-800" role="status" data-testid="sent-status">
-                  {orderNumber ? (
-                    <>
-                      رقم طلبك: <span className="num" dir="ltr">{orderNumber}</span>. أكمل الإرسال من واتساب، وسيتواصل معك فريقنا لتأكيد الطلب.
-                    </>
-                  ) : (
-                    "تم تجهيز رسالة طلبك. أكمل الإرسال من واتساب، وسيزوّدك فريقنا برقم الطلب عند تأكيده."
-                  )}
+                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800" role="status" data-testid="sent-status">
+                  <p className="font-semibold">
+                    {orderNumber ? (
+                      <>
+                        رقم طلبك: <span className="num" dir="ltr">{orderNumber}</span>. أكمل الإرسال من واتساب، وسيتواصل معك فريقنا لتأكيد الطلب.
+                      </>
+                    ) : (
+                      "تم تجهيز رسالة طلبك. أكمل الإرسال من واتساب، وسيزوّدك فريقنا برقم الطلب عند تأكيده."
+                    )}
+                  </p>
+                  <button type="button" onClick={order.startNewOrder} className="mt-2 font-semibold text-emerald-900 underline underline-offset-4" data-testid="new-order">
+                    طلب ثوب آخر بنفس التفاصيل
+                  </button>
+                </div>
+              )}
+              {order.cancelled && (
+                <p className="rounded-2xl bg-amber-50 p-4 text-sm font-semibold text-amber-900" role="alert" data-testid="send-cancelled">
+                  لم يُفتح واتساب، ولم يُرسل طلبك بعد. اضغط «أرسل الطلب عبر واتساب» مرة أخرى.
                 </p>
               )}
             </div>
@@ -509,7 +524,7 @@ export function DesignBuilder() {
               السابق
             </button>
             {isLast ? (
-              <a href={whatsappHref(message)} target="_blank" rel="noopener noreferrer" aria-busy={sending} onClick={onSend} className="btn bg-[#25D366] px-8 text-white hover:bg-[#1ebe5a]" data-testid="send-desktop">
+              <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" aria-busy={sending} onClick={onSend} className="btn bg-[#25D366] px-8 text-white hover:bg-[#1ebe5a]" data-testid="send-desktop">
                 <WhatsAppIcon />
                 {sending ? "جارٍ تجهيز الطلب…" : "أرسل الطلب عبر واتساب"}
               </a>
@@ -567,7 +582,7 @@ export function DesignBuilder() {
           </button>
           {isLast ? (
             <a
-              href={whatsappHref(message)}
+              href={CONTACT.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
               aria-busy={sending}

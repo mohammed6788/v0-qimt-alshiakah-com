@@ -5,9 +5,10 @@ import Link from "next/link"
 import { Lock, Pencil, RotateCcw, Save, Scissors, ShieldCheck, Trash2 } from "lucide-react"
 import { MeasurementFields } from "@/components/design/measurement-fields"
 import { WhatsAppIcon } from "@/components/site/brand-icons"
-import { PRODUCTS, whatsappHref } from "@/lib/constants"
-import { navigateTo, openPendingWindow, requestOrderNumber } from "@/lib/order-number"
-import { EVENTS, trackEvent, trackWhatsAppClick } from "@/lib/analytics"
+import { CONTACT, PRODUCTS, whatsappHref } from "@/lib/constants"
+import { navigateTo, openPendingWindow } from "@/lib/order-number"
+import { EVENTS, trackEvent, trackWhatsAppClick, trackWhatsAppOrderStart } from "@/lib/analytics"
+import { useOrderSubmission } from "@/lib/order-submission"
 import {
   MEASUREMENT_FIELDS,
   MEASUREMENT_UNIT,
@@ -41,8 +42,6 @@ export function MeasurementsManager() {
   const [unlocked, setUnlocked] = useState(false)
   const [verifyPhone, setVerifyPhone] = useState("")
   const [verifyError, setVerifyError] = useState("")
-  const [sending, setSending] = useState(false)
-  const [orderNumber, setOrderNumber] = useState<string | null>(null)
 
   useEffect(() => {
     const p = loadProfile()
@@ -98,16 +97,17 @@ export function MeasurementsManager() {
   )
 
   const onSendToShop = (e: React.MouseEvent) => {
-    if (!validate(false)) {
-      e.preventDefault()
-      return
-    }
+    // The link's href stays a plain wa.me address so the customer's name, phone and
+    // measurements never appear in a link URL that analytics could record.
+    e.preventDefault()
+    if (!validate(false)) return
+    navigateTo(openPendingWindow(), sendToShopHref)
     if (draft.consent) {
       const p = toProfile()
       if (saveProfile(p)) setProfile(p)
     }
     trackWhatsAppClick("whatsapp_measurement", "measurements_send_to_shop")
-    trackEvent(EVENTS.orderSubmit, { flow: "measurements" })
+    trackEvent(EVENTS.measurementsSent, { placement: "measurements_page" })
   }
 
   const startEdit = () => {
@@ -154,7 +154,10 @@ export function MeasurementsManager() {
           notes: profile.notes,
         })
       : ""
-  const reorderHref = profile ? whatsappHref(reorderMessage(orderNumber ?? undefined)) : "#"
+
+  // One re-order = one random id; changing the fabric or quantity starts a new order.
+  const reorder = useOrderSubmission(profile ? JSON.stringify([profile.phone, profile.savedAt, reorderFabric, reorderQty]) : "")
+  const { sending, orderNumber } = reorder
 
   const verify = () => {
     if (!profile) return
@@ -169,15 +172,22 @@ export function MeasurementsManager() {
 
   const onReorder = async (e: React.MouseEvent) => {
     e.preventDefault()
-    if (!profile || sending) return
-    const win = openPendingWindow()
-    setSending(true)
-    const number = orderNumber ?? (await requestOrderNumber("reorder"))
-    if (number) setOrderNumber(number)
-    navigateTo(win, whatsappHref(reorderMessage(number ?? undefined)))
-    setSending(false)
-    trackWhatsAppClick("whatsapp_reorder", "measurements_reorder")
-    trackEvent(EVENTS.orderSubmit, { flow: "reorder", fabric: reorderFabric || "same", quantity: reorderQty, numbered: !!number })
+    if (!profile) return
+    const unit = reorderFabricProduct?.price
+    await reorder.send({
+      kind: "reorder",
+      buildUrl: (number) => whatsappHref(reorderMessage(number ?? undefined)),
+      // Once per re-order, only when WhatsApp actually opened (a lead, not a sale).
+      onFirstOpen: (orderId, number) =>
+        trackWhatsAppOrderStart(orderId, "whatsapp_reorder", "measurements_reorder", {
+          flow: "reorder",
+          fabric: reorderFabric || "same",
+          quantity: reorderQty,
+          customer_type: "returning",
+          orderRef: number,
+          estimatedValue: unit !== undefined ? unit * reorderQty : undefined,
+        }),
+    })
   }
 
   if (!ready) return <div className="card-surface h-72 animate-pulse" aria-hidden="true" />
@@ -284,7 +294,7 @@ export function MeasurementsManager() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <a
-                href={reorderHref}
+                href={CONTACT.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={onReorder}
@@ -300,9 +310,25 @@ export function MeasurementsManager() {
                 صمم ثوباً جديداً بمقاساتي
               </Link>
             </div>
-            {orderNumber && (
-              <p className="rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800" role="status" data-testid="reorder-number">
-                رقم طلبك: <span className="num" dir="ltr">{orderNumber}</span>
+            {reorder.sent && (
+              <div className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800" role="status" data-testid="reorder-number">
+                <p className="font-semibold">
+                  {orderNumber ? (
+                    <>
+                      رقم طلبك: <span className="num" dir="ltr">{orderNumber}</span>
+                    </>
+                  ) : (
+                    "تم تجهيز رسالة طلبك. سيزوّدك فريقنا برقم الطلب عند تأكيده."
+                  )}
+                </p>
+                <button type="button" onClick={reorder.startNewOrder} className="mt-1 font-semibold text-emerald-900 underline underline-offset-4">
+                  طلب آخر بنفس التفاصيل
+                </button>
+              </div>
+            )}
+            {reorder.cancelled && (
+              <p className="rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900" role="alert">
+                لم يُفتح واتساب، ولم يُرسل طلبك بعد. اضغط زر الإرسال مرة أخرى.
               </p>
             )}
           </div>
@@ -353,7 +379,7 @@ export function MeasurementsManager() {
               <Save className="size-5" aria-hidden="true" />
               احفظ على جهازي
             </button>
-            <a href={sendToShopHref} target="_blank" rel="noopener noreferrer" onClick={onSendToShop} className="btn bg-[#25D366] text-white hover:bg-[#1ebe5a]">
+            <a href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer" onClick={onSendToShop} className="btn bg-[#25D366] text-white hover:bg-[#1ebe5a]">
               <WhatsAppIcon />
               أرسل مقاساتي للمحل للحفظ
             </a>

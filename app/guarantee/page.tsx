@@ -3,6 +3,7 @@ import Link from "next/link"
 import { pageOpenGraph } from "@/lib/seo"
 import { PolicyPage } from "@/components/site/policy-page"
 import { CONTACT } from "@/lib/constants"
+import { WhatsAppLink } from "@/components/whatsapp-link"
 
 export const metadata: Metadata = {
   title: "ضمان التفصيل وسياسة التعديلات",
@@ -61,9 +62,9 @@ export default function GuaranteePage() {
           points: [
             <>
               راسلنا على واتساب{" "}
-              <a href={CONTACT.whatsapp} className="font-semibold text-navy underline-offset-4 hover:underline" dir="ltr">
-                {CONTACT.whatsappDisplay}
-              </a>{" "}
+              <WhatsAppLink href={CONTACT.whatsapp} intent="whatsapp_general" placement="guarantee_page" className="font-semibold text-navy underline-offset-4 hover:underline">
+                <span dir="ltr">{CONTACT.whatsappDisplay}</span>
+              </WhatsAppLink>{" "}
               برقم طلبك أو اسمك، واذكر الملاحظة مع صورة إن أمكن.
             </>,
             <>

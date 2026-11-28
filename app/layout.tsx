@@ -6,7 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { FooterSection } from "@/components/footer-section"
 import { FloatingWhatsApp } from "@/components/floating-whatsapp"
 import { JsonLd } from "@/components/json-ld"
-import { BRAND, CONTACT, LOGOS, SITE_URL } from "@/lib/constants"
+import { BRAND, CONTACT, GA_ALLOWED_HOSTS, GA_MEASUREMENT_ID, GOOGLE_ADS_ID, LOGOS, SITE_URL } from "@/lib/constants"
 import "./globals.css"
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -18,9 +18,7 @@ const plexArabic = IBM_Plex_Sans_Arabic({
   adjustFontFallback: true,
 })
 
-// Google Analytics 4 (G-XXXXXXX) and Search Console verification are set in
-// Vercel → Project → Settings → Environment Variables; nothing loads while unset.
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID?.trim()
+// Search Console verification is set in Vercel → Settings → Environment Variables.
 const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim()
 
 const DEFAULT_TITLE = "قمة الشياكة | خياطة رجالية وتفصيل ثياب في المكلا"
@@ -128,9 +126,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <main id="main-content">{children}</main>
         <FooterSection />
         <FloatingWhatsApp />
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=AW-18082853572" strategy="afterInteractive" />
-        <Script id="google-ads" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', 'AW-18082853572');${GA_ID ? ` gtag('config', ${JSON.stringify(GA_ID)});` : ""}`}
+        {/* Google tag (Google Ads + GA4). Nothing Google-related runs unless the page is on the
+            official host: no gtag.js download, no Ads or GA4 config, no events. Vercel previews,
+            localhost and any other domain send nothing, with or without ?ga_debug=1, which only
+            switches GA4 DebugView on once the host check has passed. */}
+        <Script id="google-tag" strategy="afterInteractive">
+          {`(function(){if(${JSON.stringify(GA_ALLOWED_HOSTS)}.indexOf(location.hostname)<0)return;` +
+            `window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments);}window.gtag=gtag;` +
+            `gtag('js',new Date());gtag('config',${JSON.stringify(GOOGLE_ADS_ID)});` +
+            `var d=/[?&]ga_debug=1(&|$)/.test(location.search);window.__gaEnabled=true;window.__gaDebug=d;` +
+            `gtag('config',${JSON.stringify(GA_MEASUREMENT_ID)},d?{debug_mode:true}:{});` +
+            `var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+${JSON.stringify(GOOGLE_ADS_ID)};document.head.appendChild(s);})();`}
         </Script>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
