@@ -58,9 +58,20 @@ export function FooterSection() {
                 <span>اتصال مباشر: <span dir="ltr">{CONTACT.phoneDisplay}</span></span>
               </a>
             </li>
-            <li className="flex items-start gap-3">
-              <MapPin className="mt-0.5 size-5 shrink-0 text-sky" aria-hidden="true" />
-              <span>{FULL_ADDRESS}</span>
+            <li>
+              <a
+                href={CONTACT.maps}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent(EVENTS.mapClick, { placement: "footer" })}
+                className="flex items-start gap-3 hover:text-white"
+              >
+                <MapPin className="mt-0.5 size-5 shrink-0 text-sky" aria-hidden="true" />
+                <span>
+                  <span className="block font-semibold text-white">موقع قمة الشياكة</span>
+                  {FULL_ADDRESS}
+                </span>
+              </a>
             </li>
           </ul>
           <div className="mt-5 flex flex-wrap gap-2">

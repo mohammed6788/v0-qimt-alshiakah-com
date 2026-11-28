@@ -1,66 +1,72 @@
-import { ExternalLink, MapPin, Quote, Star } from "lucide-react"
-import { CONTACT, GOOGLE_REVIEWS } from "@/lib/constants"
+"use client"
 
-function Stars({ value, className }: { value: number; className?: string }) {
-  return (
-    <span className={`inline-flex gap-0.5 ${className ?? ""}`} role="img" aria-label={`${value} من 5 نجوم`}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <Star key={i} className={`size-4 ${i <= value ? "fill-amber-400 text-amber-400" : "text-silver"}`} aria-hidden="true" />
-      ))}
-    </span>
-  )
-}
+import { ArrowUpLeft, MapPin, MessageSquareQuote } from "lucide-react"
+import { CONTACT, REVIEW_LINKS } from "@/lib/constants"
+import { trackEvent } from "@/lib/analytics"
 
-/** Reviews copied from the shop's Google Maps listing, with links to read and add more. */
+const ORDINALS = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس"]
+
+/**
+ * Links to real customer reviews on the shop's Google Maps listing.
+ * Only the links are shown — no names, texts or stars are copied onto the site,
+ * so each review is read exactly as it was published on Google.
+ */
 export function GoogleReviewsSection() {
-  const reviews = GOOGLE_REVIEWS
-  const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0
-
   return (
     <section id="reviews" className="bg-ivory py-16 sm:py-24" aria-labelledby="reviews-title">
       <div className="container-site">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="eyebrow !text-navy-soft">آراء عملائنا على Google</p>
-            <h2 id="reviews-title" className="type-h2 mt-2 text-navy">
-              كلامهم عنّا… أهم من كلامنا
-            </h2>
-            {reviews.length > 0 && (
-              <p className="mt-3 flex items-center gap-2 text-navy">
-                <span className="num text-xl font-bold">{avg.toFixed(1)}</span>
-                <Stars value={Math.round(avg)} />
-                <span className="text-sm text-muted-foreground">من تقييمات Google</span>
-              </p>
-            )}
-          </div>
-          <a href={CONTACT.maps} target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark shrink-0">
-            <MapPin className="size-5" aria-hidden="true" />
-            {reviews.length ? "كل التقييمات على Google" : "اقرأ تقييماتنا على Google"}
-            <ExternalLink className="size-4" aria-hidden="true" />
-          </a>
+        <div className="max-w-2xl">
+          <p className="eyebrow !text-navy-soft">من Google Maps</p>
+          <h2 id="reviews-title" className="type-h2 mt-2 text-navy">
+            آراء عملائنا وتقييماتهم
+          </h2>
+          <p className="mt-3 text-muted-foreground text-pretty">
+            تجارب حقيقية كتبها عملاؤنا بأنفسهم على خرائط Google. اضغط على أي تقييم لقراءته كاملاً كما نُشر.
+          </p>
         </div>
 
-        {reviews.length > 0 ? (
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {reviews.map((r, i) => (
-              <li key={i} className="card-surface flex flex-col p-5">
-                <Quote className="size-6 text-sky" aria-hidden="true" />
-                <p className="mt-3 flex-1 text-navy text-pretty">{r.text}</p>
-                <div className="mt-4 flex items-center justify-between gap-3 border-t border-navy/10 pt-3">
-                  <span className="font-semibold text-navy">{r.author}</span>
-                  <Stars value={r.rating} />
-                </div>
-                {r.date && <p className="mt-1 text-xs text-muted-foreground">{r.date}</p>}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="card-surface mt-8 flex flex-col items-center gap-3 p-8 text-center">
-            <Stars value={5} className="[&_svg]:size-6" />
-            <p className="type-title text-navy">جرّبت تفصيلنا؟ شاركنا رأيك على Google</p>
-            <p className="max-w-lg text-muted-foreground">تقييمك يساعد غيرك يختار خياطه بثقة، ويساعدنا نتطور. افتح صفحتنا على خرائط Google واضغط «كتابة مراجعة».</p>
-          </div>
-        )}
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {REVIEW_LINKS.map((href, i) => (
+            <li key={href}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent("review_link_click", { index: i + 1 })}
+                aria-label={`اقرأ تقييم العميل ${ORDINALS[i] ?? i + 1} على Google Maps (يفتح في نافذة جديدة)`}
+                className="group relative flex h-full min-h-20 items-center gap-4 rounded-2xl border border-navy/10 bg-white p-4 shadow-sm transition-[border-color,box-shadow] hover:border-sky hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky sm:min-h-36 sm:flex-col sm:items-start sm:justify-between sm:gap-6 sm:p-5"
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-navy text-sky">
+                  <MessageSquareQuote className="size-5" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1 sm:flex-none">
+                  <span className="block font-semibold text-navy">تقييم العميل {ORDINALS[i] ?? i + 1}</span>
+                  <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-navy-soft group-hover:text-navy">
+                    اقرأ التقييم على Google Maps
+                    <ArrowUpLeft className="size-4" aria-hidden="true" />
+                  </span>
+                </span>
+                <span className="num text-2xl font-bold text-silver sm:absolute sm:left-5 sm:top-5 sm:text-3xl" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <a
+            href={CONTACT.mapsAllReviews}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent("reviews_all_click")}
+            className="btn btn-navy justify-center"
+          >
+            <MapPin className="size-5" aria-hidden="true" />
+            عرض جميع التقييمات على Google Maps
+          </a>
+          <p className="text-sm text-muted-foreground">تُفتح التقييمات في خرائط Google.</p>
+        </div>
       </div>
     </section>
   )

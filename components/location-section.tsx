@@ -35,7 +35,7 @@ export function LocationSection() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <TrackedLink href={CONTACT.maps} target="_blank" rel="noopener noreferrer" event={EVENTS.mapClick} properties={{ placement: "home_location" }} className="btn btn-navy">
               <Navigation2 className="size-5" aria-hidden="true" />
-              الاتجاهات في الخريطة
+              افتح الموقع في الخريطة
             </TrackedLink>
             <TrackedLink href="/contact" event="home_contact_click" className="btn btn-outline-dark">
               كل وسائل التواصل

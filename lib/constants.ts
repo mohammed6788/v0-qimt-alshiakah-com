@@ -46,8 +46,13 @@ export const CONTACT = {
     note: "الفرع الجديد",
   },
   geo: { lat: 14.5327276, lng: 49.1221924 },
-  maps: "https://www.google.com/maps/place/%D8%AE%D9%8A%D8%A7%D8%B7+%D9%82%D9%85%D8%A9+%D8%A7%D9%84%D8%B4%D9%8A%D8%A7%D9%83%D8%A9+%7C+%D9%84%D8%A3%D8%AD%D8%AF%D8%AB+%D8%A7%D9%84%D8%A7%D9%82%D9%85%D8%B4%D8%A9+%D8%A7%D9%84%D8%B1%D8%AC%D8%A7%D9%84%D9%8A%D8%A9%D8%8C+%D8%B4%D8%A7%D8%B1%D8%B9+%D8%A7%D9%84%D8%AD%D8%B7%D8%A8+%D9%88%D8%A7%D9%84%D8%B1%D9%85%D8%A7%D9%85+%D9%85%D9%82%D8%A7%D8%A8%D9%84+%D9%83%D8%B4%D8%AE%D8%A9+%D9%8A%D8%A7%D8%B9%D9%8A%D8%A7%D9%84%D8%8C+%D8%A7%D9%84%D9%85%D9%83%D9%84%D8%A7%D8%8C+%D8%A7%D9%84%D9%8A%D9%85%D9%86&ftid=0x3de8e5121df0b77b:0x17a2f38c265e252c&entry=gps",
-  mapsEmbed: "https://maps.google.com/maps?q=14.5327276,49.1221924&z=17&hl=ar&output=embed",
+  // Official Google Maps listing: "قمة الشياكة | للخياطة الرجالية"
+  // feature id 0x3de8e5121df0b77b:0x17a2f38c265e252c (CID 1703191392364143916)
+  // = Place ID ChIJe7fwHRLl6D0RLCVeJozzohc. Every map link on the site uses these.
+  maps: "https://maps.app.goo.gl/DMGHWyLDjAY7hUAg8",
+  mapsEmbed: "https://maps.google.com/maps?cid=1703191392364143916&hl=ar&output=embed",
+  /** All reviews of the listing (Google's documented reviews URL for a Place ID). */
+  mapsAllReviews: "https://search.google.com/local/reviews?placeid=ChIJe7fwHRLl6D0RLCVeJozzohc&hl=ar",
   group: "https://chat.whatsapp.com/HKGNCX1JnWR9dWqLczwbf9?mode=gi_t",
   // One unified username across every platform.
   handle: SOCIAL_HANDLE,
@@ -67,12 +72,16 @@ export const SOCIAL_LINKS = [
 ] as const
 
 // ─────────────────────────────────────────────────────────────
-// GOOGLE REVIEWS — paste real reviews from the shop's Google Maps page.
-// Copy them exactly as written on Google (name, stars, text). While the list
-// is empty, the home page shows a button to read and write reviews on Google.
+// CUSTOMER REVIEWS — direct links to individual reviews on the shop's Google
+// Maps listing, supplied by the owner. Only links are stored: no names, texts
+// or star ratings are shown on the site, so nothing can be misquoted.
 // ─────────────────────────────────────────────────────────────
-export type GoogleReview = { author: string; rating: 1 | 2 | 3 | 4 | 5; text: string; date?: string }
-export const GOOGLE_REVIEWS: GoogleReview[] = []
+export const REVIEW_LINKS: readonly string[] = [
+  "https://maps.app.goo.gl/7KVVLaCw8jx8qdxv5",
+  "https://maps.app.goo.gl/Lm2H7HaXSdc1j36o9",
+  "https://maps.app.goo.gl/pgpAC9wgoGKSNURW9",
+  "https://maps.app.goo.gl/rCgXqEDZ9jC9mW7m8",
+]
 
 /** Google Analytics 4 stream for qimt-alshiakah.com (overridable with NEXT_PUBLIC_GA_ID). */
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID?.trim() || "G-9ZFZYLX60X"
@@ -97,7 +106,12 @@ export const POLICY_LINKS = [
   { href: "/terms", label: "الشروط والأحكام" },
 ] as const
 
-export const FULL_ADDRESS = `${CONTACT.address.region} – ${CONTACT.address.city} – ${CONTACT.address.district}، ${CONTACT.address.street}`
+/**
+ * The shop's official address, exactly as approved by the owner:
+ * "حضرموت، المكلا، الشرج، نهاية الشارع الرابع، مقابل كشخة ياعيال".
+ * (Google's listing shows its own street name; the site always uses this text.)
+ */
+export const FULL_ADDRESS = `${CONTACT.address.region}، ${CONTACT.address.city}، ${CONTACT.address.district}، ${CONTACT.address.street}`
 
 export function whatsappHref(message?: string) {
   if (!message) return CONTACT.whatsapp
