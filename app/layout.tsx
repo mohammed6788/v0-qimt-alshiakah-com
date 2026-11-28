@@ -6,7 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { FooterSection } from "@/components/footer-section"
 import { FloatingWhatsApp } from "@/components/floating-whatsapp"
 import { JsonLd } from "@/components/json-ld"
-import { BRAND, CONTACT, GA_HOST_PATTERN, GA_MEASUREMENT_ID, LOGOS, SITE_URL } from "@/lib/constants"
+import { BRAND, CONTACT, GA_ALLOWED_HOSTS, GA_MEASUREMENT_ID, LOGOS, SITE_URL } from "@/lib/constants"
 import "./globals.css"
 
 const plexArabic = IBM_Plex_Sans_Arabic({
@@ -129,9 +129,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Script async src="https://www.googletagmanager.com/gtag/js?id=AW-18082853572" strategy="afterInteractive" />
         <Script id="google-tag" strategy="afterInteractive">
           {`window.dataLayer = window.dataLayer || []; function gtag(){window.dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', 'AW-18082853572');` +
-            // GA4: the same gtag.js serves Google Ads and GA4. GA4 only collects on the real
-            // domain (or with ?ga_debug=1 for testing, shown in GA4 DebugView).
-            `(function(){var d=/[?&]ga_debug=1(&|$)/.test(location.search);if(!d&&!new RegExp(${JSON.stringify(GA_HOST_PATTERN)}).test(location.hostname))return;window.__gaEnabled=true;gtag('config',${JSON.stringify(GA_MEASUREMENT_ID)},d?{debug_mode:true}:{});})();`}
+            // GA4: the same gtag.js serves Google Ads and GA4. The host check always comes
+            // first and is required; ?ga_debug=1 only switches on DebugView once it passed.
+            `(function(){if(${JSON.stringify(GA_ALLOWED_HOSTS)}.indexOf(location.hostname)<0)return;var d=/[?&]ga_debug=1(&|$)/.test(location.search);window.__gaEnabled=true;window.__gaDebug=d;gtag('config',${JSON.stringify(GA_MEASUREMENT_ID)},d?{debug_mode:true}:{});})();`}
         </Script>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>

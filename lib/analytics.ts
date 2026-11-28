@@ -1,5 +1,5 @@
 import { track } from "@vercel/analytics"
-import { GA_MEASUREMENT_ID } from "@/lib/constants"
+import { GA_ALLOWED_HOSTS, GA_MEASUREMENT_ID } from "@/lib/constants"
 
 declare global {
   interface Window {
@@ -82,13 +82,19 @@ export function gaParams(params: Record<string, unknown>) {
 declare global {
   interface Window {
     __gaEnabled?: boolean
+    /** Set only on the allowed host when the URL has ?ga_debug=1. */
+    __gaDebug?: boolean
   }
 }
 
 /** Sends one GA4 event to the site's GA4 stream only (not to Google Ads). */
 export function gaEvent(name: GaEventName, params: Record<string, unknown> = {}) {
   if (typeof window === "undefined" || !window.__gaEnabled || !window.gtag) return
-  window.gtag("event", name, { ...gaParams(params), send_to: GA_MEASUREMENT_ID })
+  // Second, independent host check (the loader in app/layout.tsx is the first).
+  if (!(GA_ALLOWED_HOSTS as readonly string[]).includes(window.location.hostname)) return
+  // debug_mode on the event itself: gtag does not reliably mark events from the config-level
+  // setting alone, and DebugView only shows events that carry it.
+  window.gtag("event", name, { ...gaParams(params), ...(window.__gaDebug && { debug_mode: true }), send_to: GA_MEASUREMENT_ID })
 }
 
 export type WhatsAppIntent =
@@ -103,7 +109,14 @@ export type WhatsAppIntent =
 /** WhatsApp links that start an order are reported as whatsapp_order_start instead of whatsapp_click. */
 const ORDER_INTENTS: WhatsAppIntent[] = ["whatsapp_design_order", "whatsapp_reorder"]
 
-/** Google Ads conversion (unchanged): fired for every WhatsApp contact, once per order for order links. */
+/**
+ * Google Ads conversion AW-18082853572/Q_umCKiWrKAcEMTlya5D — unchanged.
+ * It measures the START of a WhatsApp conversation only (a lead), never a confirmed
+ * order or a sale: no value, currency or transaction id is sent with it.
+ * Fired for every WhatsApp contact; for order links, once per distinct order
+ * (see trackWhatsAppOrderStart). The intent names (e.g. "whatsapp_design_order")
+ * are internal labels for "opened WhatsApp with an order message".
+ */
 export function trackWhatsAppClick(intent: WhatsAppIntent, placement: string) {
   trackEvent(intent, { placement })
   if (typeof window === "undefined") return
