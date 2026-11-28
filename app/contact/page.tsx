@@ -47,15 +47,34 @@ export default function ContactPage() {
           </div>
 
           <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-            <div className="overflow-hidden rounded-3xl border border-navy/10 bg-white">
-              <iframe
-                src={CONTACT.mapsEmbed}
-                className="block h-80 w-full sm:h-[26rem]"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="خريطة موقع قمة الشياكة في المكلا – الشرج"
-                allowFullScreen
-              />
+            <div className="flex flex-col overflow-hidden rounded-3xl border border-navy/10 bg-white">
+              {/* Placeholder behind the map: visible while it loads or if the frame is blocked. */}
+              <div className="relative h-80 sm:h-[26rem]">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-sky-soft text-navy" aria-hidden="true">
+                  <MapPin className="size-8 text-navy-soft" />
+                  <span className="text-sm font-medium">جارٍ تحميل الخريطة…</span>
+                </div>
+                <iframe
+                  src={CONTACT.mapsEmbed}
+                  className="relative block h-full w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="خريطة موقع قمة الشياكة في المكلا – الشرج"
+                  allowFullScreen
+                />
+              </div>
+              {/* Always-visible fallback: a cross-origin map cannot report that it failed. */}
+              <TrackedLink
+                href={CONTACT.maps}
+                target="_blank"
+                rel="noopener noreferrer"
+                event={EVENTS.mapClick}
+                properties={{ placement: "contact_map_fallback" }}
+                className="flex min-h-12 items-center justify-center gap-2 border-t border-navy/10 px-4 py-3 text-sm font-semibold text-navy-soft hover:bg-sky-soft"
+              >
+                <MapPin className="size-4" aria-hidden="true" />
+                لا تظهر الخريطة؟ افتحها في Google Maps
+              </TrackedLink>
             </div>
             <div className="card-surface flex flex-col p-6">
               <h2 className="type-h3 flex items-center gap-2 text-navy">
@@ -74,7 +93,7 @@ export default function ContactPage() {
                   className="btn btn-navy"
                 >
                   <Navigation2 className="size-5" aria-hidden="true" />
-                  افتح الاتجاهات في Google Maps
+                  افتح الموقع في الخريطة
                 </TrackedLink>
                 <TrackedLink href={`tel:${CONTACT.phone}`} event={EVENTS.phoneClick} properties={{ placement: "contact_map_card" }} className="btn btn-outline-dark">
                   <Phone className="size-5" aria-hidden="true" />
